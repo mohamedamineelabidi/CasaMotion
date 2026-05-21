@@ -2,6 +2,8 @@
 
 <img src="IMG/logowithoubackground.png" alt="CasaMotion Branding Logo" width="560" style="max-width: 100%; height: auto;"/>
 
+<img src="IMG/meetourteam.png" alt="CasaMotion Core Development Team" width="1100" style="max-width: 100%; height: auto;"/>
+
 # CasaMotion — Transport as a Service
 
 **Real-time urban mobility simulation platform for Casablanca, Morocco**
