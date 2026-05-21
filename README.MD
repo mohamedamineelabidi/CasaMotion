@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="img/casamotionlogo.png" alt="CasaMotion Branding Logo" width="720"/>
+<img src="IMG/logowithoubackground.png" alt="CasaMotion Branding Logo" width="720"/>
 
-<img src="img/projectoverview.png" alt="CasaMotion Urban Mobility Data Platform" width="850"/>
+<img src="IMG/projectoverview.png" alt="CasaMotion Urban Mobility Data Platform" width="850"/>
 
 # CasaMotion — Transport as a Service
 
@@ -28,7 +28,7 @@
 ## The Problem
 
 <div align="center">
-<img src="img/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs CasaMotion Unified Data Layer" width="750"/>
+<img src="IMG/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs CasaMotion Unified Data Layer" width="750"/>
 </div>
 
 <br/>
@@ -83,7 +83,7 @@ CasaMotion treats urban mobility as a **data engineering problem**. By ingesting
 CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training.
 
 <div align="center">
-<img src="img/archi_tassim.png" alt="CasaMotion Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
+<img src="IMG/archi_tassim.png" alt="CasaMotion Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
 </div>
 
 <br/>
@@ -104,7 +104,7 @@ CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, F
 ### Real-Time Processing Pipeline
 
 <div align="center">
-<img src="img/streamproce_architec.png" alt="Stream Processing — Apache Flink Real-Time Topologies" width="850"/>
+<img src="IMG/streamproce_architec.png" alt="Stream Processing — Apache Flink Real-Time Topologies" width="850"/>
 </div>
 
 <br/>
@@ -335,7 +335,7 @@ $env:MAX_LAG_RAW_TRIPS=500
 Both Kafka producers run inside Docker (`taasim-gps-producer`, `taasim-trip-producer`) and start automatically with the stack. They share a common boot sequence (`producers/config.py`) and replay the **Phase-4 Casablanca synthesis** (500k trips over 90 days, NYC temporal fingerprint rebased to Casa geography) paired with **Phase-3 OSRM trajectories** (500 routed polylines indexed by zone-pair).
 
 <div align="center">
-<img src="img/flink_architecture.png" alt="CasaMotion Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
+<img src="IMG/flink_architecture.png" alt="CasaMotion Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
 </div>
 
 <br/>
@@ -576,7 +576,7 @@ CasaMotionm/
 │   ├── flink/                      # Kafka, S3, Cassandra connectors
 │   └── spark/                      # hadoop-aws, aws-sdk-bundle
 │
-├── img/                            # Architecture diagrams
+├── IMG/                            # Architecture diagrams
 │   ├── projectoverview.png · painpoint.png
 │   ├── archi_tassim.png · streamproce_architec.png
 │   └── flink_architecture.png      # Producer architecture (see §Data Pipeline)
