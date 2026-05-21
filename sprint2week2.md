@@ -107,4 +107,4 @@ Students who copy this schema without understanding it **will not survive Q&A in
 
 
 Write Architecture Decision Record (ADR v1)
-ADR document (PDF or Markdown) submitted. Covers: (1) Kappa architecture justification, (2) Cassandra partition key choices with query-pattern reasoning, (3) MinIO zone rationale, (4) Kafka retention policy. Maximum 1 page.Produce a 1-page Architecture Decision Record documenting the key storage and architecture choices made in TaaSim: Kappa vs Lambda architecture choice, Cassandra partition key decisions, MinIO bucket structure rationale, and Kafka topic retention strategy.
+ADR document (PDF or Markdown) submitted. Covers: (1) Kappa architecture justification, (2) Cassandra partition key choices with query-pattern reasoning, (3) MinIO zone rationale, (4) Kafka retention policy. Maximum 1 page.Produce a 1-page Architecture Decision Record documenting the key storage and architecture choices made in CasaMotion: Kappa vs Lambda architecture choice, Cassandra partition key decisions, MinIO bucket structure rationale, and Kafka topic retention strategy.

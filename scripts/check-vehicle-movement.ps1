@@ -1,7 +1,7 @@
-﻿#!/usr/bin/env pwsh
+#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Verify TaaSim vehicle_positions show realistic road-snapped movement.
+    Verify CasaMotion vehicle_positions show realistic road-snapped movement.
 
 .DESCRIPTION
     Read-only sanity check against the live Cassandra table:
@@ -188,3 +188,4 @@ if ($exit -eq 0) {
     Write-Host "=== SOME CHECKS FAILED ===" -ForegroundColor Red
 }
 exit $exit
+

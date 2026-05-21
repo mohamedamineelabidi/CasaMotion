@@ -1,6 +1,6 @@
-# TaaSim `data/` — Runtime vs Study vs Ignored
+# CasaMotion `data/` — Runtime vs Study vs Ignored
 
-This folder holds every file the TaaSim pipeline touches at build / run / study
+This folder holds every file the CasaMotion pipeline touches at build / run / study
 time. Files fall into **three tiers**.
 
 ---
@@ -66,3 +66,4 @@ with the corresponding notebook before running `docker compose up`.
   and Spark batch jobs; never the producers.
 - Cassandra never stores raw precise GPS coordinates — Flink Job 1 snaps lat/lon
   to the zone centroid before persisting.
+

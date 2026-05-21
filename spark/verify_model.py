@@ -1,5 +1,5 @@
 """
-TaaSim — Quick model verification script.
+CasaMotion — Quick model verification script.
 Reads saved metrics + model, runs a few sample predictions.
 """
 from pyspark.sql import SparkSession, Row
@@ -7,7 +7,7 @@ from pyspark.ml import PipelineModel
 
 spark = (
     SparkSession.builder
-    .appName("TaaSim-ModelVerify")
+    .appName("CasaMotion-ModelVerify")
     .config("spark.sql.adaptive.enabled", "true")
     .getOrCreate()
 )
@@ -77,3 +77,4 @@ preds_test.select("origin_zone","trip_date","slot_of_day","demand","prediction")
 
 print("\nDone!")
 spark.stop()
+

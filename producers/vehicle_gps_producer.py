@@ -1,5 +1,5 @@
 """
-TaaSim — Vehicle GPS Producer
+CasaMotion — Vehicle GPS Producer
 ================================
 Replays taxi trajectories at configurable speed (default 10×) and publishes
 to Kafka topic ``raw.gps``.
@@ -537,7 +537,7 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TaaSim Vehicle GPS Producer")
+    parser = argparse.ArgumentParser(description="CasaMotion Vehicle GPS Producer")
     parser.add_argument("--mode", choices=["live", "curated", "coupled"], default="coupled",
                         help="live=Porto raw, curated=pre-projected, coupled=Phase4 trips + Phase3 routes (default)")
     parser.add_argument("--max-trips", type=int, default=None,
@@ -558,3 +558,4 @@ if __name__ == "__main__":
         run_curated(args.max_trips, args.speed, args.curated_path)
     else:
         run(args.max_trips, args.speed)
+

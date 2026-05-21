@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Verify the TaaSim Flink pipeline is running end-to-end.
+    Verify the CasaMotion Flink pipeline is running end-to-end.
 
 .DESCRIPTION
     Checks:
@@ -14,7 +14,7 @@
 
 $ErrorActionPreference = "Continue"
 
-Write-Host "=== TaaSim Flink Pipeline Verification ===" -ForegroundColor Cyan
+Write-Host "=== CasaMotion Flink Pipeline Verification ===" -ForegroundColor Cyan
 Write-Host ""
 
 $PASS = 0
@@ -240,3 +240,4 @@ if ($FAIL -gt 0) {
 } else {
     Write-Host "  All checks passed - pipeline is healthy!" -ForegroundColor Green
 }
+

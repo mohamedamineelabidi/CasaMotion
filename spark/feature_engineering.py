@@ -1,5 +1,5 @@
 """
-TaaSim — Spark ML: Feature Engineering
+CasaMotion — Spark ML: Feature Engineering
 ========================================
 Reads curated Porto trips from s3a://curated/trips/ and builds a
 feature matrix for demand forecasting.
@@ -42,7 +42,7 @@ OUTPUT_PATH = "s3a://mldata/features/"
 def build_spark():
     return (
         SparkSession.builder
-        .appName("TaaSim-Feature-Engineering")
+        .appName("CasaMotion-Feature-Engineering")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
@@ -186,3 +186,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

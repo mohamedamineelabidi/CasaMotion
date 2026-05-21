@@ -1,4 +1,4 @@
-# TaaSim — Transport as a Service: Urban Mobility Platform
+# CasaMotion — Transport as a Service: Urban Mobility Platform
 *Casablanca, Morocco · 2025–2026*
 
 ---
@@ -32,7 +32,7 @@ Casablanca is the economic capital of Morocco and home to over 4 million inhabit
 | Cash-only payments | Zero payment data means zero trip history, zero analytics, zero personalization |
 | Underserved periphery | New districts (Bouskoura, Ain Sebaâ, Sidi Moumen) grow faster than routes are planned |
 
-TaaSim is a Transport-as-a-Service platform that treats urban mobility as a data engineering problem. By ingesting GPS vehicle streams, processing citizen trip reservations in real time, and applying batch analytics and machine learning to historical patterns, TaaSim can match riders to vehicles dynamically, forecast demand surges, and give city planners a unified analytical view of the mobility network.
+CasaMotion is a Transport-as-a-Service platform that treats urban mobility as a data engineering problem. By ingesting GPS vehicle streams, processing citizen trip reservations in real time, and applying batch analytics and machine learning to historical patterns, CasaMotion can match riders to vehicles dynamically, forecast demand surges, and give city planners a unified analytical view of the mobility network.
 
 > 🎓 **Academic Framing**
 >
@@ -46,7 +46,7 @@ TaaSim is a Transport-as-a-Service platform that treats urban mobility as a data
 
 A critical real-world constraint: no public open dataset exists specifically for Casablanca taxi or transport trips. Researchers studying Casablanca mobility have had to use Google Traffic API scraping or smartphone GPS traces as a proxy — there is no official open data release. This is itself an important lesson for students about data engineering in emerging markets.
 
-TaaSim uses two well-established open academic datasets as proxies, and a lightweight simulation layer to inject real-time stream behavior. Both datasets are freely available and widely used in research.
+CasaMotion uses two well-established open academic datasets as proxies, and a lightweight simulation layer to inject real-time stream behavior. Both datasets are freely available and widely used in research.
 
 ### 2.1 Porto Taxi Trajectories — Primary Dataset
 
@@ -78,7 +78,7 @@ TaaSim uses two well-established open academic datasets as proxies, and a lightw
 | **URL** | https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page |
 | **Volume** | ~10M rows per month · Parquet format · 1 month ≈ 500 MB |
 | **Key fields** | pickup/dropoff datetime · pickup/dropoff location IDs · trip distance · fare amount · passenger count |
-| **Usage in TaaSim** | Batch processing layer only — Spark ETL, KPI computation, and ML training. Students use 3 months (~30M rows) to experience genuine large-scale Spark. |
+| **Usage in CasaMotion** | Batch processing layer only — Spark ETL, KPI computation, and ML training. Students use 3 months (~30M rows) to experience genuine large-scale Spark. |
 | **Why this dataset?** | Freely available, well-documented, large enough to force real Spark optimization (partitioning, broadcast joins). Not used for streaming — Porto handles that. |
 
 ### 2.3 Real-Time Simulation Layer
@@ -99,11 +99,11 @@ Since real-time Casablanca GPS feeds do not exist, the streaming layer is fed by
 
 ## 3. Technology Stack
 
-TaaSim is built on a carefully chosen set of industry-standard Big Data technologies. Each component plays a clearly defined role in the platform, and the boundaries between components are explicit. Students are expected to understand every layer and be able to defend architectural choices in their technical report and final demo.
+CasaMotion is built on a carefully chosen set of industry-standard Big Data technologies. Each component plays a clearly defined role in the platform, and the boundaries between components are explicit. Students are expected to understand every layer and be able to defend architectural choices in their technical report and final demo.
 
 ### 3.1 Stack Overview
 
-| Layer | Technology | Role in TaaSim |
+| Layer | Technology | Role in CasaMotion |
 |---|---|---|
 | Messaging | Apache Kafka (KRaft mode, 1 broker) | Central event bus: receives GPS pings and trip reservations; decouples producers from processing jobs; persists raw events for 7-day replay |
 | Object Store | MinIO (S3-compatible, single node) | Distributed data lake: raw zone (CSV/JSON), curated zone (Parquet), ML zone (model artifacts). All Spark jobs read from and write to MinIO. |
@@ -115,7 +115,7 @@ TaaSim is built on a carefully chosen set of industry-standard Big Data technolo
 
 > 🎓 **Architecture Choice: Kappa**
 >
-> TaaSim is built on a **Kappa Architecture**: a single unified stream-processing pipeline where Kafka acts as the system of record.
+> CasaMotion is built on a **Kappa Architecture**: a single unified stream-processing pipeline where Kafka acts as the system of record.
 > Historical data is replayed through the same Kafka topics as live events — one processing engine (Flink) handles both cases.
 > Spark operates exclusively on the offline side: batch ETL and ML training, reading from and writing to MinIO.
 > This separation of concerns — Flink for real-time, Spark for analytical depth — is a deliberate architectural choice students must understand and articulate.
@@ -162,7 +162,7 @@ TaaSim is built on a carefully chosen set of industry-standard Big Data technolo
 
 ### 3.3 Flink Processing Jobs
 
-TaaSim's real-time pipeline is built around three focused Flink jobs, each responsible for a clearly delimited processing concern:
+CasaMotion's real-time pipeline is built around three focused Flink jobs, each responsible for a clearly delimited processing concern:
 
 | Job | Input Topic | Processing Logic | Output |
 |---|---|---|---|
@@ -214,7 +214,7 @@ Cassandra tables are designed around query patterns, not normalization. Students
 
 ## 5. Spark ML Pipeline — Demand Forecasting
 
-The ML component transforms TaaSim from a reactive dispatcher into a proactive platform. It is implemented in PySpark (MLlib) and trained on the cleaned Porto + NYC historical data. Scope is deliberately constrained: one model, one evaluation, one serving endpoint.
+The ML component transforms CasaMotion from a reactive dispatcher into a proactive platform. It is implemented in PySpark (MLlib) and trained on the cleaned Porto + NYC historical data. Scope is deliberately constrained: one model, one evaluation, one serving endpoint.
 
 ### 5.1 Problem Definition
 
@@ -542,6 +542,7 @@ Health check: verify each service with a simple client command before proceeding
 
 ---
 
-*TaaSim · Advanced Big Data Capstone · ENSA Al Hoceima · 2025–2026*
+*CasaMotion · Advanced Big Data Capstone · ENSA Al Hoceima · 2025–2026*
 
 > *"The best time to build the data infrastructure for Moroccan mobility was 10 years ago. The second best time is now."*
+

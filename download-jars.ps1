@@ -1,5 +1,5 @@
 # ============================================================
-# TaaSim — Download required JARs for S3A connectivity
+# CasaMotion — Download required JARs for S3A connectivity
 # Run this ONCE before docker-compose up (Windows PowerShell)
 # ============================================================
 
@@ -56,3 +56,4 @@ Get-ChildItem "jars\spark" | Format-Table Name, Length
 Write-Host "Flink JARs:"
 Get-ChildItem "jars\flink" | Format-Table Name, Length
 Write-Host "You can now run: docker-compose up -d" -ForegroundColor Yellow
+

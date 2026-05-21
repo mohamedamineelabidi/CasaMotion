@@ -1,19 +1,14 @@
 """
 Flink Job 1 — GPS Normalizer
-Reads raw.gps from Kafka, validates coordinates, assigns zones, and
-writes to Cassandra vehicle_positions + processed.gps Kafka topic.
-
-Display mode (env GPS_DISPLAY_MODE, default "road"):
-  - road        → keep producer-supplied road-snapped lat/lon (live demo path).
-  - anonymized  → replace lat/lon with zone-centroid + deterministic per-taxi
-                  jitter (privacy mode; the previous default).
+Reads raw.gps from Kafka, validates coordinates, assigns zones,
+anonymizes lat/lon to centroid (with per-taxi jitter for map visibility),
+writes to Cassandra + processed.gps Kafka topic.
 """
 
 import hashlib
 import json
 import logging
 import math
-import os
 import time
 from datetime import datetime
 
@@ -44,13 +39,6 @@ CASSANDRA_HOST = "cassandra"
 CASSANDRA_PORT = 9042
 CASSANDRA_KEYSPACE = "taasim"
 CASSANDRA_TABLE = "vehicle_positions"
-
-# Display mode controls whether the Cassandra-stored lat/lon is the actual
-# road-snapped producer coordinate ("road", default) or the legacy
-# centroid+jitter anonymization ("anonymized").
-GPS_DISPLAY_MODE = os.environ.get("GPS_DISPLAY_MODE", "road").strip().lower()
-if GPS_DISPLAY_MODE not in ("road", "anonymized"):
-    GPS_DISPLAY_MODE = "road"
 
 
 # ─── Timestamp Assigner ──────────────────────────────────────
@@ -138,11 +126,10 @@ class GpsDeduplicator(KeyedProcessFunction):
         self.session = self.cluster.connect(CASSANDRA_KEYSPACE)
         self.insert_stmt = self.session.prepare(
             f"INSERT INTO {CASSANDRA_TABLE} "
-            "(city, zone_id, event_time, taxi_id, lat, lon, speed, status, h3_index, snap_dist_m) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "(city, zone_id, event_time, taxi_id, lat, lon, speed, status, h3_index) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )
-        self.display_mode = GPS_DISPLAY_MODE
-        logger.info(f"Connected to Cassandra (display_mode={self.display_mode})")
+        logger.info("Connected to Cassandra")
 
     def close(self):
         if hasattr(self, "cluster"):
@@ -215,22 +202,14 @@ class GpsDeduplicator(KeyedProcessFunction):
         radius = 0.0008 + (h % 1000) / 1000000.0  # ~80-180m in degrees
         jitter_lat = radius * math.cos(angle)
         jitter_lon = radius * math.sin(angle)
-        anon_lat = centroid_lat + jitter_lat
-        anon_lon = centroid_lon + jitter_lon
+        display_lat = centroid_lat + jitter_lat
+        display_lon = centroid_lon + jitter_lon
 
         # Clamp to zone bounds to ensure dot stays within zone
         bounds = self.zone_bounds.get(zone_id)
         if bounds:
-            anon_lat = max(bounds[0], min(bounds[1], anon_lat))
-            anon_lon = max(bounds[2], min(bounds[3], anon_lon))
-
-        # Choose the lat/lon written to vehicle_positions based on display mode.
-        # "road" → preserve the producer's road-snapped + noisy coordinate so
-        # taxis appear on roads in Grafana; "anonymized" → centroid + jitter.
-        if self.display_mode == "anonymized":
-            display_lat, display_lon = anon_lat, anon_lon
-        else:
-            display_lat, display_lon = lat, lon
+            display_lat = max(bounds[0], min(bounds[1], display_lat))
+            display_lon = max(bounds[2], min(bounds[3], display_lon))
 
         # Parse canonical event_time
         try:
@@ -240,11 +219,10 @@ class GpsDeduplicator(KeyedProcessFunction):
 
         # Write to Cassandra (async — high throughput path)
         try:
-            snap_db = float(snap_dist_m) if snap_dist_m is not None else None
             self.session.execute_async(
                 self.insert_stmt,
                 ("casablanca", zone_id, event_time, taxi_id,
-                 display_lat, display_lon, speed, status, cell, snap_db)
+                 display_lat, display_lon, speed, status, cell)
             )
         except Exception as e:
             logger.error(f"Cassandra write error: {e}")
@@ -259,12 +237,6 @@ class GpsDeduplicator(KeyedProcessFunction):
             "centroid_lon": centroid_lon,
             "lat": display_lat,
             "lon": display_lon,
-            "road_lat": lat,
-            "road_lon": lon,
-            "anon_lat": anon_lat,
-            "anon_lon": anon_lon,
-            "display_mode": self.display_mode,
-            "snap_dist_m": snap_dist_m,
             "speed_kmh": speed,
             "status": status,
         }

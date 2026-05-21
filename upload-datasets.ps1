@@ -1,5 +1,5 @@
-﻿# ============================================================
-# TaaSim - Task 2: Download & Upload Datasets to MinIO
+# ============================================================
+# CasaMotion - Task 2: Download & Upload Datasets to MinIO
 # Run AFTER docker-compose is up and MinIO is healthy
 # ============================================================
 
@@ -139,3 +139,4 @@ Write-Host " Task 2 Complete: Datasets uploaded to MinIO" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host "Verify via MinIO Console: http://localhost:9001" -ForegroundColor Cyan
 Write-Host "Login: minioadmin / minioadmin" -ForegroundColor Cyan
+

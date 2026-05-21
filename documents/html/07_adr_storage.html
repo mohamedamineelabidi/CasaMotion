@@ -30,7 +30,7 @@
 <nav id="TOC" role="doc-toc">
 <ul>
 <li><a href="#adr-001-taasim-storage-architecture"
-id="toc-adr-001-taasim-storage-architecture">ADR-001 — TaaSim Storage
+id="toc-adr-001-taasim-storage-architecture">ADR-001 — CasaMotion Storage
 Architecture</a>
 <ul>
 <li><a href="#context" id="toc-context">Context</a></li>
@@ -43,15 +43,15 @@ id="toc-compliance-with-slas">Compliance with SLAs</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="adr-001-taasim-storage-architecture">ADR-001 — TaaSim Storage
+<h1 id="adr-001-taasim-storage-architecture">ADR-001 — CasaMotion Storage
 Architecture</h1>
 <p><strong>Status:</strong> Accepted<br />
 <strong>Date:</strong> 2026-04-07<br />
-<strong>Authors:</strong> TaaSim Engineering Team<br />
+<strong>Authors:</strong> CasaMotion Engineering Team<br />
 <strong>Week:</strong> 2 — Storage Design</p>
 <hr />
 <h2 id="context">Context</h2>
-<p>TaaSim ingests two event streams in real time:</p>
+<p>CasaMotion ingests two event streams in real time:</p>
 <ul>
 <li><strong><code>raw.gps</code></strong> — vehicle GPS pings produced
 every 4 seconds per taxi (up to 442 vehicles simulated).</li>
@@ -76,7 +76,7 @@ well. This ADR documents the decision to separate them into three
 layers.</p>
 <hr />
 <h2 id="decision">Decision</h2>
-<p>TaaSim adopts a <strong>three-layer storage model</strong>:</p>
+<p>CasaMotion adopts a <strong>three-layer storage model</strong>:</p>
 <table>
 <colgroup>
 <col style="width: 18%" />
@@ -353,3 +353,4 @@ read</td>
 </table>
 </body>
 </html>
+

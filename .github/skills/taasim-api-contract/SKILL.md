@@ -3,7 +3,7 @@ name: taasim-api-contract
 description: Use this skill when API behavior, route docs, Cassandra integration, or ML fallback behavior is unclear or broken and the FastAPI contract must be corrected and documented.
 ---
 
-# TaaSim API Contract
+# CasaMotion API Contract
 
 ## Trigger
 Use this skill when endpoints and docs diverge, deployment dependencies drift, or /api/trips behavior must be formally decided and enforced.
@@ -47,3 +47,4 @@ Return:
 1. Contract diff table: endpoint, current_behavior, expected_behavior, required_change.
 2. Explicit /api/trips decision and rationale.
 3. Verification checklist (docs, code, runtime) with pass/fail markers.
+

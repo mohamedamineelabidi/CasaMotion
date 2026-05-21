@@ -1,5 +1,5 @@
 """
-TaaSim — Generate Casablanca Road Assets
+CasaMotion — Generate Casablanca Road Assets
 ==========================================
 Downloads the Casablanca road network via OSMnx and saves:
   - data/casablanca_polygon.geojson    (city boundary)
@@ -81,3 +81,4 @@ if __name__ == "__main__":
                         help="Regenerate even if files exist")
     args = parser.parse_args()
     generate(force=args.force)
+

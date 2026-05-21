@@ -1,8 +1,8 @@
-# Architecture Decision Record — TaaSim v1
+# Architecture Decision Record — CasaMotion v1
 
 **Date**: 2025-04-12  
 **Status**: Accepted  
-**Authors**: TaaSim Team — ENSAH Capstone 2025–2026
+**Authors**: CasaMotion Team — ENSAH Capstone 2025–2026
 
 ---
 
@@ -10,7 +10,7 @@
 
 **Decision**: All real-time processing goes through Kafka → Flink. Spark is used exclusively for offline batch ETL and ML training — not for serving queries.
 
-**Context**: TaaSim requires sub-5s trip matching and 30s demand updates. Lambda would duplicate logic across batch and speed layers.
+**Context**: CasaMotion requires sub-5s trip matching and 30s demand updates. Lambda would duplicate logic across batch and speed layers.
 
 **Rationale**:
 - Kafka is the single source of truth (7-day retention, 4 partitions per topic)
@@ -65,3 +65,4 @@
 - 4 partitions per topic: sufficient for 1-broker dev setup while allowing parallel Flink consumption
 
 **Risk**: If Kafka Connect is down for >7 days, events are lost. Mitigation: Grafana alert on connector status + MinIO archive verification script.
+

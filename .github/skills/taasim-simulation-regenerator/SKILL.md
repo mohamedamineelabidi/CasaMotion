@@ -3,7 +3,7 @@ name: taasim-simulation-regenerator
 description: Use this skill when the user asks to regenerate Casablanca simulation artifacts end-to-end (zone maps, H3 lookup, warped trajectories, trajectory index, and NYC to Casa synthetic trips) with correct git policy.
 ---
 
-# TaaSim Simulation Regenerator
+# CasaMotion Simulation Regenerator
 
 ## Trigger
 Use this skill when simulation artifacts are stale, missing, or need deterministic regeneration for demos, tests, or sprint handoff.
@@ -53,3 +53,4 @@ Return:
 1. Regeneration status per phase (zone map, H3, warping, index, synthesis).
 2. Artifact manifest with produced_path, producer_step, tracked_or_ignored.
 3. Exact rerun order to reproduce identical outputs.
+

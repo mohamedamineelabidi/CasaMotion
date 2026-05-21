@@ -1,11 +1,11 @@
 ---
-name: TaaSim API Rules
+name: CasaMotion API Rules
 description: Use when editing FastAPI code, dependencies, or API docs; ensures route parity with README, safe metadata handling, deployable ML behavior, and explicit demo security boundaries.
 applyTo:
   - api/**
 ---
 
-# TaaSim API Guardrails
+# CasaMotion API Guardrails
 
 ## Scope
 Apply these rules to API routes, dependencies, container behavior, and API docs alignment.
@@ -23,3 +23,4 @@ rg -n "@app\.(get|post|put|delete)\(" api/main.py
 rg -n "/api/|auth|forecast|trips|zones|health" README.MD
 rg -n "JWT_SECRET|PYSPARK_ENABLED|MODEL_PATH|fallback|zone_mapping" api/main.py
 ```
+

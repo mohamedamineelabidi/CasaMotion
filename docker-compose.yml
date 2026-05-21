@@ -1,5 +1,5 @@
 # ============================================================
-# TaaSim — Transport as a Service: Docker Compose Stack
+# CasaMotion — Transport as a Service: Docker Compose Stack
 # Services: Kafka (KRaft) · MinIO · Cassandra · Flink · Spark · Grafana
 # ============================================================
 
@@ -123,7 +123,7 @@ services:
     ports:
       - "9042:9042"
     environment:
-      CASSANDRA_CLUSTER_NAME: TaaSimCluster
+      CASSANDRA_CLUSTER_NAME: CasaMotionCluster
       CASSANDRA_RACK: rack1
       MAX_HEAP_SIZE: 512M
       HEAP_NEWSIZE: 128M
@@ -197,7 +197,6 @@ services:
     entrypoint: /opt/flink/entrypoint-wrapper.sh
     command: taskmanager
     environment:
-      GPS_DISPLAY_MODE: "${GPS_DISPLAY_MODE:-road}"
       FLINK_PROPERTIES: |
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 4
@@ -248,10 +247,6 @@ services:
     hostname: trip-producer
     environment:
       KAFKA_BOOTSTRAP: "kafka:9092"
-      TRIP_ZONE_MODE: "${TRIP_ZONE_MODE:-organic}"
-      TRIP_STRESS_HOT_ZONES: "${TRIP_STRESS_HOT_ZONES:-1,2,3}"
-      TRIP_STRESS_COLD_ZONES: "${TRIP_STRESS_COLD_ZONES:-13,16}"
-      TRIP_STRESS_FRACTION: "${TRIP_STRESS_FRACTION:-0.7}"
     command: ["python", "trip_request_producer.py", "--source", "casa_synth", "--speed", "${TRIP_PRODUCER_SPEED:-12}"]
     volumes:
       - ./data:/data
@@ -479,5 +474,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
 
 

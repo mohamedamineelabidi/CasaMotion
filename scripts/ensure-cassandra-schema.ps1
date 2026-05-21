@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Ensure the live Cassandra schema matches the current TaaSim pipeline contract.
+    Ensure the live Cassandra schema matches the current CasaMotion pipeline contract.
 
 .DESCRIPTION
     Handles schema drift caused by persisted Cassandra volumes that predate

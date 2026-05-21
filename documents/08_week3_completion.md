@@ -91,7 +91,7 @@ taasim-spark-master           Up About a minute (healthy)
 ### 6. Flink Job Submission Script Output
 Full submission output:
 ```
-=== TaaSim Flink Job Submission ===
+=== CasaMotion Flink Job Submission ===
 Submitting jobs: 1, 2, 3
 
 [0/3] Checking Flink JobManager is healthy...
@@ -175,3 +175,4 @@ Expected: every (lat, lon) tuple returned is one of the 16 zone centroids (plus 
 ### Conclusion
 
 Anonymization is enforced at the Flink layer, not at Cassandra — raw coordinates are processed in-memory only and never leave the Flink operator.
+

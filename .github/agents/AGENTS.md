@@ -1,4 +1,4 @@
-# TaaSim Agent Index
+# CasaMotion Agent Index
 
 Compact guide for choosing the right specialist agent.
 
@@ -6,15 +6,15 @@ Compact guide for choosing the right specialist agent.
 
 | If the task is mainly about... | Use this agent | Typical triggers |
 |---|---|---|
-| FastAPI behavior, route mismatch, Cassandra/API wiring, ML fallback mode | TaaSim API Integrator | route mismatch, /api/trips decision, model fallback, API contract drift |
-| Data and notebook artifact hygiene, raw-vs-runtime classification, repo bloat cleanup | TaaSim Data Steward | data hygiene, ignored dataset audit, parquet/csv cleanup, notebook output cleanup |
-| Kafka -> Flink -> Cassandra correctness, event_time/watermarks, matching flow | TaaSim Streaming Verifier | stale stream, watermark issues, schema drift, matching failures |
-| README/doc claim verification against code and runtime behavior | TaaSim Doc Auditor | claim verification, roadmap drift, outdated docs, inconsistent architecture notes |
-| Secret exposure, weak defaults, auth/CORS gaps, demo-vs-production risk | TaaSim Security Reviewer | hardcoded secrets, unsafe defaults, auth review, deployment hardening |
+| FastAPI behavior, route mismatch, Cassandra/API wiring, ML fallback mode | CasaMotion API Integrator | route mismatch, /api/trips decision, model fallback, API contract drift |
+| Data and notebook artifact hygiene, raw-vs-runtime classification, repo bloat cleanup | CasaMotion Data Steward | data hygiene, ignored dataset audit, parquet/csv cleanup, notebook output cleanup |
+| Kafka -> Flink -> Cassandra correctness, event_time/watermarks, matching flow | CasaMotion Streaming Verifier | stale stream, watermark issues, schema drift, matching failures |
+| README/doc claim verification against code and runtime behavior | CasaMotion Doc Auditor | claim verification, roadmap drift, outdated docs, inconsistent architecture notes |
+| Secret exposure, weak defaults, auth/CORS gaps, demo-vs-production risk | CasaMotion Security Reviewer | hardcoded secrets, unsafe defaults, auth review, deployment hardening |
 
 ## First Files To Check
 
-- TaaSim API Integrator:
+- CasaMotion API Integrator:
   - api/main.py
   - api/requirements.txt
   - api/Dockerfile
@@ -22,7 +22,7 @@ Compact guide for choosing the right specialist agent.
   - config/cassandra-init.cql
   - docker-compose.yml
 
-- TaaSim Data Steward:
+- CasaMotion Data Steward:
   - data/README.md
   - .gitignore
   - data/zone_mapping.csv
@@ -34,7 +34,7 @@ Compact guide for choosing the right specialist agent.
   - notebooks/
   - scripts/
 
-- TaaSim Streaming Verifier:
+- CasaMotion Streaming Verifier:
   - docker-compose.yml
   - producers/config.py
   - producers/trip_request_producer.py
@@ -44,7 +44,7 @@ Compact guide for choosing the right specialist agent.
   - flink/jobs/trip_matcher.py
   - config/cassandra-init.cql
 
-- TaaSim Doc Auditor:
+- CasaMotion Doc Auditor:
   - README.MD
   - documents/00_master_status.md
   - documents/06_next_steps.md
@@ -58,7 +58,7 @@ Compact guide for choosing the right specialist agent.
   - flink/jobs/
   - config/kafka-connect/
 
-- TaaSim Security Reviewer:
+- CasaMotion Security Reviewer:
   - api/main.py
   - api/requirements.txt
   - api/Dockerfile
@@ -75,3 +75,4 @@ For all five specialists:
 1. Report findings first.
 2. Avoid broad edits until findings are clear.
 3. Run lightweight validation commands after changes.
+

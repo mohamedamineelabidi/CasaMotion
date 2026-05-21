@@ -1,5 +1,5 @@
 ---
-name: TaaSim Streaming Rules
+name: CasaMotion Streaming Rules
 description: Use when changing producers, Flink jobs, or compose wiring; protects Kafka topic contracts, event-time semantics, H3-zone consistency, and Cassandra write safety.
 applyTo:
   - producers/**
@@ -7,7 +7,7 @@ applyTo:
   - docker-compose.yml
 ---
 
-# TaaSim Streaming Guardrails
+# CasaMotion Streaming Guardrails
 
 ## Scope
 Apply these rules to Kafka producers, Flink streaming jobs, and stack wiring.
@@ -31,3 +31,4 @@ rg -n "raw\.gps|raw\.trips|processed\.gps|processed\.demand|processed\.matches" 
 rg -n "event_time|WatermarkStrategy|for_bounded_out_of_orderness|dedup|h3|zone_mapping" flink/jobs producers
 rg -n "INSERT INTO vehicle_positions|INSERT INTO demand_zones|INSERT INTO trips|IF NOT EXISTS" flink/jobs
 ```
+

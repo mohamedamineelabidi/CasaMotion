@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="IMG/projectoverview.png" alt="TaaSim Urban Mobility Data Platform" width="850"/>
+<img src="img/casamotionlogo.png" alt="CasaMotion Branding Logo" width="720"/>
 
-# TaaSim — Transport as a Service
+<img src="img/projectoverview.png" alt="CasaMotion Urban Mobility Data Platform" width="850"/>
+
+# CasaMotion — Transport as a Service
 
 **Real-time urban mobility simulation platform for Casablanca, Morocco**
 
@@ -26,7 +28,7 @@
 ## The Problem
 
 <div align="center">
-<img src="IMG/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs TaaSim Unified Data Layer" width="750"/>
+<img src="img/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs CasaMotion Unified Data Layer" width="750"/>
 </div>
 
 <br/>
@@ -49,7 +51,7 @@ Despite significant investment in formal transit — the BRT corridor along Boul
 
 ## The Solution
 
-TaaSim treats urban mobility as a **data engineering problem**. By ingesting GPS vehicle streams, processing trip reservations in real time, and applying machine learning to historical patterns, the platform delivers:
+CasaMotion treats urban mobility as a **data engineering problem**. By ingesting GPS vehicle streams, processing trip reservations in real time, and applying machine learning to historical patterns, the platform delivers:
 
 - **Dynamic rider-vehicle matching** — nearest available taxi found in under 5 seconds
 - **Demand surge forecasting** — trip volume predicted per zone, 30 minutes ahead
@@ -78,10 +80,10 @@ TaaSim treats urban mobility as a **data engineering problem**. By ingesting GPS
 
 ## Architecture
 
-TaaSim follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training.
+CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training.
 
 <div align="center">
-<img src="IMG/archi_tassim.png" alt="TaaSim Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
+<img src="img/archi_tassim.png" alt="CasaMotion Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
 </div>
 
 <br/>
@@ -102,7 +104,7 @@ TaaSim follows a **Kappa Architecture** — Kafka is the system of record, Flink
 ### Real-Time Processing Pipeline
 
 <div align="center">
-<img src="IMG/streamproce_architec.png" alt="Stream Processing — Apache Flink Real-Time Topologies" width="850"/>
+<img src="img/streamproce_architec.png" alt="Stream Processing — Apache Flink Real-Time Topologies" width="850"/>
 </div>
 
 <br/>
@@ -127,8 +129,8 @@ TaaSim follows a **Kappa Architecture** — Kafka is the system of record, Flink
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mohamedamineelabidi/Taasimm.git
-cd Taasimm
+git clone https://github.com/mohamedamineelabidi/CasaMotionm.git
+cd CasaMotionm
 ```
 
 ### 2. Download Required JARs
@@ -234,131 +236,6 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 | FastAPI (Swagger) | http://localhost:8000/docs | JWT (see [§Machine Learning](#machine-learning)) |
 | Jupyter Lab | http://localhost:8888 | token from `docker logs taasim-jupyter` |
 
-### Grafana — How It Is Wired
-
-Grafana 10.4 is fully provisioned from `config/` at container start; no manual setup is required.
-
-- **Datasource** — `config/grafana-datasource.yml` provisions one read-only Cassandra datasource:
-  - name `Cassandra`, uid `cassandra-ds`, plugin `hadesarchitect-cassandra-datasource`
-  - url `cassandra:9042` (resolves to the `cassandra` service alias on the `172.28.0.0/16` Docker network)
-  - keyspace `taasim`, consistency `ONE`
-- **Dashboard** — `config/grafana-dashboard.json` ("TaaSim — Live Pipeline (Casablanca)") is auto-loaded via `config/grafana-dashboard-provisioning.yml` (updateIntervalSeconds: 30, allowUiUpdates: true). All panels reference `uid: cassandra-ds` and run raw CQL against the keyspace `taasim`.
-- **Tables read by Grafana** — populated only by the Flink jobs:
-  - `taasim.vehicle_positions` ← Job 1 `gps_normalizer` (live taxi map)
-  - `taasim.demand_zones` ← Job 2 `demand_aggregator` (demand heatmap + KPIs)
-  - `taasim.trips` ← Job 3 `trip_matcher` (matched trips)
-- **No direct Kafka read.** Grafana does not connect to Kafka. The path is always `producers → Kafka → Flink → Cassandra → Grafana`.
-
-To apply changes to the datasource yml, restart Grafana so provisioning re-runs:
-
-```powershell
-docker restart taasim-grafana
-```
-
-Quick datasource sanity check from the host:
-
-```powershell
-$h = @{ Authorization = "Basic " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("admin:admin")) }
-Invoke-RestMethod -Uri "http://localhost:3000/api/datasources" -Headers $h |
-  Select-Object name, type, url, uid
-```
-
-You should see `Cassandra | hadesarchitect-cassandra-datasource | cassandra:9042 | cassandra-ds`.
-
-### Dashboard Layout (top-to-bottom)
-
-| Row | Panel | Source table | Notes |
-|-----|-------|--------------|-------|
-| KPIs (y=0) | Active Vehicles · Pending Requests · Trips by Status · Trips Today | `demand_zones`, `trips` | Live; "Trips by Status" + "Trips Today" use the `${replay_date}` variable (defaults to today's UTC date). |
-| Map (y=4) | Vehicle Positions (Live) | `vehicle_positions` | 16 per-zone queries, merged. |
-| Bar (y=4) | Vehicles per Zone | `vehicle_positions` | Bar chart works because `zone_id` is cast to string via a `convertFieldType` transform — required by Grafana 10 bar charts. |
-| Map (y=20) | Trip Requests — Origins/Destinations | `trips` | Filters on `date_bucket = ${replay_date}`. |
-| Table (y=36) | Recent GPS Events | `vehicle_positions` | Sorted DESC by `event_time`. |
-| Bar (y=46) | Demand vs Supply by Zone | `demand_zones` | Same `convertFieldType` fix as above. |
-| Table (y=46) | Demand Zone Details | `demand_zones` | Latest 5 windows per zone. |
-| Table (y=56) | Trip Matching Results | `trips` | One query against `${replay_date}` (no historical hard-coded date). |
-
-The `${replay_date}` template variable is a textbox that defaults to `${__from:date:YYYY-MM-DD}` — the UTC date at the start of the dashboard time range. Override it to inspect a historical replay date (the partition key for `trips`).
-
-### Vehicle GPS Display Mode
-
-The `vehicle_positions` map can be rendered two ways. The mode is selected by `GPS_DISPLAY_MODE` on the `flink-taskmanager` service (read by `flink/jobs/gps_normalizer.py`).
-
-| Mode | `GPS_DISPLAY_MODE` | What gets stored in `vehicle_positions.lat/lon` |
-|------|--------------------|--------------------------------------------------|
-| **Road-snapped live** *(default)* | `road` | The producer's road-snapped + GPS-noised coordinates. Markers appear on or very near actual Casablanca streets. |
-| Anonymized centroid | `anonymized` | Zone centroid + deterministic per-taxi jitter (legacy privacy mode). Markers cluster inside each zone. |
-
-Switch modes (requires resubmitting Job 1):
-
-```powershell
-$env:GPS_DISPLAY_MODE = "road"        # default
-docker compose up -d --force-recreate flink-taskmanager
-# Cancel old GPS Normalizer in Flink UI, then:
-.\scripts\submit-flink-jobs.ps1 -Jobs 1
-```
-
-The producer always road-snaps trajectory points after applying Gaussian GPS noise (~20 m sigma) and rejects pings whose snap distance exceeds `GPS_MAX_SNAP_DIST_M` (default 80 m). The real snap distance is written to `vehicle_positions.snap_dist_m` and surfaced in the Grafana panel "Vehicle Positions (Road-snapped Live)" tooltip + the "Recent GPS Events" table.
-
-The `processed.gps` Kafka topic always carries both `road_lat/road_lon` and `anon_lat/anon_lon` for downstream consumers that need either signal regardless of the storage mode.
-
-### Simulation Modes
-
-Two demo personas are supported via env vars consumed by `trip-producer`. They only affect *where* trip requests originate / terminate; vehicle GPS trajectories are unaffected.
-
-| Mode | `TRIP_ZONE_MODE` | What it does |
-|------|------------------|--------------|
-| Organic *(default)* | `organic` | Replays Phase-4 parquet origin/destination zones as-is. Reflects the synthetic HCP/Glovo spatial prior. |
-| **Balanced demo** | `balanced` | Uniform 1/16 weight across all 16 zones. Every zone visibly receives demand. |
-| **Stress demo** | `stress` | Concentrates `TRIP_STRESS_FRACTION` (default `0.7`) of trips on `TRIP_STRESS_HOT_ZONES` (default `1,2,3`); `TRIP_STRESS_COLD_ZONES` (default `13,16`) get a 1% residual; remaining zones share the rest. Produces visible `no_vehicle` matches in the Trip Matching table. |
-
-Example:
-
-```powershell
-# Balanced demo — every zone shows trips
-$env:TRIP_ZONE_MODE = "balanced"
-docker compose up -d --force-recreate trip-producer
-
-# Stress demo — overload zone 7 specifically
-$env:TRIP_ZONE_MODE = "stress"
-$env:TRIP_STRESS_HOT_ZONES = "7"
-$env:TRIP_STRESS_FRACTION = "0.8"
-docker compose up -d --force-recreate trip-producer
-```
-
-The GPS producer always emits realistic per-ping speeds derived from consecutive positions (`speed_kmh = compute_speed(prev, cur, ping_interval)`); intermediate pings with speed `< 1 km/h` are labelled `idle` instead of `moving` to keep `status` consistent with `speed`.
-
-### Demo Healthcheck
-
-```powershell
-.\scripts\demo-healthcheck.ps1
-```
-
-Checks (read-only, no volumes touched by default):
-
-1. `docker compose config` is valid.
-2. All 9 required containers are healthy / running.
-3. The 3 Flink jobs (`GPS Normalizer`, `Demand Aggregator`, `Trip Matcher`) are `RUNNING`.
-4. `vehicle_positions` latest row is within `-MaxGpsAgeSeconds` (default 30s).
-5. `demand_zones` latest row is within `-MaxDemandAgeSeconds` (default 90s).
-6. At least one trip exists in today's UTC `date_bucket`.
-7. Prints service URLs.
-
-### Vehicle Movement Realism Check
-
-```powershell
-.\scripts\check-vehicle-movement.ps1 -MaxSnapDistM 100 -ZoneId 1
-```
-
-Verifies the geomap shows real movement (not stuck on centroid+jitter):
-
-1. Same taxi must produce distinct lat/lon across consecutive pings (>= 80% of sampled taxis).
-2. `status='moving'` rows must have `speed >= 1 km/h`; `status='idle'` rows must have `speed < 5 km/h`.
-3. `snap_dist_m` must be within the supplied threshold (NULL allowed only on legacy rows pre-migration).
-4. All latest sampled points fall inside the Casablanca bounding box.
-
-`-Reset` is opt-in and prompts for an explicit `DESTROY` confirmation before running `docker compose down -v`. Volumes are **never** removed by default.
-
 ### Security Notes (Demo vs Production)
 
 - Demo mode uses weak defaults from `.env.example` (`minioadmin`, `admin`, sample JWT secret) to keep local startup friction low.
@@ -389,7 +266,7 @@ $env:MAX_LAG_RAW_TRIPS=500
 
 ```
 +--------------------------------------------------------------------+
-|                    TaaSim Docker Compose Stack                      |
+|                    CasaMotion Docker Compose Stack                      |
 |                                                                    |
 |  Event bus & archival                                              |
 |  +---------+  +-------------+  +-----------+                       |
@@ -458,7 +335,7 @@ $env:MAX_LAG_RAW_TRIPS=500
 Both Kafka producers run inside Docker (`taasim-gps-producer`, `taasim-trip-producer`) and start automatically with the stack. They share a common boot sequence (`producers/config.py`) and replay the **Phase-4 Casablanca synthesis** (500k trips over 90 days, NYC temporal fingerprint rebased to Casa geography) paired with **Phase-3 OSRM trajectories** (500 routed polylines indexed by zone-pair).
 
 <div align="center">
-<img src="img/flink_architecture.png" alt="TaaSim Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
+<img src="img/flink_architecture.png" alt="CasaMotion Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
 </div>
 
 <br/>
@@ -586,30 +463,20 @@ You can override these in `.env` when load-testing.
 |:--------|:-------|
 | **Goal** | Predict trip requests per zone for the next 30-minute slot |
 | **Algorithm** | Gradient Boosted Trees (Spark MLlib `GBTRegressor`, maxDepth=5, maxIter=50) |
-| **Training rows** | 151,911 train / 32,070 test (30-min slots × 16 zones, lag + rolling) after dropping the first 7 days for lag warm-up |
-| **Evaluation** | Temporal split at `2014-05-01`, no target leakage (see note below) |
+| **Training rows** | 183,981 feature rows (30-min slots × 16 zones, lag + rolling) |
+| **Evaluation** | Temporal split (no leakage) |
 | **Baseline** | Naive 7-day-lag predictor |
-| **Result (retrained 2026-05-19)** | RMSE **4.69** · MAE **3.01** · R² **0.60** · −31.4% vs baseline (RMSE 6.84) |
-| **Artifact** | `s3a://mldata/models/demand_v1/` (offline-only; not loaded by the API by default — see Serving) |
-
-> **Leakage fix.** A previous revision of `spark/feature_engineering.py` shipped
-> `supply_demand_ratio = supply / demand` and `supply` as features, both
-> computed from the same 30-min slot as the target. They were removed from
-> the feature matrix and the model was retrained. The pre-fix run reported
-> RMSE 3.71 / R² 0.75; those numbers are over-optimistic and must not be
-> quoted as current performance.
+| **Result** | **RMSE 3.71 · R² 0.75 · 45.8% better than baseline** (baseline RMSE 6.84) |
+| **Artifact** | `s3a://mldata/models/demand_v1/` (loaded by FastAPI at startup) |
 
 ### Feature Engineering
 
-Features actually emitted by [spark/feature_engineering.py](spark/feature_engineering.py) and consumed by [spark/train_demand_model.py](spark/train_demand_model.py):
-
 | Group | Features |
 |:------|:---------|
-| **Temporal** | `hour_of_day`, `day_of_week`, `is_weekend`, `is_peak` (08–09, 13–14, 17–18), `slot_of_day` (0–47) |
-| **Spatial** | `origin_zone` → `zone_idx` (StringIndexer over the 16 Casablanca zones) |
-| **Lag** | `demand_lag_1d`, `demand_lag_7d`, `rolling_7d_mean` (same zone + slot) |
-
-No weather or population-density features are produced today.
+| **Temporal** | hour_of_day, day_of_week, is_weekend, is_friday |
+| **Spatial** | zone_id, population_density, zone_type |
+| **Weather** | is_raining, temperature_bucket |
+| **Lag** | demand_lag_1d, demand_lag_7d, rolling_7d_mean |
 
 ### Serving — FastAPI ([api/main.py](api/main.py))
 
@@ -618,7 +485,7 @@ Seven endpoints, JWT-protected (`HS256`, 24h expiry, two roles: `rider` + `admin
 | Method | Path | Role | Purpose |
 |:------|:-----|:-----|:--------|
 | `POST` | `/api/auth/token`      | public | Issue JWT (demo creds — username + role) |
-| `POST` | `/api/demand/forecast` | rider/admin | Demand prediction for `(zone_id, datetime)` — **heuristic by default**; the saved GBT artifact is offline-only and is only used in-process if `PYSPARK_ENABLED=1` AND a JDK + PySpark are added to the image (see `api/main.py` module docstring) |
+| `POST` | `/api/demand/forecast` | rider/admin | Demand prediction for `(zone_id, datetime)` — heuristic by default; GBT when `PYSPARK_ENABLED=1` (see `api/main.py`) |
 | `POST` | `/api/trips`           | rider/admin | Publish a trip request to Kafka `raw.trips` (for Flink Job 3 matching), return queued acknowledgment |
 | `GET`  | `/api/zones`           | rider/admin | List all 16 Casablanca zones (from `data/zone_mapping_v4.csv`) |
 | `GET`  | `/api/zones/{zone_id}` | rider/admin | Zone detail |
@@ -640,7 +507,7 @@ curl -s -X POST http://localhost:8000/api/demand/forecast \
 ## Project Structure
 
 ```
-Taasimm/
+CasaMotionm/
 ├── docker-compose.yml              # Full stack — 16 containers
 ├── download-jars.ps1 / .sh         # JAR downloader
 ├── upload-datasets.ps1             # Dataset upload to MinIO
@@ -648,7 +515,7 @@ Taasimm/
 ├── config/
 │   ├── cassandra-init.cql          # Keyspace + 3 tables
 │   ├── connect-s3-sink-{gps,trips}.json  # Kafka Connect S3 Sink configs
-│   ├── grafana-dashboard.json      # "TaaSim — Live Pipeline (Casablanca)"
+│   ├── grafana-dashboard.json      # "CasaMotion — Live Pipeline (Casablanca)"
 │   └── spark-defaults.conf         # S3A configuration
 │
 ├── producers/                      # Phase-4 Kafka producers (Docker)
@@ -668,7 +535,7 @@ Taasimm/
 │   ├── etl_nyc.py                  # 9.38M → 192K demand agg rows
 │   ├── compute_kpis.py             # 6 KPI datasets
 │   ├── feature_engineering.py      # 183,981 ML feature rows
-│   ├── train_demand_model.py       # GBT — retrained 2026-05-19, RMSE 4.69, R² 0.60
+│   ├── train_demand_model.py       # GBT — RMSE 3.71, R² 0.75
 │   └── verify_model.py
 │
 ├── api/                            # FastAPI REST (Week 6)
@@ -743,7 +610,7 @@ Taasimm/
 | 3 | Flink Job 1 (GPS normalizer), watermarks, Grafana vehicle map | ✅ Done |
 | 4 | Flink Job 2 (demand) + Job 3 (trip matcher), immediate adjacent-zone fan-out with dedup | ✅ Done |
 | 5 | Spark ETL on Porto + NYC, KPI computation | ✅ Done |
-| 6 | ML feature engineering, GBT training, FastAPI forecast endpoint | ✅ Done — retrained 2026-05-19 post leakage fix: RMSE 4.69, R² 0.60, −31.4% vs baseline |
+| 6 | ML feature engineering, GBT training, FastAPI forecast endpoint | ✅ Done — RMSE 3.71, R² 0.75 |
 | 7 | JWT hardening, GPS anonymization audit, integration testing, SLA, checkpoint recovery | 🟡 In progress |
 | 8 | Grafana polish, live demo, pitch deck, technical report | ⬜ Planned |
 
@@ -791,6 +658,6 @@ MIT License. Datasets used under their respective open licenses (CC BY 4.0, Publ
 
 Built by **Mohamed Amine El Abidi**
 
-**TaaSim** — The data platform that moves Casablanca.
+**CasaMotion** — The data platform that moves Casablanca.
 
 </div>

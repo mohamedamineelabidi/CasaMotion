@@ -17,7 +17,7 @@ def zone_targets(query_tpl, limit):
     return targets
 
 dashboard = {
-    "title": "TaaSim - Vehicle Tracking",
+    "title": "CasaMotion - Vehicle Tracking",
     "uid": "taasim-vehicles",
     "timezone": "utc",
     "refresh": "10s",
@@ -258,3 +258,4 @@ dashboard = {
 with open("config/grafana-dashboard.json", "w") as f:
     json.dump(dashboard, f, indent=2)
 print(f"OK - {len(dashboard['panels'])} panels written")
+

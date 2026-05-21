@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Submit all three TaaSim PyFlink jobs to the Flink cluster.
+    Submit all three CasaMotion PyFlink jobs to the Flink cluster.
 
 .DESCRIPTION
     Submits Job 1 (GPS Normalizer), Job 2 (Demand Aggregator), and
@@ -49,7 +49,7 @@ if ($Jobs -eq "all") {
     $jobIds = $Jobs -split "," | ForEach-Object { [int]$_.Trim() }
 }
 
-Write-Host "=== TaaSim Flink Job Submission ===" -ForegroundColor Cyan
+Write-Host "=== CasaMotion Flink Job Submission ===" -ForegroundColor Cyan
 Write-Host "Submitting jobs: $($jobIds -join ', ')" -ForegroundColor Cyan
 Write-Host ""
 
@@ -166,3 +166,4 @@ if ($failed.Count -gt 0) {
 Write-Host ""
 Write-Host "  Flink Web UI:  http://localhost:8081" -ForegroundColor Cyan
 Write-Host "  Verify status: .\scripts\verify-flink-jobs.ps1" -ForegroundColor Cyan
+

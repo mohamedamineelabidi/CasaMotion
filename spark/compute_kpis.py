@@ -1,5 +1,5 @@
 """
-TaaSim — Spark Analytics: Weekly KPIs
+CasaMotion — Spark Analytics: Weekly KPIs
 ======================================
 Reads curated Porto trips from s3a://curated/trips/ and computes
 analytics KPIs: trips per zone, avg duration, peak hours, coverage gaps.
@@ -27,7 +27,7 @@ OUTPUT_PATH = "s3a://curated/kpis/"
 def build_spark():
     return (
         SparkSession.builder
-        .appName("TaaSim-KPI-Analytics")
+        .appName("CasaMotion-KPI-Analytics")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
@@ -35,7 +35,7 @@ def build_spark():
 
 
 def main():
-    log.info("=== TaaSim KPI Analytics Starting ===")
+    log.info("=== CasaMotion KPI Analytics Starting ===")
     spark = build_spark()
 
     # ── 1. Read curated trips ────────────────────────────────────────
@@ -161,3 +161,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

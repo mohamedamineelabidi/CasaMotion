@@ -1,7 +1,7 @@
 Provision Docker Compose Stack
 All 6 services running: Kafka (KRaft, no Zookeeper), MinIO, Apache Cassandra, Apache Flink (1 JM + 1 TM), Apache Spark (master + 1 worker), Grafana. Health check: [kafka-topics.sh](http://kafka-topics.sh) --list returns OK, mc ls connects to MinIO, cqlsh connects to Cassandra, flink list returns no error, spark-shell launches, Grafana UI accessible on port 3000. Screenshot of all containers UP submitted as deliverable.Set up the full local development environment using Docker Compose. All 6 core services must run on a single workstation with at least 8 GB RAM. This is the foundation for every subsequent task — nothing else can proceed without this.## 🎯 Objective
 
-Provision the full TaaSim data platform stack locally using Docker Compose. This is the **critical path blocker** — every other task depends on this.
+Provision the full CasaMotion data platform stack locally using Docker Compose. This is the **critical path blocker** — every other task depends on this.
 
 ## 📋 Sub-tasks
 
@@ -103,7 +103,7 @@ Transform Porto GPS coordinates into Casablanca space so the streaming simulatio
 
 
 Build Kafka Producers (GPS + Trip Request Simulators)vehicle_gps_[producer.py](http://producer.py) publishes to raw.gps topic. Events contain: taxi_id, timestamp (event time), lat, lon, speed, status. GPS blackout: 5% chance of 60-180s delay. trip_request_[producer.py](http://producer.py) publishes to raw.trips topic with fields: trip_id (UUID), rider_id, origin_zone, destination_zone, requested_at, call_type. Peak hours (7-9h, 17-19h) produce 3-5x off-peak rate. Both verified with [kafka-console-consumer.sh](http://kafka-console-consumer.sh).
-Implement the two Kafka producer scripts that simulate real-time TaaSim operations: vehicle_gps_[producer.py](http://producer.py) replays Porto GPS polylines at 10x speed with noise and blackouts; trip_request_[producer.py](http://producer.py) generates trip reservation events following Porto's demand curve. Both are required for all streaming tasks in Weeks 3-4.## 🎯 Objective
+Implement the two Kafka producer scripts that simulate real-time CasaMotion operations: vehicle_gps_[producer.py](http://producer.py) replays Porto GPS polylines at 10x speed with noise and blackouts; trip_request_[producer.py](http://producer.py) generates trip reservation events following Porto's demand curve. Both are required for all streaming tasks in Weeks 3-4.## 🎯 Objective
 
 Create the streaming data simulation layer that powers all real-time demo scenarios.
 

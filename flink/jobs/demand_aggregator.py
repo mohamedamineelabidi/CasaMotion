@@ -1,5 +1,5 @@
 """
-TaaSim — Flink Job 2: Demand Aggregator
+CasaMotion — Flink Job 2: Demand Aggregator
 =========================================
 Inputs:
   - processed.gps  (Kafka) → normalized GPS positions from Job 1
@@ -275,3 +275,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

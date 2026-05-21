@@ -3,7 +3,7 @@ name: taasim-data-audit
 description: Use this skill when the user asks to audit data and notebook artifacts, classify what is runtime-required vs regenerable/archive/removable, or clean repository footprint safely.
 ---
 
-# TaaSim Data Audit
+# CasaMotion Data Audit
 
 ## Trigger
 Use this skill when requests involve data folder hygiene, notebook output cleanup, or deciding what should stay tracked vs ignored.
@@ -41,3 +41,4 @@ Return:
 1. Classification table with columns: path, class, reason, action, git_policy.
 2. Drift list of tracked files that should be ignored (or the reverse).
 3. Ordered cleanup plan with low-risk first.
+

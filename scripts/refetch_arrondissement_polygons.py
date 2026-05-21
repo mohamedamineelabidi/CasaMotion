@@ -42,7 +42,7 @@ QUERIES: list[tuple[int, str, str]] = [
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 LOOKUP_URL = "https://nominatim.openstreetmap.org/lookup"
-HEADERS = {"User-Agent": "TaaSim-geodata/1.0 (academic capstone; contact: taasim-dev)"}
+HEADERS = {"User-Agent": "CasaMotion-geodata/1.0 (academic capstone; contact: taasim-dev)"}
 
 # Fallback queries tried in order when the primary query yields no polygon.
 FALLBACKS: dict[int, list[str]] = {
@@ -144,3 +144,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

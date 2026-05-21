@@ -1,5 +1,5 @@
 -- ============================================================
--- TaaSim — Cassandra Schema Initialization
+-- CasaMotion — Cassandra Schema Initialization
 -- Run once after Cassandra starts
 -- ============================================================
 
@@ -79,3 +79,4 @@ CREATE TABLE IF NOT EXISTS demand_zones (
 ) WITH CLUSTERING ORDER BY (window_start DESC)
   AND default_time_to_live = 604800
   AND compaction = {'class': 'TimeWindowCompactionStrategy', 'compaction_window_size': 1, 'compaction_window_unit': 'HOURS'};
+

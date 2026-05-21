@@ -1,4 +1,4 @@
-# TaaSim — Data Pipeline & Remapping Architecture
+# CasaMotion — Data Pipeline & Remapping Architecture
 
 > **Purpose**: Single source of truth for every dataset, every transform, and every artifact used to turn raw international taxi traces into a realistic Casablanca mobility simulation.
 >
@@ -10,7 +10,7 @@
 
 ## 0. Why remap at all?
 
-TaaSim needs a **live** urban-mobility pipeline for Casablanca (16 arrondissements, ~3.3 M people). No open taxi dataset exists for Casa, so we synthesise one by combining three complementary international sources with local calibration data:
+CasaMotion needs a **live** urban-mobility pipeline for Casablanca (16 arrondissements, ~3.3 M people). No open taxi dataset exists for Casa, so we synthesise one by combining three complementary international sources with local calibration data:
 
 | We need | We don't have | We use instead | Why it works |
 |---------|--------------|----------------|--------------|
@@ -393,7 +393,7 @@ for trip in phase4_trips:
 ## 8. Directory Structure (What Lives Where)
 
 ```
-Taasimm/
+CasaMotionm/
 ├── data/
 │   ├── hcp-data-casa/              # HCP census raw CSVs + portal screenshot
 │   │   ├── 20260421_*.csv          # 6 indicator files (MOR RGPH 2024)
@@ -542,7 +542,7 @@ Taasimm/
                  │  - trips (date_bucket partitioned)       │
                  │  - demand_zones (7d TTL)                 │
                  │                                          │
-                 │  Grafana: TaaSim — Live Pipeline         │
+                 │  Grafana: CasaMotion — Live Pipeline         │
                  └──────────────────────────────────────────┘
 ```
 
@@ -591,3 +591,4 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 - **Multi-city scaling**: the same Porto + NYC + HCP + Glovo recipe should work for Rabat, Marrakech with minimal changes (just swap the per-zone CSVs)
 - **Trajectory index refresh**: currently 500 polylines, could expand to 2000 for tighter tier coverage
 - **Gamification of coupled mode**: add idle-cruising taxis to raise Job 3 match rate beyond 21%
+

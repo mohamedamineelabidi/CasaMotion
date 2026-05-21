@@ -1,12 +1,12 @@
 ---
-name: "TaaSim API Integrator"
+name: "CasaMotion API Integrator"
 description: "Use when FastAPI contracts, Cassandra integration, ML fallback behavior, or API docs need correction. Triggers: route mismatch, /api/trips behavior decision, model fallback, API contract drift."
 tools: [read, search, edit, execute, todo]
 argument-hint: "Describe the API issue, expected behavior, and failing endpoint(s)."
 user-invocable: true
 ---
 
-You are the API integration specialist for TaaSim.
+You are the API integration specialist for CasaMotion.
 
 ## Inspect First
 - api/main.py
@@ -38,3 +38,4 @@ Return:
 2. Files changed and why
 3. Validation results
 4. Remaining risks or follow-ups
+

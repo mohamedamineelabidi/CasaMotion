@@ -1,6 +1,6 @@
-# TaaSim Copilot Instructions
+# CasaMotion Copilot Instructions
 
-TaaSim is a Casablanca smart mobility simulation platform.
+CasaMotion is a Casablanca smart mobility simulation platform.
 
 ## Architecture Truths
 - Kafka is the live event bus.
@@ -13,3 +13,4 @@ TaaSim is a Casablanca smart mobility simulation platform.
 - Check documentation claims against current code before updating docs.
 - Do not commit large raw datasets or bulky generated data unless explicitly required.
 - Keep changes small, verifiable, and aligned with current runtime contracts.
+

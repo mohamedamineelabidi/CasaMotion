@@ -24,7 +24,7 @@ OUT_PATH = ROOT / "data" / "casablanca_transit.geojson"
 BBOX = (33.45, -7.75, 33.68, -7.45)
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-HEADERS = {"User-Agent": "TaaSim-geodata/1.0 (academic capstone)"}
+HEADERS = {"User-Agent": "CasaMotion-geodata/1.0 (academic capstone)"}
 
 # Overpass QL: tram lines + stops + BRT busway + bus stations
 QUERY = f"""
@@ -104,3 +104,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

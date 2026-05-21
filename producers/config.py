@@ -1,5 +1,5 @@
 """
-TaaSim Kafka Producer Configuration
+CasaMotion Kafka Producer Configuration
 ====================================
 Shared constants, bounding-box transform, zone mapping loader,
 and H3 hexagonal zone assignment used by both producers.
@@ -186,3 +186,4 @@ def snap_to_road(lat, lon, h3_lookup=None, max_dist_deg=0.003):
         return None, None, snap_dist_m, False
 
     return snapped_lat, snapped_lon, snap_dist_m, True
+

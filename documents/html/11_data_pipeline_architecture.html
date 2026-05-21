@@ -92,7 +92,7 @@
   <link rel="stylesheet" href="documents\report-style.css" />
 </head>
 <body>
-<h1 id="taasim-data-pipeline-remapping-architecture">TaaSim — Data
+<h1 id="taasim-data-pipeline-remapping-architecture">CasaMotion — Data
 Pipeline &amp; Remapping Architecture</h1>
 <blockquote>
 <p><strong>Purpose</strong>: Single source of truth for every dataset,
@@ -105,7 +105,7 @@ trajectory warping v4) → Phase 3 (NYC → Casa trip synthesis) → Phase 4
 </blockquote>
 <hr />
 <h2 id="why-remap-at-all">0. Why remap at all?</h2>
-<p>TaaSim needs a <strong>live</strong> urban-mobility pipeline for
+<p>CasaMotion needs a <strong>live</strong> urban-mobility pipeline for
 Casablanca (16 arrondissements, ~3.3 M people). No open taxi dataset
 exists for Casa, so we synthesise one by combining three complementary
 international sources with local calibration data:</p>
@@ -714,7 +714,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a hr
 <hr />
 <h2 id="directory-structure-what-lives-where">8. Directory Structure
 (What Lives Where)</h2>
-<pre><code>Taasimm/
+<pre><code>CasaMotionm/
 ├── data/
 │   ├── hcp-data-casa/              # HCP census raw CSVs + portal screenshot
 │   │   ├── 20260421_*.csv          # 6 indicator files (MOR RGPH 2024)
@@ -859,7 +859,7 @@ Diagram</h2>
                  │  - trips (date_bucket partitioned)       │
                  │  - demand_zones (7d TTL)                 │
                  │                                          │
-                 │  Grafana: TaaSim — Live Pipeline         │
+                 │  Grafana: CasaMotion — Live Pipeline         │
                  └──────────────────────────────────────────┘</code></pre>
 <hr />
 <h2 id="quality-gates-reproducibility">10. Quality Gates &amp;
@@ -957,3 +957,4 @@ taxis to raise Job 3 match rate beyond 21%</li>
 </ul>
 </body>
 </html>
+

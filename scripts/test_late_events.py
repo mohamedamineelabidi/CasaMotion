@@ -1,5 +1,5 @@
 """
-TaaSim — Late Event Watermark Test
+CasaMotion — Late Event Watermark Test
 ====================================
 Sends GPS events with controlled timestamps to verify Flink watermark behavior:
   1. "on-time" event: timestamp = now - 2 minutes (within 3-min watermark)
@@ -38,7 +38,7 @@ def make_event(taxi_id, timestamp_dt, lat, lon, speed=25.0, status="moving"):
 
 
 def main():
-    print("=== TaaSim Late Event Watermark Test ===\n")
+    print("=== CasaMotion Late Event Watermark Test ===\n")
 
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BOOTSTRAP,
@@ -85,3 +85,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

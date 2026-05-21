@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    TaaSim live-demo health check. Verifies that every component required
+    CasaMotion live-demo health check. Verifies that every component required
     for the Grafana dashboard is up and producing fresh data.
 
 .DESCRIPTION
@@ -76,7 +76,7 @@ if ($Reset) {
 }
 
 Write-Host ""
-Write-Host "=== TaaSim Demo Healthcheck ===" -ForegroundColor Cyan
+Write-Host "=== CasaMotion Demo Healthcheck ===" -ForegroundColor Cyan
 Write-Host ""
 
 # 1. docker compose config validity
@@ -252,3 +252,4 @@ Write-Host ("FAIL: {0} failure(s), {1} warning(s)." -f $script:Failures.Count, $
 foreach ($f in $script:Failures) { Write-Host "  - $f" -ForegroundColor Red }
 foreach ($w in $script:Warnings) { Write-Host "  - $w" -ForegroundColor Yellow }
 exit 1
+

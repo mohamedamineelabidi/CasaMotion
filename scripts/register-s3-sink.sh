@@ -11,7 +11,7 @@ CONNECT_URL="${CONNECT_URL:-http://localhost:8083}"
 GPS_CONFIG="config/connect-s3-sink-gps.json"
 TRIPS_CONFIG="config/connect-s3-sink-trips.json"
 
-echo "=== TaaSim Kafka Connect — Split S3 Sink Registration ==="
+echo "=== CasaMotion Kafka Connect — Split S3 Sink Registration ==="
 echo "Connect REST: $CONNECT_URL"
 
 # Wait until Connect is reachable
@@ -49,3 +49,4 @@ curl -s "$CONNECT_URL/connectors/s3-sink-raw-gps/status"
 echo
 curl -s "$CONNECT_URL/connectors/s3-sink-raw-trips/status"
 echo
+

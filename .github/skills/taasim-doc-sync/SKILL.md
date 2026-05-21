@@ -3,7 +3,7 @@ name: taasim-doc-sync
 description: Use this skill when docs and implementation may have drift and you need to align README, documents, notebook descriptions, and actual code behavior.
 ---
 
-# TaaSim Doc Sync
+# CasaMotion Doc Sync
 
 ## Trigger
 Use this skill when updating docs after code changes, preparing delivery evidence, or auditing conflicting technical claims.
@@ -39,3 +39,4 @@ Return:
 1. Drift matrix: claim, source_doc, source_code, status(match/mismatch), fix.
 2. Priority-ordered doc update list.
 3. Any unresolved ambiguity requiring maintainer decision.
+

@@ -1,5 +1,5 @@
 """
-TaaSim — Spark ML: GBT Demand Forecasting
+CasaMotion — Spark ML: GBT Demand Forecasting
 ===========================================
 Reads feature matrix from s3a://mldata/features/, trains a
 GBTRegressor (Spark MLlib) to predict 30-min demand per zone,
@@ -57,7 +57,7 @@ TARGET_COL = "demand"
 def build_spark():
     return (
         SparkSession.builder
-        .appName("TaaSim-GBT-Training")
+        .appName("CasaMotion-GBT-Training")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
@@ -222,3 +222,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,5 +1,5 @@
 """
-TaaSim — Trip Request Producer
+CasaMotion — Trip Request Producer
 ================================
 Generates simulated taxi trip-request events and publishes them to Kafka
 topic ``raw.trips``.  The emission rate follows Porto's hourly demand curve
@@ -378,7 +378,7 @@ def run_from_parquet(parquet_path, max_trips, speed,
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TaaSim Trip Request Producer")
+    parser = argparse.ArgumentParser(description="CasaMotion Trip Request Producer")
     parser.add_argument("--source", choices=["casa_synth", "random"], default="casa_synth",
                         help="casa_synth: replay Phase-4 parquet (default). random: legacy synthetic.")
     parser.add_argument("--max-trips", type=int, default=None,
@@ -430,3 +430,4 @@ if __name__ == "__main__":
         )
     else:
         run(args.max_trips, args.base_rate)
+

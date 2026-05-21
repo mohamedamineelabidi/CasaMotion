@@ -5,7 +5,7 @@ Week 3 Verification Script - Pipeline E2E Testing
 Tests: Flink job status, Cassandra data flow, Kafka topics, Grafana connectivity
 #>
 
-Write-Host "=== TaaSim Week 3 Verification Test ===" -ForegroundColor Cyan
+Write-Host "=== CasaMotion Week 3 Verification Test ===" -ForegroundColor Cyan
 Write-Host "Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor Gray
 Write-Host ""
 
@@ -104,3 +104,4 @@ Write-Host ""
 Write-Host "=== Verification Complete ===" -ForegroundColor Cyan
 Write-Host "For detailed Flink dashboard: http://localhost:8081" -ForegroundColor Gray
 Write-Host "For Grafana dashboard: http://localhost:3000 (admin)" -ForegroundColor Gray
+

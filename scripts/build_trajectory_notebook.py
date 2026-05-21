@@ -42,7 +42,7 @@ cells = []
 # 00  TITLE
 # ═══════════════════════════════════════════════════════════════════
 cells.append(md(
-"# TaaSim — Trajectory Preprocessing & Map-Matching Pipeline\n"
+"# CasaMotion — Trajectory Preprocessing & Map-Matching Pipeline\n"
 "**Notebook 03 — Porto GPS patterns -> Casablanca road-snapped trajectories (H3 edition)**\n\n"
 "### Pipeline overview\n"
 "```\n"
@@ -536,7 +536,7 @@ cells.append(code(
 # ═══════════════════════════════════════════════════════════════════
 # 13  OUTPUT FORMAT
 # ═══════════════════════════════════════════════════════════════════
-cells.append(md("## 13  Output formatter — TaaSim JSON schema"))
+cells.append(md("## 13  Output formatter — CasaMotion JSON schema"))
 cells.append(code(
 "def format_output(trip_id, matched_points, start_ts=None):\n"
 "    if start_ts is None:\n"
@@ -932,3 +932,4 @@ notebook = {
 OUT.write_text(json.dumps(notebook, indent=1, ensure_ascii=False), encoding="utf-8")
 print(f"Notebook written -> {OUT}  ({len(cells)} cells)")
 # -*- coding: utf-8 -*-
+

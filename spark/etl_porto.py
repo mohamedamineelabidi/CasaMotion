@@ -1,5 +1,5 @@
 """
-TaaSim — Spark ETL: Porto Taxi Trajectories
+CasaMotion — Spark ETL: Porto Taxi Trajectories
 =============================================
 Reads raw Porto CSV from MinIO (s3a://raw/porto-trips/train.csv),
 parses POLYLINE JSON, applies zone remapping (Porto → Casablanca),
@@ -47,7 +47,7 @@ def build_spark():
     """Create SparkSession with S3A config (defaults loaded from spark-defaults.conf)."""
     return (
         SparkSession.builder
-        .appName("TaaSim-ETL-Porto")
+        .appName("CasaMotion-ETL-Porto")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
@@ -146,7 +146,7 @@ def parse_and_explode_polyline(row):
 
 
 def main():
-    log.info("=== TaaSim Porto ETL Starting ===")
+    log.info("=== CasaMotion Porto ETL Starting ===")
     spark = build_spark()
     log.info("SparkSession created: %s", spark.sparkContext.applicationId)
 
@@ -286,3 +286,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

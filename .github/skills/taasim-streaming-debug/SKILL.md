@@ -3,7 +3,7 @@ name: taasim-streaming-debug
 description: Use this skill when Kafka -> Flink -> Cassandra flow is stale, delayed, missing records, or behavior is inconsistent and you need structured runtime plus code-path debugging.
 ---
 
-# TaaSim Streaming Debug
+# CasaMotion Streaming Debug
 
 ## Trigger
 Use this skill when topics are empty, Flink jobs are unhealthy, Cassandra tables are stale, or event-time logic is suspected.
@@ -50,3 +50,4 @@ Return:
 1. Stage health map (Kafka, Flink, Cassandra).
 2. First confirmed fault point.
 3. Fix recommendation with verification checklist.
+
