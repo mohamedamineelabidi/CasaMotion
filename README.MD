@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="IMG/logowithoubackground.png" alt="CasaMotion Branding Logo" width="720"/>
-
-<img src="IMG/projectoverview.png" alt="CasaMotion Urban Mobility Data Platform" width="850"/>
+<img src="IMG/logowithoubackground.png" alt="CasaMotion Branding Logo" width="560" style="max-width: 100%; height: auto;"/>
 
 # CasaMotion — Transport as a Service
 
@@ -129,8 +127,8 @@ CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, F
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mohamedamineelabidi/CasaMotionm.git
-cd CasaMotionm
+git clone https://github.com/mohamedamineelabidi/Taasimm.git CasaMotion
+cd CasaMotion
 ```
 
 ### 2. Download Required JARs
@@ -181,6 +179,8 @@ taasim-gps-producer     Running
 taasim-trip-producer    Running
 taasim-api              Running         ← FastAPI (Week 6)
 ```
+
+Container names keep the `taasim-` prefix for compatibility with existing compose/service wiring.
 
 ### 5. Upload Datasets to MinIO
 
@@ -507,7 +507,7 @@ curl -s -X POST http://localhost:8000/api/demand/forecast \
 ## Project Structure
 
 ```
-CasaMotionm/
+CasaMotion/
 ├── docker-compose.yml              # Full stack — 16 containers
 ├── download-jars.ps1 / .sh         # JAR downloader
 ├── upload-datasets.ps1             # Dataset upload to MinIO
@@ -635,6 +635,23 @@ CasaMotionm/
 3. Demand heatmap: Grafana updating every 30 seconds per zone
 4. ML forecast: API responds in under 500ms, beats naive baseline
 5. Checkpoint recovery: Flink TaskManager restart → job resumes from checkpoint
+
+---
+
+## Meet The Team Behind The App
+
+CasaMotion is designed and delivered by a focused engineering team building real-time mobility systems for Casablanca.
+
+<div align="center">
+
+### Meet the core development team
+
+| Team Member | Role | Focus Area |
+|:------------|:-----|:-----------|
+| **Mohamed Amine El Abidi** | **AI & Data Engineer** | Real-time architecture, ML pipeline, and platform integration |
+| **Rida Aderkane** | **Data Engineer** | Data pipeline engineering, processing quality, and analytics workflows |
+
+</div>
 
 ---
 
