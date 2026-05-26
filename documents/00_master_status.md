@@ -1,7 +1,7 @@
-# TaaSim Project Master Status
+# CasaMotion Project Master Status
 
 Last updated: 2026-04-19
-Project: TaaSim (Transport as a Service) - Casablanca
+Project: CasaMotion (Transport as a Service) - Casablanca
 
 ## Global Progress
 
@@ -121,3 +121,4 @@ One row per grading-relevant cahier section. Status reflects current state on `t
 - MinIO: HEALTHY
 - Grafana: RUNNING (health check starting)
 - Kafka UI: RUNNING (health check starting)
+

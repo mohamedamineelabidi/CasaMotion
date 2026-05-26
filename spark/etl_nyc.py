@@ -1,5 +1,5 @@
 """
-TaaSim — Spark ETL: NYC TLC Trip Records
+CasaMotion — Spark ETL: NYC TLC Trip Records
 ==========================================
 Reads 3 months of NYC TLC Yellow Taxi Parquet from MinIO,
 computes per-zone-per-hour demand aggregates, and writes
@@ -64,7 +64,7 @@ COMMON_COLS = [
 def build_spark():
     return (
         SparkSession.builder
-        .appName("TaaSim-ETL-NYC")
+        .appName("CasaMotion-ETL-NYC")
         .config("spark.sql.adaptive.enabled", "true")
         .config("spark.sql.shuffle.partitions", "8")
         .getOrCreate()
@@ -87,7 +87,7 @@ def read_and_normalize(spark, path):
 
 
 def main():
-    log.info("=== TaaSim NYC TLC ETL Starting ===")
+    log.info("=== CasaMotion NYC TLC ETL Starting ===")
     spark = build_spark()
     log.info("SparkSession created: %s", spark.sparkContext.applicationId)
 
@@ -213,3 +213,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

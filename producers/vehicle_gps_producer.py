@@ -1,5 +1,5 @@
 """
-TaaSim — Vehicle GPS Producer
+CasaMotion — Vehicle GPS Producer
 ================================
 Replays taxi trajectories at configurable speed (default 10×) and publishes
 to Kafka topic ``raw.gps``.
@@ -63,6 +63,11 @@ logging.basicConfig(
     format="%(asctime)s [GPS] %(levelname)s %(message)s",
 )
 log = logging.getLogger(__name__)
+
+# Reject points further than this from the nearest road node after the
+# noise+snap step. ~80m keeps markers visibly on/near roads without
+# discarding legitimate jittered points from the ~20m Gaussian.
+MAX_SNAP_DIST_M = float(os.environ.get("GPS_MAX_SNAP_DIST_M", "80.0"))
 
 
 def parse_polyline(polyline_str):
@@ -414,6 +419,9 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
         blackout_at = random.randint(1, n_pings - 1) if has_blackout else -1
         blackout_delay_s = random.randint(*BLACKOUT_DELAY) if has_blackout else 0
 
+        prev_lat = None
+        prev_lon = None
+        rejected = 0
         for k in range(n_pings):
             frac = k / (n_pings - 1) if n_pings > 1 else 0.0
             idx_f = frac * (len(pts) - 1)
@@ -425,6 +433,17 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
             # GPS noise ~20m
             lat += np.random.normal(0, NOISE_SIGMA)
             lon += np.random.normal(0, NOISE_SIGMA)
+
+            # Road-snap the noisy point so taxis appear on roads, not in
+            # buildings/parks. Reject points whose post-snap distance exceeds
+            # MAX_SNAP_DIST_M (off-road outliers).
+            snapped_lat, snapped_lon, snap_dist_m, snapped_valid = snap_to_road(
+                lat, lon, h3_lookup=h3_lookup
+            )
+            if not snapped_valid or snap_dist_m > MAX_SNAP_DIST_M:
+                rejected += 1
+                continue
+            lat, lon = snapped_lat, snapped_lon
 
             src_ts = base_src + k * ping_interval_s
             planned_wall_ts = src_to_wall(src_ts)
@@ -439,6 +458,16 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
                     blackouts += 1
 
             status = "pickup" if k == 0 else ("dropoff" if k == n_pings - 1 else "moving")
+            # Realistic per-ping speed: derived from consecutive positions.
+            # First ping has no predecessor, so use 0 with status=pickup.
+            if prev_lat is None or prev_lon is None:
+                speed_kmh = 0.0
+            else:
+                speed_kmh = compute_speed(prev_lat, prev_lon, lat, lon, ping_interval_s)
+            # Keep status consistent with speed: an intermediate near-stationary
+            # ping is "idle", not "moving" (avoids speed=0 + status=moving lies).
+            if status == "moving" and speed_kmh < 1.0:
+                status = "idle"
             zone_id, _, h3_cell = assign_h3_zone(lat, lon, h3_lookup)
             event = {
                 "taxi_id": taxi,
@@ -446,15 +475,16 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
                 "event_time": datetime.fromtimestamp(planned_wall_ts, tz=timezone.utc).isoformat(),
                 "lat": round(lat, 6),
                 "lon": round(lon, 6),
-                "speed_kmh": 0.0,   # computed downstream if needed
+                "speed_kmh": round(speed_kmh, 2),
                 "status": status,
                 "h3_index": h3_cell,
                 "zone_id": zone_id,
-                "snap_dist_m": 0.0,
+                "snap_dist_m": round(float(snap_dist_m), 2),
                 "source": "coupled_v1",
             }
             heapq.heappush(heap, (wall_ts, counter, taxi, trip_id, event))
             counter += 1
+            prev_lat, prev_lon = lat, lon
         trips_expanded += 1
 
     # Seed: expand all trips within first 5 minutes of source window, then top up as we drain
@@ -507,7 +537,7 @@ def run_coupled(max_trips, speed, ping_interval_s, fleet_size):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TaaSim Vehicle GPS Producer")
+    parser = argparse.ArgumentParser(description="CasaMotion Vehicle GPS Producer")
     parser.add_argument("--mode", choices=["live", "curated", "coupled"], default="coupled",
                         help="live=Porto raw, curated=pre-projected, coupled=Phase4 trips + Phase3 routes (default)")
     parser.add_argument("--max-trips", type=int, default=None,
@@ -528,3 +558,4 @@ if __name__ == "__main__":
         run_curated(args.max_trips, args.speed, args.curated_path)
     else:
         run(args.max_trips, args.speed)
+

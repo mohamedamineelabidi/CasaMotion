@@ -1,4 +1,4 @@
-# TaaSim — Zone Remapping, Porto Warping & NYC Synthesis
+# CasaMotion — Zone Remapping, Porto Warping & NYC Synthesis
 ## The Complete Data Engineering Approach
 
 > **Scope of this document**: explain, in depth, *how* and *why* we transform three foreign data sources (Porto taxi GPS, NYC TLC trips, HCP + Glovo + OSM) into a realistic Casablanca mobility stream. Everything that happens **before** Kafka is documented here.
@@ -495,7 +495,7 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 
 ### 8.3 Separation of concerns — why this design scales
 
-Each phase has a **single responsibility** and communicates through a **file** (CSV / parquet / JSON). To adapt TaaSim to Rabat or Marrakech:
+Each phase has a **single responsibility** and communicates through a **file** (CSV / parquet / JSON). To adapt CasaMotion to Rabat or Marrakech:
 
 1. Swap `casablanca_arrondissements_v4.geojson` + `casa_arrondissement_population_2024.csv`
 2. Re-run Phase 1 → new `zone_mapping_v4.csv`
@@ -564,3 +564,4 @@ The cahier describes a **baseline** simulation layer (linear transform of Porto 
 
 > **Defence quote** (keep for the Week 8 Q&A):
 > *"Our simulation layer is a superset of the cahier's: the specified linear transform is still present (Phase 2 step 4), and every extension is offline-only — none of them crosses the Kappa boundary into the Flink streaming path. The graded system sees exactly the Kafka contract the cahier prescribes."*
+

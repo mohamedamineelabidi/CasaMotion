@@ -1,5 +1,5 @@
 # ============================================================
-# TaaSim — Verify Cassandra Schema & Test Queries
+# CasaMotion — Verify Cassandra Schema & Test Queries
 # Run AFTER cassandra-init has completed
 # ============================================================
 
@@ -52,3 +52,4 @@ docker exec taasim-cassandra cqlsh -e "TRACING ON; SELECT * FROM taasim.vehicle_
 
 Write-Host ""
 Write-Host "=== Cassandra Schema Verification Complete ===" -ForegroundColor Green
+

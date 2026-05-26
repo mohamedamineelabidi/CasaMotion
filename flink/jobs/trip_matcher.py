@@ -1,5 +1,5 @@
 """
-TaaSim — Flink Job 3: Trip Matcher
+CasaMotion — Flink Job 3: Trip Matcher
 =====================================
 Inputs:
   - raw.trips      (Kafka) → trip requests
@@ -62,6 +62,25 @@ def haversine_km(lat1, lon1, lat2, lon2):
     dlon = math.radians(lon2 - lon1)
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     return R * 2 * math.asin(math.sqrt(a))
+
+
+def normalize_trip_uuid(raw_trip_id):
+    """Return a valid UUID for Cassandra even when producer IDs are non-UUID strings."""
+    if isinstance(raw_trip_id, uuid.UUID):
+        return raw_trip_id
+
+    if raw_trip_id is None:
+        return uuid.uuid4()
+
+    trip_id_text = str(raw_trip_id).strip()
+    if not trip_id_text:
+        return uuid.uuid4()
+
+    try:
+        return uuid.UUID(trip_id_text)
+    except (ValueError, TypeError, AttributeError):
+        # Keep inserts idempotent by deriving a deterministic UUID from source trip id text.
+        return uuid.uuid5(uuid.NAMESPACE_URL, trip_id_text)
 
 
 class TripTimestampAssigner:
@@ -297,7 +316,7 @@ class TripMatcherFunction(KeyedProcessFunction):
                     CITY,
                     date_bucket,
                     created_at,
-                    uuid.UUID(event.get("trip_id", str(uuid.uuid4()))),
+                    normalize_trip_uuid(event.get("trip_id")),
                     event.get("rider_id", "unknown"),
                     taxi_id,
                     zone_id,
@@ -335,7 +354,7 @@ class TripMatcherFunction(KeyedProcessFunction):
                     CITY,
                     date_bucket,
                     created_at,
-                    uuid.UUID(event.get("trip_id", str(uuid.uuid4()))),
+                    normalize_trip_uuid(event.get("trip_id")),
                     event.get("rider_id", "unknown"),
                     "",
                     zone_id,
@@ -419,7 +438,7 @@ def main():
         .set_bootstrap_servers(KAFKA_BOOTSTRAP)
         .set_topics("processed.gps")
         .set_group_id("trip-matcher-gps")
-        .set_starting_offsets(KafkaOffsetsInitializer.earliest())
+        .set_starting_offsets(KafkaOffsetsInitializer.latest())
         .set_value_only_deserializer(SimpleStringSchema())
         .build()
     )
@@ -429,7 +448,7 @@ def main():
         .set_bootstrap_servers(KAFKA_BOOTSTRAP)
         .set_topics("raw.trips")
         .set_group_id("trip-matcher-trips")
-        .set_starting_offsets(KafkaOffsetsInitializer.earliest())
+        .set_starting_offsets(KafkaOffsetsInitializer.latest())
         .set_value_only_deserializer(SimpleStringSchema())
         .build()
     )
@@ -486,3 +505,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

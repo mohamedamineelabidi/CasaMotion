@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    Submit Spark ETL jobs to the TaaSim Spark cluster.
+    Submit Spark ETL jobs to the CasaMotion Spark cluster.
 
 .DESCRIPTION
     Submits Porto ETL, NYC ETL, and/or KPI analytics jobs
@@ -24,7 +24,7 @@ $ErrorActionPreference = "Stop"
 $MASTER = "taasim-spark-master"
 
 # ── Verify Spark master is running ─────────────────────────────────
-Write-Host "=== TaaSim Spark Job Submission ===" -ForegroundColor Cyan
+Write-Host "=== CasaMotion Spark Job Submission ===" -ForegroundColor Cyan
 
 $status = docker ps --filter "name=$MASTER" --filter "status=running" --format "{{.Names}}"
 if (-not $status) {
@@ -85,3 +85,4 @@ if ($Jobs -in @("all", "kpis")) {
 Write-Host "=== Submission Complete ===" -ForegroundColor Cyan
 Write-Host "  Spark Web UI: http://localhost:8080" -ForegroundColor DarkGray
 Write-Host "  Check MinIO:  docker exec taasim-minio mc ls local/curated/ --recursive" -ForegroundColor DarkGray
+

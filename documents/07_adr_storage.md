@@ -1,15 +1,15 @@
-# ADR-001 — TaaSim Storage Architecture
+# ADR-001 — CasaMotion Storage Architecture
 
 **Status:** Accepted  
 **Date:** 2026-04-07  
-**Authors:** TaaSim Engineering Team  
+**Authors:** CasaMotion Engineering Team  
 **Week:** 2 — Storage Design
 
 ---
 
 ## Context
 
-TaaSim ingests two event streams in real time:
+CasaMotion ingests two event streams in real time:
 
 - **`raw.gps`** — vehicle GPS pings produced every 4 seconds per taxi (up to 442 vehicles simulated).
 - **`raw.trips`** — rider trip reservation requests following Porto demand curves mapped to Casablanca time zones.
@@ -26,7 +26,7 @@ No single storage technology satisfies all three concerns equally well. This ADR
 
 ## Decision
 
-TaaSim adopts a **three-layer storage model**:
+CasaMotion adopts a **three-layer storage model**:
 
 | Layer | Technology | Concern Addressed |
 |-------|-----------|-------------------|
@@ -152,3 +152,4 @@ Flink can write directly to S3/MinIO using its FileSystem connector. This elimin
 | Demand update every 30s | Cassandra `demand_zones` partition = O(1) write + read |
 | ML forecast < 500ms | Model loaded in FastAPI from MinIO at startup; serving from RAM |
 | Spark ETL < 5 min | Hive-partitioned Parquet on MinIO enables partition pruning |
+

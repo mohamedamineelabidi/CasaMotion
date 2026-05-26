@@ -1,5 +1,5 @@
 # ============================================================
-# TaaSim — Register Kafka Connect S3 Sink Connectors
+# CasaMotion — Register Kafka Connect S3 Sink Connectors
 # Run AFTER kafka-connect container is healthy
 # ============================================================
 
@@ -76,3 +76,4 @@ Write-Host ""
 Write-Host "=== Done! Connectors registered ===" -ForegroundColor Green
 Write-Host "GPS events will be archived to: s3a://kafka-archive/raw.gps/"
 Write-Host "Trip events will be archived to: s3a://kafka-archive/raw.trips/"
+

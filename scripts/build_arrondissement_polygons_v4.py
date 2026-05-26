@@ -64,7 +64,7 @@ ALL_ZONES = [
 ]
 
 LOOKUP_URL = "https://nominatim.openstreetmap.org/lookup"
-HEADERS = {"User-Agent": "TaaSim-geodata/1.0 (academic capstone)"}
+HEADERS = {"User-Agent": "CasaMotion-geodata/1.0 (academic capstone)"}
 
 
 def fetch_osm_polygon(relation_id: int) -> tuple[str, dict] | None:
@@ -186,3 +186,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

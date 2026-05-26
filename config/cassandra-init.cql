@@ -1,5 +1,5 @@
 -- ============================================================
--- TaaSim — Cassandra Schema Initialization
+-- CasaMotion — Cassandra Schema Initialization
 -- Run once after Cassandra starts
 -- ============================================================
 
@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS vehicle_positions (
     speed       DOUBLE,
     status      TEXT,
     h3_index    TEXT,
+    snap_dist_m DOUBLE,
     PRIMARY KEY ((city, zone_id), event_time, taxi_id)
 ) WITH CLUSTERING ORDER BY (event_time DESC, taxi_id ASC)
   AND default_time_to_live = 86400
@@ -78,3 +79,4 @@ CREATE TABLE IF NOT EXISTS demand_zones (
 ) WITH CLUSTERING ORDER BY (window_start DESC)
   AND default_time_to_live = 604800
   AND compaction = {'class': 'TimeWindowCompactionStrategy', 'compaction_window_size': 1, 'compaction_window_unit': 'HOURS'};
+

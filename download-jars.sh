@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# TaaSim — Download required JARs for S3A connectivity
+# CasaMotion — Download required JARs for S3A connectivity
 # Run this ONCE before docker-compose up
 # ============================================================
 
@@ -58,3 +58,4 @@ echo "Flink JARs:"
 ls -la jars/flink/
 echo ""
 echo "You can now run: docker-compose up -d"
+

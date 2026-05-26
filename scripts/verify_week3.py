@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Week 3 Verification Script - TaaSim Pipeline E2E Testing
+Week 3 Verification Script - CasaMotion Pipeline E2E Testing
 Tests: Flink job status, Cassandra data flow, Kafka topics, services health
 """
 
@@ -119,7 +119,7 @@ def test_services():
 
 def main():
     print("=" * 60)
-    print("TaaSim Week 3 Verification Test")
+    print("CasaMotion Week 3 Verification Test")
     print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)
     
@@ -137,3 +137,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

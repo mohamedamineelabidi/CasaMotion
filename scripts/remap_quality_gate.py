@@ -1,5 +1,5 @@
 """
-TaaSim — Remapping Quality Gate
+CasaMotion — Remapping Quality Gate
 ================================
 Deterministic evaluator that reads transform constants from producers/config.py
 (single source of truth) and reports Outside%, Clamped%, Gini with pass/fail gates.
@@ -216,7 +216,7 @@ def _report(n_samples, clamped_pct, outside_pct, gini, zone_counts, label):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TaaSim Remapping Quality Gate")
+    parser = argparse.ArgumentParser(description="CasaMotion Remapping Quality Gate")
     parser.add_argument("--rows", type=int, default=100000,
                         help="Max Porto rows to evaluate (default: 100000)")
     parser.add_argument("--curated", type=str, default=None,
@@ -229,3 +229,4 @@ if __name__ == "__main__":
         passed = evaluate_live_transform(args.rows)
 
     sys.exit(0 if passed else 1)
+

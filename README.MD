@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="IMG/projectoverview.png" alt="TaaSim Urban Mobility Data Platform" width="850"/>
+<img src="IMG/logowithoubackground.png" alt="CasaMotion Branding Logo" width="560" style="max-width: 100%; height: auto;"/>
 
-# TaaSim — Transport as a Service
+<img src="IMG/meetourteam.png" alt="CasaMotion Core Development Team" width="1100" style="max-width: 100%; height: auto;"/>
+
+# CasaMotion — Transport as a Service
 
 **Real-time urban mobility simulation platform for Casablanca, Morocco**
 
@@ -26,7 +28,7 @@
 ## The Problem
 
 <div align="center">
-<img src="IMG/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs TaaSim Unified Data Layer" width="750"/>
+<img src="IMG/painpoint.png" alt="Urban Mobility Pain Points — Fragmented Reality vs CasaMotion Unified Data Layer" width="750"/>
 </div>
 
 <br/>
@@ -49,7 +51,7 @@ Despite significant investment in formal transit — the BRT corridor along Boul
 
 ## The Solution
 
-TaaSim treats urban mobility as a **data engineering problem**. By ingesting GPS vehicle streams, processing trip reservations in real time, and applying machine learning to historical patterns, the platform delivers:
+CasaMotion treats urban mobility as a **data engineering problem**. By ingesting GPS vehicle streams, processing trip reservations in real time, and applying machine learning to historical patterns, the platform delivers:
 
 - **Dynamic rider-vehicle matching** — nearest available taxi found in under 5 seconds
 - **Demand surge forecasting** — trip volume predicted per zone, 30 minutes ahead
@@ -78,26 +80,42 @@ TaaSim treats urban mobility as a **data engineering problem**. By ingesting GPS
 
 ## Architecture
 
-TaaSim follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training.
+CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training. The diagram below is the authoritative end-to-end view of the runtime; every layer maps 1:1 to a directory in this repository.
 
 <div align="center">
-<img src="IMG/archi_tassim.png" alt="TaaSim Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
+<img src="IMG/architecturev2.png" alt="CasaMotion Architecture v2 — Producers, Kafka KRaft, Flink (3 jobs), Cassandra, MinIO, Spark, FastAPI, Grafana, Jupyter" width="1100" style="max-width: 100%; height: auto;"/>
 </div>
 
 <br/>
 
-### System Components
+<details>
+<summary><strong>Earlier reference diagram (kept for context)</strong></summary>
 
-| Layer | Technology | Role |
-|:------|:-----------|:-----|
-| **Event Bus** | Apache Kafka 3.7.0 (KRaft) | Central nervous system — GPS pings and trip reservations stream through Kafka with 7-day retention |
-| **Stream Processing** | Apache Flink 1.18 | Three real-time jobs: GPS normalization, demand aggregation (30s windows), trip matching |
-| **Object Store** | MinIO (S3-compatible) | Data lake with four zones: `raw/`, `curated/`, `ml/`, `kafka-archive/` |
-| **Batch + ML** | Apache Spark 3.5.4 | ETL on 1.7M Porto trips and 30M NYC rides; GBT demand forecasting |
-| **Serving DB** | Apache Cassandra 4.1 | Low-latency queries: vehicle positions, trip records, demand per zone |
-| **Dashboard** | Grafana 10.4.0 | Live vehicle map, demand heatmap, KPI panels, ML forecast overlay |
-| **API** | FastAPI (Python) | REST endpoints: trip reservation, vehicle lookup, demand forecast — JWT auth |
-| **Notebooks** | Jupyter Lab | EDA, zone remapping analysis, model evaluation |
+<div align="center">
+<img src="IMG/archi_tassim.png" alt="CasaMotion Architecture — earlier v1 diagram" width="850"/>
+</div>
+
+</details>
+
+<br/>
+
+### System Components — mapped to the v2 diagram
+
+| # | Layer (diagram block) | Technology | Code path | Role |
+|:--|:----------------------|:-----------|:----------|:-----|
+| 1 | **Producers** | Python 3.13 + `kafka-python` | [producers/](producers/) | Phase-4 Casa synthetic replay (default — **coupled**) and Porto→Casa live mode. GPS producer publishes to `raw.gps` with H3 res-9 zone mapping, road-snap, ±20 m jitter, blackouts. Trip producer publishes to `raw.trips` with Porto demand curve (peaks at 08 & 18), petit/grand fleet split, MAD tariffs. |
+| 2 | **Streaming backbone** | Kafka 3.7.0 (KRaft, no ZooKeeper) | [docker-compose.yml](docker-compose.yml) | 5 topics: `raw.gps`, `raw.trips`, `processed.gps`, `processed.demand`, `processed.matches`. 4 partitions by default, 7-day retention, exactly-once with idempotent producers. Kafka UI on :8090, Kafka Connect (CP 7.7.0) for S3 sink. |
+| 3 | **Stream processing** | Apache Flink 1.18 (PyFlink) | [flink/jobs/](flink/jobs/) | **Job 1 — `gps_normalizer.py`**: validate + dedupe + H3 res-9 zone + speed/heading + 1-min tumbling, writes `vehicle_positions`. **Job 2 — `demand_aggregator.py`**: 30-second tumbling event-time windows by `(city, zone_id)` → unique vehicles, pending requests, supply/demand ratio (`WINDOW_SECONDS = 30` in code). **Job 3 — `trip_matcher.py`**: match request to nearest available vehicle inside zone + adjacent fan-out with dedup. EXACTLY_ONCE checkpoints every 60 s to `s3a://curated/flink-checkpoints` (RocksDB state). |
+| 4 | **Serving layer** | Cassandra 4.1 (keyspace `taasim`) | [config/cassandra-init.cql](config/cassandra-init.cql) | Four low-latency tables: `vehicle_positions` (by `(city, zone_id)` clustered by `event_time DESC`, TTL 24 h, `snap_dist_m` column), `demand_zones` (by zone × window_start, TTL 7 d), `trips`/`trip_matches` (by `date_bucket`), `trip_requests` (by request_id). Schema is bootstrapped by `cassandra-init` and made idempotent by [scripts/ensure-cassandra-schema.ps1](scripts/ensure-cassandra-schema.ps1). |
+| 5 | **Data lake** | MinIO (S3-compatible) | `minio-init` service | Four buckets: `raw/` (Parquet/JSON dumps), `curated/` (Spark outputs + Flink checkpoints), `mldata/` (features + saved GBT model), `kafka-archive/` (S3 Sink from `processed.*`). |
+| 6 | **Batch & ML** | Apache Spark 3.5.4 | [spark/](spark/) | Offline only (Kappa rule — never streamed). `feature_engineering.py` builds 183 981 ML rows on curated data. `train_demand_model.py` fits Spark MLlib GBT (maxDepth 5, maxIter 50) → **RMSE 3.71 · R² 0.75 · 45.8 % better than 7-day-lag baseline**. Model saved to `s3a://mldata/models/demand_v1/`. |
+| 7 | **Serving API** | FastAPI + JWT (HS256) | [api/main.py](api/main.py) | 7 routes (`/health`, `/auth/token`, `/demand/forecast`, `/trips`, `/zones`, `/zones/{zone_id}`, `/vehicles/{zone_id}`). Loads the GBT model only when `PYSPARK_ENABLED=1`; falls back to a deterministic heuristic otherwise. Publishes trip requests to `raw.trips`. Swagger at `/docs`. |
+| 8 | **Clients / users** | Web/mobile, ops team, analysts | — | Operations team uses Grafana, analysts use Jupyter, riders/drivers consume the REST API. |
+| 9 | **Observability** | Grafana 10.4.0 + Cassandra datasource | [config/grafana-dashboard.json](config/grafana-dashboard.json) | "CasaMotion — Live Pipeline (Casablanca)" dashboard: road-snapped vehicle geomap, demand heatmap, KPI panels, Flink job state, Kafka lag. Auto-provisioned. |
+| 10 | **Notebooks** | JupyterLab | [notebooks/](notebooks/) | EDA, zone remapping (v3/v4), Porto trajectory warping, NYC → Casa synthesis. Read-only against curated data. |
+| 11 | **Infrastructure** | Docker Compose, network `taasim-net` | [docker-compose.yml](docker-compose.yml) | 16 containers, persistent named volumes for Cassandra/MinIO/Flink/Kafka, healthchecks gate dependent services. Verified end-to-end by [scripts/demo-healthcheck.ps1](scripts/demo-healthcheck.ps1). |
+
+> The v2 diagram shows `/ml/predict-demand` and `/zones/demand` as illustrative API affordances. The implemented routes use the names listed in §[Serving — FastAPI](#serving--fastapi-apimainpy) below — those are authoritative.
 
 ### Real-Time Processing Pipeline
 
@@ -127,8 +145,8 @@ TaaSim follows a **Kappa Architecture** — Kafka is the system of record, Flink
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mohamedamineelabidi/Taasimm.git
-cd Taasimm
+git clone https://github.com/mohamedamineelabidi/Taasimm.git CasaMotion
+cd CasaMotion
 ```
 
 ### 2. Download Required JARs
@@ -141,7 +159,19 @@ cd Taasimm
 chmod +x download-jars.sh && ./download-jars.sh
 ```
 
-### 3. Start the Platform
+### 3. Configure Demo Environment
+
+```bash
+# Windows PowerShell
+Copy-Item .env.example .env
+
+# Linux/Mac
+cp .env.example .env
+```
+
+Defaults in `.env.example` are demo-only credentials. Replace all values for non-demo usage.
+
+### 4. Start the Platform
 
 ```bash
 docker compose up -d
@@ -168,7 +198,9 @@ taasim-trip-producer    Running
 taasim-api              Running         ← FastAPI (Week 6)
 ```
 
-### 4. Upload Datasets to MinIO
+Container names keep the `taasim-` prefix for compatibility with existing compose/service wiring.
+
+### 5. Upload Datasets to MinIO
 
 ```powershell
 .\upload-datasets.ps1
@@ -179,9 +211,16 @@ taasim-api              Running         ← FastAPI (Week 6)
 | Porto Taxi Trajectories | [Kaggle](https://www.kaggle.com/c/pkdd-15-predict-taxi-service-trajectory-i) | 1.8 GiB |
 | NYC TLC Trip Records (3 months) | [NYC Open Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page) | ~150 MiB |
 
-### 5. Producers (Already Running in Docker)
+### 6. Producers (Already Running in Docker)
 
-The Phase-4 producers (`taasim-gps-producer`, `taasim-trip-producer`) start automatically with the stack in **COUPLED mode** — replaying the 500k Casa synthetic trip requests paired with 500 OSRM-routed polylines, fleet=2000, speed=50× wall-clock.
+The Phase-4 producers (`taasim-gps-producer`, `taasim-trip-producer`) start automatically with the stack in **COUPLED mode** — replaying the 500k Casa synthetic trip requests paired with 500 OSRM-routed polylines.
+
+Current compose defaults are tuned for stable local demos:
+
+- GPS producer: `--speed ${GPS_PRODUCER_SPEED:-8}` and `--fleet-size ${GPS_FLEET_SIZE:-600}`
+- Trip producer: `--speed ${TRIP_PRODUCER_SPEED:-12}`
+
+You can override these in `.env` when load-testing.
 
 To run a local smoke test against `localhost:9092` (5 trips, ~30 GPS pings):
 
@@ -190,7 +229,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1                 # Windows
 # source .venv/bin/activate                    # Linux/Mac
 
-pip install -r producers/requirements.txt 2>$null; pip install kafka-python h3 pandas pyarrow numpy
+pip install kafka-python h3 pandas pyarrow numpy scipy
 
 python producers/vehicle_gps_producer.py --mode coupled --max-trips 5
 python producers/trip_request_producer.py --source casa_synth --max-trips 5
@@ -202,7 +241,7 @@ After editing producer source, rebuild the containers:
 docker compose up -d --build --force-recreate gps-producer trip-producer
 ```
 
-### 6. Access Services
+### 7. Access Services
 
 | Service | URL | Credentials |
 |:--------|:----|:------------|
@@ -215,13 +254,26 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 | FastAPI (Swagger) | http://localhost:8000/docs | JWT (see [§Machine Learning](#machine-learning)) |
 | Jupyter Lab | http://localhost:8888 | token from `docker logs taasim-jupyter` |
 
-### 7. Submit Flink Jobs and Verify
+### Security Notes (Demo vs Production)
+
+- Demo mode uses weak defaults from `.env.example` (`minioadmin`, `admin`, sample JWT secret) to keep local startup friction low.
+- For production-like environments, rotate `JWT_SECRET`, MinIO root creds, Kafka Connect AWS creds, and Grafana admin password before first boot.
+- Cassandra auth is currently disabled in this demo stack; enable authentication and network restrictions before external exposure.
+- API CORS/auth behavior is designed for local demo only and is not production-hardened.
+
+### 8. Submit Flink Jobs and Verify
 
 ```powershell
 .\scripts\register-connectors.ps1     # Register Kafka Connect S3 Sinks
 .\scripts\ensure-cassandra-schema.ps1  # Idempotent schema migration
 .\scripts\submit-flink-jobs.ps1        # Submit all 3 PyFlink jobs
 .\scripts\verify-flink-jobs.ps1        # End-to-end pipeline check
+
+# Optional verifier lag overrides (if host capacity differs)
+$env:MAX_LAG_RAW_GPS=2500
+$env:MAX_LAG_PROCESSED_GPS_DEMAND=3000
+$env:MAX_LAG_PROCESSED_GPS_MATCHER=3000
+$env:MAX_LAG_RAW_TRIPS=500
 ```
 
 ---
@@ -232,7 +284,7 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 
 ```
 +--------------------------------------------------------------------+
-|                    TaaSim Docker Compose Stack                      |
+|                    CasaMotion Docker Compose Stack                      |
 |                                                                    |
 |  Event bus & archival                                              |
 |  +---------+  +-------------+  +-----------+                       |
@@ -301,7 +353,7 @@ docker compose up -d --build --force-recreate gps-producer trip-producer
 Both Kafka producers run inside Docker (`taasim-gps-producer`, `taasim-trip-producer`) and start automatically with the stack. They share a common boot sequence (`producers/config.py`) and replay the **Phase-4 Casablanca synthesis** (500k trips over 90 days, NYC temporal fingerprint rebased to Casa geography) paired with **Phase-3 OSRM trajectories** (500 routed polylines indexed by zone-pair).
 
 <div align="center">
-<img src="img/flink_architecture.png" alt="TaaSim Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
+<img src="IMG/flink_architecture.png" alt="CasaMotion Producer Architecture — GPS and Trip producers, COUPLED/LIVE modes, H3 zone lookup, casa_synth replay, Docker build" width="900"/>
 </div>
 
 <br/>
@@ -344,7 +396,7 @@ Two modes selected via `--source`:
 |:----:|:--------------------------|:------------|
 | 1 | Read row from `casa_trip_requests.parquet` (NYC temporal fingerprint, 500k rows) | Uniform random origin + destination zone |
 | 2 | Rebase `event_time` to wall-clock now | No parquet needed |
-| 3 | Emit at scaled rate (`--speed 50` → 1 hour real = 50 hours simulated) | Same emit loop |
+| 3 | Emit at scaled rate (`--speed 12` by default in compose; configurable) | Same emit loop |
 | 4 | Fleet split: haversine < 2 km → 70% petit / 30% grand taxi | Same fleet split |
 | 5 | Tariff: 7 + 1.6 MAD/km (petit) or fixed 10–40 MAD (grand), build JSON → `raw.trips` (key=`origin_zone`) | Same payload |
 
@@ -360,12 +412,12 @@ Two modes selected via `--source`:
 #### Docker build (`producers/Dockerfile`)
 
 ```
-python:3.11-slim → kafka-python, h3, pandas, pyarrow → COPY config.py + scripts
+python:3.13-slim → kafka-python, h3, pandas, pyarrow → COPY config.py + scripts
                 → MOUNT /data/*.parquet, /data/*.json (read-only)
-                → CMD python vehicle_gps_producer.py --speed 50 --fleet-size 2000
+                → CMD python vehicle_gps_producer.py --mode coupled --speed ${GPS_PRODUCER_SPEED:-8} --fleet-size ${GPS_FLEET_SIZE:-600}
 ```
 
-Compose passes `--mode coupled --speed 50 --fleet-size 2000` to GPS and `--source casa_synth --speed 50` to Trips. After editing producer source, rebuild with:
+Compose passes `--mode coupled --speed ${GPS_PRODUCER_SPEED:-8} --fleet-size ${GPS_FLEET_SIZE:-600}` to GPS and `--source casa_synth --speed ${TRIP_PRODUCER_SPEED:-12}` to Trips. After editing producer source, rebuild with:
 
 ```powershell
 docker compose up -d --build --force-recreate gps-producer trip-producer
@@ -404,6 +456,13 @@ trip_request_producer --> raw.trips --> Job 2 --> processed.demand --> demand_zo
                               +--> Job 3 --> processed.matches --> trips
 ```
 
+Current compose defaults are tuned for stable local demos:
+
+- GPS producer: `--speed ${GPS_PRODUCER_SPEED:-8}` and `--fleet-size ${GPS_FLEET_SIZE:-600}`
+- Trip producer: `--speed ${TRIP_PRODUCER_SPEED:-12}`
+
+You can override these in `.env` when load-testing.
+
 ### Cassandra Schema
 
 | Table | Partition Key | Clustering | TTL | Query Pattern |
@@ -439,28 +498,26 @@ trip_request_producer --> raw.trips --> Job 2 --> processed.demand --> demand_zo
 
 ### Serving — FastAPI ([api/main.py](api/main.py))
 
-Four endpoints, JWT-protected (`HS256`, 24h expiry, two roles: `rider` + `admin`):
+Seven endpoints, JWT-protected (`HS256`, 24h expiry, two roles: `rider` + `admin`):
 
 | Method | Path | Role | Purpose |
 |:------|:-----|:-----|:--------|
 | `POST` | `/api/auth/token`      | public | Issue JWT (demo creds — username + role) |
 | `POST` | `/api/demand/forecast` | rider/admin | Demand prediction for `(zone_id, datetime)` — heuristic by default; GBT when `PYSPARK_ENABLED=1` (see `api/main.py`) |
-| `POST` | `/api/trips`           | rider/admin | **Stub** — returns a matched-trip JSON. Does NOT yet publish to `raw.trips`; trip ingestion goes through the trip-request producer. |
-| `GET`  | `/api/zones`           | public | List all 16 Casablanca zones (from `data/zone_mapping_v4.csv`) |
-| `GET`  | `/api/zones/{zone_id}` | public | Zone detail |
+| `POST` | `/api/trips`           | rider/admin | Publish a trip request to Kafka `raw.trips` (for Flink Job 3 matching), return queued acknowledgment |
+| `GET`  | `/api/zones`           | rider/admin | List all 16 Casablanca zones (from `data/zone_mapping_v4.csv`) |
+| `GET`  | `/api/zones/{zone_id}` | rider/admin | Zone detail |
+| `GET`  | `/api/vehicles/{zone_id}` | rider/admin | Latest vehicle positions for one zone (read from Cassandra `vehicle_positions`); returns degraded empty payload if Cassandra is unavailable |
 | `GET`  | `/api/health`          | public | Liveness + `model_loaded` (true only when `PYSPARK_ENABLED=1` and the GBT pipeline loaded) |
 
-> Planned but not yet implemented: `GET /api/vehicles/{zone}` — live vehicle
-> snapshot from Cassandra `vehicle_positions`. Tracked for a future sprint.
-
 ```bash
-curl -X POST http://localhost:8000/api/demand/forecast \
-  -H "Authorization: Bearer $JWT" \
+TOKEN="<paste JWT from /api/auth/token response>"
+
+curl -s -X POST http://localhost:8000/api/demand/forecast \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"zone_id": 8, "datetime": "2026-04-04T08:30:00"}'
-# →
-# { "zone_id": 8, "zone_name": "Maarif",
-#   "predicted_demand": 142, "slot_start": "2026-04-04T08:30:00" }
+# -> {"zone_id":8,"zone_name":"Maarif",...}
 ```
 
 ---
@@ -468,7 +525,7 @@ curl -X POST http://localhost:8000/api/demand/forecast \
 ## Project Structure
 
 ```
-Taasimm/
+CasaMotion/
 ├── docker-compose.yml              # Full stack — 16 containers
 ├── download-jars.ps1 / .sh         # JAR downloader
 ├── upload-datasets.ps1             # Dataset upload to MinIO
@@ -476,7 +533,7 @@ Taasimm/
 ├── config/
 │   ├── cassandra-init.cql          # Keyspace + 3 tables
 │   ├── connect-s3-sink-{gps,trips}.json  # Kafka Connect S3 Sink configs
-│   ├── grafana-dashboard.json      # "TaaSim — Live Pipeline (Casablanca)"
+│   ├── grafana-dashboard.json      # "CasaMotion — Live Pipeline (Casablanca)"
 │   └── spark-defaults.conf         # S3A configuration
 │
 ├── producers/                      # Phase-4 Kafka producers (Docker)
@@ -500,7 +557,7 @@ Taasimm/
 │   └── verify_model.py
 │
 ├── api/                            # FastAPI REST (Week 6)
-│   ├── main.py                     # JWT auth, 4 endpoints
+│   ├── main.py                     # JWT auth, forecast + zones + vehicles + trips
 │   ├── Dockerfile
 │   └── requirements.txt
 │
@@ -537,7 +594,7 @@ Taasimm/
 │   ├── flink/                      # Kafka, S3, Cassandra connectors
 │   └── spark/                      # hadoop-aws, aws-sdk-bundle
 │
-├── img/                            # Architecture diagrams
+├── IMG/                            # Architecture diagrams
 │   ├── projectoverview.png · painpoint.png
 │   ├── archi_tassim.png · streamproce_architec.png
 │   └── flink_architecture.png      # Producer architecture (see §Data Pipeline)
@@ -592,10 +649,27 @@ Taasimm/
 ### Production Readiness Checklist
 
 1. GPS events flow end-to-end: Kafka → Flink → Cassandra → Grafana vehicle map (updating live)
-2. Trip reservation: trip-request producer publishes to `raw.trips` → Flink Job 3 matches in under 5 seconds (`POST /api/trips` is a demo stub today)
+2. Trip reservation: `POST /api/trips` publishes to `raw.trips` → Flink Job 3 matches and writes assignment outcome to Cassandra
 3. Demand heatmap: Grafana updating every 30 seconds per zone
 4. ML forecast: API responds in under 500ms, beats naive baseline
 5. Checkpoint recovery: Flink TaskManager restart → job resumes from checkpoint
+
+---
+
+## Meet The Team Behind The App
+
+CasaMotion is designed and delivered by a focused engineering team building real-time mobility systems for Casablanca.
+
+<div align="center">
+
+### Meet the core development team
+
+| Team Member | Role | Focus Area |
+|:------------|:-----|:-----------|
+| **Mohamed Amine El Abidi** | **AI & Data Engineer** | Real-time architecture, ML pipeline, and platform integration |
+| **Rida Aderkane** | **Data Engineer** | Data pipeline engineering, processing quality, and analytics workflows |
+
+</div>
 
 ---
 
@@ -619,6 +693,6 @@ MIT License. Datasets used under their respective open licenses (CC BY 4.0, Publ
 
 Built by **Mohamed Amine El Abidi**
 
-**TaaSim** — The data platform that moves Casablanca.
+**CasaMotion** — The data platform that moves Casablanca.
 
 </div>

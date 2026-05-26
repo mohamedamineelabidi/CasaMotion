@@ -1,5 +1,5 @@
 """
-TaaSim — Flink Job 2: Demand Aggregator
+CasaMotion — Flink Job 2: Demand Aggregator
 =========================================
 Inputs:
   - processed.gps  (Kafka) → normalized GPS positions from Job 1
@@ -193,7 +193,7 @@ def main():
         .set_bootstrap_servers(KAFKA_BOOTSTRAP)
         .set_topics("processed.gps")
         .set_group_id("demand-aggregator-gps")
-        .set_starting_offsets(KafkaOffsetsInitializer.earliest())
+        .set_starting_offsets(KafkaOffsetsInitializer.latest())
         .set_value_only_deserializer(SimpleStringSchema())
         .build()
     )
@@ -204,7 +204,7 @@ def main():
         .set_bootstrap_servers(KAFKA_BOOTSTRAP)
         .set_topics("raw.trips")
         .set_group_id("demand-aggregator-trips")
-        .set_starting_offsets(KafkaOffsetsInitializer.earliest())
+        .set_starting_offsets(KafkaOffsetsInitializer.latest())
         .set_value_only_deserializer(SimpleStringSchema())
         .build()
     )
@@ -275,3 +275,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

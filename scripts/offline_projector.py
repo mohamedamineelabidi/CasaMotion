@@ -1,5 +1,5 @@
 """
-TaaSim — Offline Trajectory Projector
+CasaMotion — Offline Trajectory Projector
 =======================================
 Processes Porto taxi trips in batches and projects them onto Casablanca roads
 using:
@@ -397,7 +397,7 @@ def run(max_trips, batch_size, resume=True):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TaaSim Offline Trajectory Projector")
+    parser = argparse.ArgumentParser(description="CasaMotion Offline Trajectory Projector")
     parser.add_argument("--max-trips", type=int, default=5000,
                         help="Max number of Porto trips to project (default: 5000)")
     parser.add_argument("--batch-size", type=int, default=100,
@@ -407,3 +407,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     run(args.max_trips, args.batch_size, resume=not args.no_resume)
+

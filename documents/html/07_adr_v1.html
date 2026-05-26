@@ -31,7 +31,7 @@
 <ul>
 <li><a href="#architecture-decision-record-taasim-v1"
 id="toc-architecture-decision-record-taasim-v1">Architecture Decision
-Record — TaaSim v1</a>
+Record — CasaMotion v1</a>
 <ul>
 <li><a href="#kappa-architecture-over-lambda"
 id="toc-kappa-architecture-over-lambda">1. Kappa Architecture (over
@@ -47,17 +47,17 @@ Kafka Topic Retention</a></li>
 </ul>
 </nav>
 <h1 id="architecture-decision-record-taasim-v1">Architecture Decision
-Record — TaaSim v1</h1>
+Record — CasaMotion v1</h1>
 <p><strong>Date</strong>: 2025-04-12<br />
 <strong>Status</strong>: Accepted<br />
-<strong>Authors</strong>: TaaSim Team — ENSAH Capstone 2025–2026</p>
+<strong>Authors</strong>: CasaMotion Team — ENSAH Capstone 2025–2026</p>
 <hr />
 <h2 id="kappa-architecture-over-lambda">1. Kappa Architecture (over
 Lambda)</h2>
 <p><strong>Decision</strong>: All real-time processing goes through
 Kafka → Flink. Spark is used exclusively for offline batch ETL and ML
 training — not for serving queries.</p>
-<p><strong>Context</strong>: TaaSim requires sub-5s trip matching and
+<p><strong>Context</strong>: CasaMotion requires sub-5s trip matching and
 30s demand updates. Lambda would duplicate logic across batch and speed
 layers.</p>
 <p><strong>Rationale</strong>: - Kafka is the single source of truth
@@ -189,3 +189,4 @@ events are lost. Mitigation: Grafana alert on connector status + MinIO
 archive verification script.</p>
 </body>
 </html>
+
