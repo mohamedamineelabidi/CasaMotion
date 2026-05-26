@@ -80,26 +80,42 @@ CasaMotion treats urban mobility as a **data engineering problem**. By ingesting
 
 ## Architecture
 
-CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training.
+CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, Flink handles all real-time processing, and Spark operates exclusively offline for batch ETL and ML training. The diagram below is the authoritative end-to-end view of the runtime; every layer maps 1:1 to a directory in this repository.
 
 <div align="center">
-<img src="IMG/archi_tassim.png" alt="CasaMotion Architecture — Ingestion, Kafka, Flink, Cassandra, MinIO, Spark, FastAPI, Grafana" width="850"/>
+<img src="IMG/architecturev2.png" alt="CasaMotion Architecture v2 — Producers, Kafka KRaft, Flink (3 jobs), Cassandra, MinIO, Spark, FastAPI, Grafana, Jupyter" width="1100" style="max-width: 100%; height: auto;"/>
 </div>
 
 <br/>
 
-### System Components
+<details>
+<summary><strong>Earlier reference diagram (kept for context)</strong></summary>
 
-| Layer | Technology | Role |
-|:------|:-----------|:-----|
-| **Event Bus** | Apache Kafka 3.7.0 (KRaft) | Central nervous system — GPS pings and trip reservations stream through Kafka with 7-day retention |
-| **Stream Processing** | Apache Flink 1.18 | Three real-time jobs: GPS normalization, demand aggregation (30s windows), trip matching |
-| **Object Store** | MinIO (S3-compatible) | Data lake with four zones: `raw/`, `curated/`, `ml/`, `kafka-archive/` |
-| **Batch + ML** | Apache Spark 3.5.4 | ETL on 1.7M Porto trips and 30M NYC rides; GBT demand forecasting |
-| **Serving DB** | Apache Cassandra 4.1 | Low-latency queries: vehicle positions, trip records, demand per zone |
-| **Dashboard** | Grafana 10.4.0 | Live vehicle map, demand heatmap, KPI panels, ML forecast overlay |
-| **API** | FastAPI (Python) | REST endpoints: trip reservation, vehicle lookup, demand forecast — JWT auth |
-| **Notebooks** | Jupyter Lab | EDA, zone remapping analysis, model evaluation |
+<div align="center">
+<img src="IMG/archi_tassim.png" alt="CasaMotion Architecture — earlier v1 diagram" width="850"/>
+</div>
+
+</details>
+
+<br/>
+
+### System Components — mapped to the v2 diagram
+
+| # | Layer (diagram block) | Technology | Code path | Role |
+|:--|:----------------------|:-----------|:----------|:-----|
+| 1 | **Producers** | Python 3.13 + `kafka-python` | [producers/](producers/) | Phase-4 Casa synthetic replay (default — **coupled**) and Porto→Casa live mode. GPS producer publishes to `raw.gps` with H3 res-9 zone mapping, road-snap, ±20 m jitter, blackouts. Trip producer publishes to `raw.trips` with Porto demand curve (peaks at 08 & 18), petit/grand fleet split, MAD tariffs. |
+| 2 | **Streaming backbone** | Kafka 3.7.0 (KRaft, no ZooKeeper) | [docker-compose.yml](docker-compose.yml) | 5 topics: `raw.gps`, `raw.trips`, `processed.gps`, `processed.demand`, `processed.matches`. 4 partitions by default, 7-day retention, exactly-once with idempotent producers. Kafka UI on :8090, Kafka Connect (CP 7.7.0) for S3 sink. |
+| 3 | **Stream processing** | Apache Flink 1.18 (PyFlink) | [flink/jobs/](flink/jobs/) | **Job 1 — `gps_normalizer.py`**: validate + dedupe + H3 res-9 zone + speed/heading + 1-min tumbling, writes `vehicle_positions`. **Job 2 — `demand_aggregator.py`**: 30-second tumbling event-time windows by `(city, zone_id)` → unique vehicles, pending requests, supply/demand ratio (`WINDOW_SECONDS = 30` in code). **Job 3 — `trip_matcher.py`**: match request to nearest available vehicle inside zone + adjacent fan-out with dedup. EXACTLY_ONCE checkpoints every 60 s to `s3a://curated/flink-checkpoints` (RocksDB state). |
+| 4 | **Serving layer** | Cassandra 4.1 (keyspace `taasim`) | [config/cassandra-init.cql](config/cassandra-init.cql) | Four low-latency tables: `vehicle_positions` (by `(city, zone_id)` clustered by `event_time DESC`, TTL 24 h, `snap_dist_m` column), `demand_zones` (by zone × window_start, TTL 7 d), `trips`/`trip_matches` (by `date_bucket`), `trip_requests` (by request_id). Schema is bootstrapped by `cassandra-init` and made idempotent by [scripts/ensure-cassandra-schema.ps1](scripts/ensure-cassandra-schema.ps1). |
+| 5 | **Data lake** | MinIO (S3-compatible) | `minio-init` service | Four buckets: `raw/` (Parquet/JSON dumps), `curated/` (Spark outputs + Flink checkpoints), `mldata/` (features + saved GBT model), `kafka-archive/` (S3 Sink from `processed.*`). |
+| 6 | **Batch & ML** | Apache Spark 3.5.4 | [spark/](spark/) | Offline only (Kappa rule — never streamed). `feature_engineering.py` builds 183 981 ML rows on curated data. `train_demand_model.py` fits Spark MLlib GBT (maxDepth 5, maxIter 50) → **RMSE 3.71 · R² 0.75 · 45.8 % better than 7-day-lag baseline**. Model saved to `s3a://mldata/models/demand_v1/`. |
+| 7 | **Serving API** | FastAPI + JWT (HS256) | [api/main.py](api/main.py) | 7 routes (`/health`, `/auth/token`, `/demand/forecast`, `/trips`, `/zones`, `/zones/{zone_id}`, `/vehicles/{zone_id}`). Loads the GBT model only when `PYSPARK_ENABLED=1`; falls back to a deterministic heuristic otherwise. Publishes trip requests to `raw.trips`. Swagger at `/docs`. |
+| 8 | **Clients / users** | Web/mobile, ops team, analysts | — | Operations team uses Grafana, analysts use Jupyter, riders/drivers consume the REST API. |
+| 9 | **Observability** | Grafana 10.4.0 + Cassandra datasource | [config/grafana-dashboard.json](config/grafana-dashboard.json) | "CasaMotion — Live Pipeline (Casablanca)" dashboard: road-snapped vehicle geomap, demand heatmap, KPI panels, Flink job state, Kafka lag. Auto-provisioned. |
+| 10 | **Notebooks** | JupyterLab | [notebooks/](notebooks/) | EDA, zone remapping (v3/v4), Porto trajectory warping, NYC → Casa synthesis. Read-only against curated data. |
+| 11 | **Infrastructure** | Docker Compose, network `taasim-net` | [docker-compose.yml](docker-compose.yml) | 16 containers, persistent named volumes for Cassandra/MinIO/Flink/Kafka, healthchecks gate dependent services. Verified end-to-end by [scripts/demo-healthcheck.ps1](scripts/demo-healthcheck.ps1). |
+
+> The v2 diagram shows `/ml/predict-demand` and `/zones/demand` as illustrative API affordances. The implemented routes use the names listed in §[Serving — FastAPI](#serving--fastapi-apimainpy) below — those are authoritative.
 
 ### Real-Time Processing Pipeline
 
