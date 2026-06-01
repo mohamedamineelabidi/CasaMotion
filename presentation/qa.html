@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CasaMotion — Defense Q&A Flashcards</title>
+<style>
+  :root{
+    --cyan:#22d3ee; --blue:#2d6bff; --violet:#7c3aed; --teal:#14b8b8;
+    --navy:#0a1430; --ink:#e9eefb; --muted:#9fb0d6;
+    --grad:linear-gradient(120deg,var(--cyan),var(--blue) 50%,var(--violet));
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:"Segoe UI",Inter,system-ui,sans-serif; color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 10% -10%, rgba(34,211,238,.12), transparent 60%),
+      radial-gradient(1000px 600px at 100% 110%, rgba(124,58,237,.16), transparent 55%),
+      var(--navy);
+    min-height:100vh; padding:42px 22px 80px;
+  }
+  header{max-width:1080px; margin:0 auto 26px; text-align:center}
+  header img{height:62px; filter:drop-shadow(0 4px 12px rgba(0,0,0,.4))}
+  header h1{font-size:30px; margin:14px 0 4px}
+  header h1 .g{background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent}
+  header p{color:var(--muted); margin:0; font-size:15px}
+  .toolbar{max-width:1080px; margin:0 auto 22px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .toolbar input{
+    flex:1; min-width:240px; max-width:460px; padding:11px 16px; border-radius:999px;
+    border:1px solid rgba(159,176,214,.3); background:rgba(255,255,255,.05); color:var(--ink); font-size:15px;
+  }
+  .toolbar input::placeholder{color:var(--muted)}
+  .grid{max-width:1080px; margin:0 auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:18px}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    border:1px solid rgba(159,176,214,.18); border-radius:16px; padding:0; overflow:hidden;
+    box-shadow:0 12px 30px rgba(0,0,0,.35); transition:transform .15s, border-color .15s;
+  }
+  .card:hover{transform:translateY(-3px); border-color:rgba(45,107,255,.5)}
+  .card .q{
+    padding:16px 18px; cursor:pointer; display:flex; gap:12px; align-items:flex-start;
+    background:rgba(45,107,255,.10); border-bottom:1px solid rgba(159,176,214,.14);
+  }
+  .card .num{
+    flex:none; width:30px; height:30px; border-radius:9px; background:var(--grad); color:#fff;
+    font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
+  }
+  .card .q h3{margin:2px 0; font-size:15.5px; color:#fff; line-height:1.3; font-weight:700}
+  .card .a{padding:0 18px; max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease; font-size:13.5px; line-height:1.5; color:var(--ink)}
+  .card.open .a{max-height:600px; padding:14px 18px 18px}
+  .card .a code{background:rgba(34,211,238,.10); color:var(--cyan); padding:1px 5px; border-radius:5px; font-size:12px}
+  .card .a strong{color:#fff}
+  .card .a ul{margin:.3em 0; padding-left:1.1em}
+  .card .a li{margin:.22em 0}
+  .hint{max-width:1080px; margin:0 auto 18px; text-align:center; color:var(--muted); font-size:13px}
+  footer{max-width:1080px; margin:40px auto 0; text-align:center; color:var(--muted); font-size:12.5px}
+  footer a{color:var(--cyan)}
+  .controls{display:flex; gap:8px}
+  .btn{
+    padding:11px 16px; border-radius:999px; border:1px solid rgba(45,107,255,.45);
+    background:rgba(45,107,255,.14); color:#dfe8ff; font-size:13px; cursor:pointer;
+  }
+  .btn:hover{background:rgba(45,107,255,.26)}
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/logowithoubackground.png" alt="CasaMotion" />
+  <h1>Defense <span class="g">Q&amp;A Flashcards</span></h1>
+  <p>15 high-probability oral-defense questions · click a card to reveal the answer</p>
+</header>
+
+<div class="toolbar">
+  <input id="search" type="text" placeholder="🔎 Filter questions (e.g. MinIO, GBT, Flink, Kafka, leakage)…" />
+  <div class="controls">
+    <button class="btn" id="expandAll">Expand all</button>
+    <button class="btn" id="collapseAll">Collapse all</button>
+  </div>
+</div>
+<p class="hint">Tip: present this on a second screen during questions, or print to PDF as a cheat-sheet.</p>
+
+<div class="grid" id="grid"><!-- cards injected --></div>
+
+<footer>
+  CasaMotion · Real-Time Urban Mobility Intelligence for Casablanca · all answers are code-accurate ·
+  back to the <a href="index.html">slide deck</a>
+</footer>
+
+<script>
+const QA = [
+  {q:"Why MinIO and not HDFS / Hadoop?", a:`<ul>
+    <li><strong>One S3 API for three engines</strong> — Spark, Flink, Kafka Connect all use the same <code>s3a://</code> paths.</li>
+    <li><strong>Single stateless binary</strong> — HDFS needs a NameNode (SPOF) + DataNodes + JournalNode quorum.</li>
+    <li><strong>Object semantics fit the workload</strong> — immutable Parquet, checkpoints, archives.</li>
+    <li><strong>Cloud-portable</strong> — <code>s3a://</code> swaps to AWS S3 with zero code change.</li></ul>`},
+  {q:"Architectural difference between MinIO and HDFS?", a:`HDFS = distributed <strong>block file system</strong> with a central <strong>NameNode</strong> (SPOF), 128 MB blocks ×3 replicas, <code>hdfs://</code> access. MinIO = <strong>object store</strong> (key→object), no central namenode, <strong>erasure coding</strong>, S3 <code>s3a://</code> API. <strong>One line:</strong> block file system + central metadata server vs stateless S3 object store.`},
+  {q:"Why GBT for the ML?", a:`<ul>
+    <li>Demand is <strong>non-linear</strong> → trees split on thresholds.</li>
+    <li>Handles <strong>mixed types</strong> (categorical <code>zone_idx</code> + numeric lags), <strong>no scaling</strong>.</li>
+    <li>Learns <strong>interactions for free</strong>; boosting beats bagging on tabular (lower bias than Random Forest).</li>
+    <li>Built-in <code>featureImportances</code>, native in Spark MLlib.</li>
+    <li><strong>RMSE 3.71 vs 6.84 baseline = −45.8%</strong>, R² 0.75.</li></ul>`},
+  {q:"Why each technology?", a:`Kafka (replayable log, KRaft, no ZooKeeper) · Flink (event-time windows + watermarks + exactly-once) · Spark (offline ETL + MLlib) · Cassandra (write-optimized, query-driven, native TTL) · MinIO (S3 API for all engines) · FastAPI (async, Swagger, JWT) · Grafana (reads Cassandra directly) · Docker Compose (one-command 16 containers) · H3 (O(1) zone lookup).`},
+  {q:"Serialization / deserialization?", a:`<ul>
+    <li><strong>Serialize</strong> = object → bytes for Kafka; <strong>deserialize</strong> = bytes → object on consume.</li>
+    <li><strong>JSON:</strong> producers <code>json.dumps(event).encode("utf-8")</code>; Flink <code>json.loads</code>.</li>
+    <li><strong>Why JSON:</strong> debuggable in Kafka UI, no schema registry. Trade-off: Avro/Protobuf = more compact (future).</li>
+    <li>Flink state serialized into <strong>RocksDB</strong>, checkpointed to MinIO.</li></ul>`},
+  {q:"What does each Flink job do?", a:`<ul>
+    <li><strong>Job 1 · GPS Normalizer:</strong> raw.gps → validate, dedup, H3 zone, road-snap/anonymize → <code>vehicle_positions</code> + processed.gps; 3-min watermarks.</li>
+    <li><strong>Job 2 · Demand Aggregator:</strong> processed.gps + raw.trips → 30 s tumbling event-time windows → <code>demand_zones</code> + processed.demand.</li>
+    <li><strong>Job 3 · Trip Matcher:</strong> keyBy zone, vehicles in MapState, nearest-match + adjacent fan-out + dedup → <code>trips</code> + processed.matches; P95 ≈ 1.2 s.</li></ul>`},
+  {q:"Flink architecture?", a:`JobManager (coordinator) + TaskManagers (12 slots). Each job = Kafka source → keyBy → stateful process fn → sinks. <strong>RocksDB</strong> state, <strong>60 s checkpoints to MinIO, EXACTLY_ONCE</strong>, event-time + watermarks, Cassandra via <code>execute_async</code>.`},
+  {q:"Kafka reads from which file?", a:`Kafka reads no files — <strong>producers publish</strong>. <code>trip_request_producer.py</code> reads <code>data/casa_synthesis/casa_trip_requests.parquet</code> → raw.trips. <code>vehicle_gps_producer.py</code> reads <code>gps_trajectory_index.json</code> + <code>casablanca_road_nodes.npy</code> → raw.gps.`},
+  {q:"Kafka topics and keys (partitioning)?", a:`<code>raw.gps</code> key=<code>taxi_id</code>; <code>raw.trips</code> key=<code>origin_zone</code>; plus processed.gps/demand/matches. <strong>4 partitions, 7-day retention, JSON.</strong> Keys align with Flink <code>keyBy</code> → no extra shuffle.`},
+  {q:"Why Cassandra, how modeled?", a:`Write-optimized, query-driven. <code>vehicle_positions</code> PK <code>(city, zone_id)</code> clustered <code>event_time DESC</code>, <strong>TTL 24 h</strong>. <code>demand_zones</code> TTL 7 d. <code>trips</code> partitioned by <code>date_bucket</code> (caps &lt; 100 MB). Native TTL auto-expires; Grafana reads directly.`},
+  {q:"ML features and leakage?", a:`<strong>9 features:</strong> hour_of_day, day_of_week, is_weekend, is_peak, zone_idx, slot_of_day, demand_lag_1d, demand_lag_7d, rolling_7d_mean. Target = <code>demand</code>. <strong>Leakage fix:</strong> removed <code>supply</code> + <code>supply_demand_ratio</code> (same-slot as target). <strong>Temporal split</strong> at <code>2014-05-01</code>.`},
+  {q:"Spark + MinIO + model connection?", a:`<code>s3a://curated/trips/</code> → <code>feature_engineering.py</code> → <code>s3a://mldata/features/</code> → <code>train_demand_model.py</code> → <code>s3a://mldata/models/demand_v1/</code> + metrics. Spark = engine (no local disk); MinIO = S3 storage; FastAPI loads the model from MinIO (<code>PYSPARK_ENABLED=1</code>).`},
+  {q:"Late / out-of-order events?", a:`Producer injects 5% blackout (60–180 s late). Flink Job 1 uses <strong>3-min bounded-out-of-orderness watermarks</strong> → late pings still land in the right window. Satisfies the cahier.`},
+  {q:"How is the simulation realistic?", a:`<strong>Porto</strong> = real motion (warped onto Casa roads via OSRM/OSM). <strong>NYC</strong> = temporal fingerprint (statistics only, never streamed). <strong>HCP population + Glovo + OSM transit</strong> = A–E tiers; origins weighted <code>population × ae_mult</code>. Validated: A/E ≈ 3.6×, peaks 08/18, 70/30 petit/grand.`},
+  {q:"Exactly-once and privacy guarantees?", a:`<strong>Exactly-once:</strong> Flink checkpoints (RocksDB→MinIO every 60 s) + Kafka offset commit → resume with no duplicates. <strong>Privacy:</strong> <code>GPS_DISPLAY_MODE=anonymized</code> snaps raw lat/lon to zone centroid + hash jitter <strong>before</strong> Cassandra write — raw coords never persist.`}
+];
+
+const grid = document.getElementById('grid');
+QA.forEach((item, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.text = (item.q + ' ' + item.a).toLowerCase();
+  card.innerHTML =
+    '<div class="q"><div class="num">Q'+(i+1)+'</div><h3>'+item.q+'</h3></div>'+
+    '<div class="a">'+item.a+'</div>';
+  card.querySelector('.q').addEventListener('click', () => card.classList.toggle('open'));
+  grid.appendChild(card);
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  const t = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.card').forEach(c => {
+    c.style.display = !t || c.dataset.text.includes(t) ? '' : 'none';
+  });
+});
+document.getElementById('expandAll').addEventListener('click', () =>
+  document.querySelectorAll('.card').forEach(c => c.classList.add('open')));
+document.getElementById('collapseAll').addEventListener('click', () =>
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('open')));
+</script>
+</body>
+</html>

@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CasaMotion — Real-Time Urban Mobility Intelligence</title>
+
+  <!-- Reveal.js core (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.css" id="theme" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/monokai.css" />
+
+  <!-- KaTeX for the activity-score formula -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+
+  <style>
+    :root {
+      --cm-cyan:   #22d3ee;
+      --cm-blue:   #2d6bff;
+      --cm-violet: #7c3aed;
+      --cm-teal:   #14b8b8;
+      --cm-navy:   #0a1430;
+      --cm-navy2:  #0f1c44;
+      --cm-ink:    #e9eefb;
+      --cm-muted:  #9fb0d6;
+      --cm-grad:   linear-gradient(120deg, var(--cm-cyan) 0%, var(--cm-blue) 48%, var(--cm-violet) 100%);
+    }
+
+    .reveal {
+      font-family: "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+      font-size: 30px;
+      color: var(--cm-ink);
+    }
+    .reveal .slides { text-align: left; }
+
+    /* Background */
+    .reveal-viewport {
+      background:
+        radial-gradient(1200px 700px at 15% -10%, rgba(34,211,238,0.14), transparent 60%),
+        radial-gradient(1100px 650px at 100% 110%, rgba(124,58,237,0.18), transparent 55%),
+        var(--cm-navy);
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4 { color: #fff; text-transform: none; letter-spacing: -0.01em; font-weight: 700; }
+    .reveal h1 { font-size: 2.0em; line-height: 1.05; }
+    .reveal h2 { font-size: 1.35em; line-height: 1.12; }
+    .reveal h3 { font-size: 1.02em; color: var(--cm-muted); font-weight: 600; margin-top: -.2em; }
+
+    .reveal section { padding: 8px 30px; }
+
+    /* Gradient accent text */
+    .grad {
+      background: var(--cm-grad);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+
+    /* Top gradient rule on content slides */
+    .reveal .slides section.std::before {
+      content: ""; position: absolute; left: 30px; right: 30px; top: 4px; height: 5px;
+      background: var(--cm-grad); border-radius: 4px; opacity: .9;
+    }
+
+    /* Corner logo watermark */
+    .cm-watermark {
+      position: fixed; right: 26px; bottom: 18px; height: 34px; opacity: .9; z-index: 40;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
+    }
+    /* Slide number badge */
+    .reveal .slide-number { background: transparent; color: var(--cm-muted); font-size: 16px; right: 12px; bottom: 8px; }
+
+    /* Lists */
+    .reveal ul { list-style: none; margin-left: 0; }
+    .reveal ul li { position: relative; padding-left: 1.3em; margin: .28em 0; line-height: 1.35; }
+    .reveal ul li::before {
+      content: ""; position: absolute; left: 0; top: .55em; width: .55em; height: .55em;
+      border-radius: 50%; background: var(--cm-grad);
+    }
+    .reveal ol { margin-left: 1.1em; }
+    .reveal ol li { margin: .25em 0; line-height: 1.34; }
+    .reveal strong { color: #fff; }
+    .reveal em { color: var(--cm-cyan); font-style: normal; }
+
+    .reveal a { color: var(--cm-cyan); }
+
+    /* Tables */
+    .reveal table { font-size: .72em; border-collapse: collapse; margin: .3em 0; width: 100%; }
+    .reveal table th {
+      background: rgba(45,107,255,0.20); color: #fff; border: none; padding: .42em .6em;
+      text-align: left; border-bottom: 2px solid var(--cm-blue);
+    }
+    .reveal table td { border: none; border-bottom: 1px solid rgba(159,176,214,0.18); padding: .38em .6em; color: var(--cm-ink); }
+    .reveal table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+
+    /* Code */
+    .reveal pre { width: 100%; box-shadow: none; font-size: .5em; }
+    .reveal pre code { border-radius: 10px; padding: 14px 16px; max-height: 460px; background: #0c1733; border: 1px solid rgba(124,58,237,.28); }
+    .reveal code { color: var(--cm-cyan); }
+
+    /* Blockquote / callout */
+    .reveal blockquote {
+      width: auto; background: rgba(34,211,238,0.07); border-left: 4px solid var(--cm-cyan);
+      border-radius: 8px; padding: .55em .9em; font-style: normal; color: var(--cm-ink); box-shadow: none; font-size: .82em;
+    }
+
+    /* Two-column layout */
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; align-items: center; }
+    .cols.w64 { grid-template-columns: 1.55fr 1fr; }
+    .cols.w46 { grid-template-columns: 1fr 1.55fr; }
+
+    /* Figure card */
+    .fig { background: #fff; border-radius: 12px; padding: 10px; box-shadow: 0 14px 40px rgba(0,0,0,.45); }
+    .fig img { display: block; width: 100%; border-radius: 6px; }
+    .fig.dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(159,176,214,0.18); }
+    .cap { font-size: .6em; color: var(--cm-muted); margin-top: 6px; text-align: center; }
+
+    /* Screenshot placeholder card */
+    .ph {
+      border: 2px dashed rgba(124,58,237,.55); border-radius: 14px; padding: 22px;
+      background: linear-gradient(180deg, rgba(34,211,238,.05), rgba(124,58,237,.07));
+      display: flex; flex-direction: column; gap: 8px; align-items: center; justify-content: center; text-align: center;
+      min-height: 230px;
+    }
+    .ph .ico { font-size: 2.0em; }
+    .ph .ttl { color: #fff; font-weight: 700; font-size: .9em; }
+    .ph .sub { color: var(--cm-muted); font-size: .62em; line-height: 1.35; }
+    .ph .path { color: var(--cm-cyan); font-family: ui-monospace, monospace; font-size: .58em; }
+
+    /* Metric chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: .4em; }
+    .chip {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(159,176,214,0.22); border-radius: 12px;
+      padding: 10px 16px; min-width: 130px;
+    }
+    .chip .big { font-size: 1.5em; font-weight: 800; color: #fff; line-height: 1; }
+    .chip .big.grad { background: var(--cm-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .chip .lbl { font-size: .56em; color: var(--cm-muted); margin-top: 4px; }
+
+    /* Pills / tech badges */
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: .2em; }
+    .pill {
+      font-size: .6em; padding: 5px 12px; border-radius: 999px; color: #dfe8ff;
+      background: rgba(45,107,255,0.14); border: 1px solid rgba(45,107,255,0.4);
+    }
+
+    /* Section divider slides */
+    section.divider { text-align: center; }
+    section.divider .kick { color: var(--cm-cyan); font-weight: 700; letter-spacing: .22em; font-size: .6em; text-transform: uppercase; }
+    section.divider h1 { font-size: 2.4em; margin: .15em 0; }
+    section.divider .week { font-size: .8em; color: var(--cm-muted); }
+
+    /* Title slide */
+    section.title { text-align: center; }
+    section.title .logo { width: 64%; max-width: 760px; margin: 0 auto .2em; }
+    section.title .tagline { color: var(--cm-muted); font-size: .92em; margin-top: .1em; }
+    section.title .pills { justify-content: center; }
+    .footer-band { color: var(--cm-muted); font-size: .6em; margin-top: 1.2em; }
+
+    .small { font-size: .8em; }
+    .muted { color: var(--cm-muted); }
+    .nowrap { white-space: nowrap; }
+    .center { text-align: center; }
+
+    /* Progress bar color */
+    .reveal .progress { color: var(--cm-cyan); height: 4px; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+
+    <!-- ============ SLIDE 1 — TITLE ============ -->
+    <section class="title" data-background-gradient="radial-gradient(900px 600px at 50% 0%, rgba(45,107,255,.20), transparent), var(--cm-navy)">
+      <img class="logo" src="assets/logowithoubackground.png" alt="CasaMotion logo" />
+      <h3 class="tagline">Real-Time Urban Mobility Intelligence Platform for Casablanca, Morocco</h3>
+      <div class="pills">
+        <span class="pill">Kafka</span><span class="pill">Flink</span><span class="pill">Spark</span>
+        <span class="pill">Cassandra</span><span class="pill">MinIO</span><span class="pill">FastAPI</span>
+        <span class="pill">Grafana</span><span class="pill">Docker</span>
+      </div>
+      <p class="footer-band">Kappa streaming architecture · 16-container stack · ML demand forecasting<br/>
+        Built over 6 delivery weeks + a parallel Phase-4 data-synthesis track</p>
+      <aside class="notes">CasaMotion turns Casablanca's fragmented taxi market into a real-time data platform. In the next slides I'll walk through the problem, the architecture, and exactly what we built week by week — from raw GPS streams all the way to a deployed forecasting API and live dashboards.</aside>
+    </section>
+
+    <!-- ============ SLIDE 2 — PROBLEM ============ -->
+    <section class="std">
+      <h3>The Problem</h3>
+      <h2>Casablanca: <span class="grad">4 million people, zero shared mobility data</span></h2>
+      <div class="cols w64">
+        <div>
+          <ul>
+            <li><strong>No shared data layer</strong> — grand/petit taxis & minibuses run with no GPS, booking, or schedule</li>
+            <li><strong>Demand blindness</strong> — drivers cruise empty; riders wait with no visibility</li>
+            <li><strong>No interoperability</strong> — ONCF rail, BRT and taxis share no data or ticketing</li>
+            <li><strong>Cash-only</strong> — no trip history, no analytics, no personalization</li>
+            <li><strong>Underserved periphery</strong> — Bouskoura, Sidi Moumen grow faster than routes</li>
+          </ul>
+          <blockquote>The core problem is not a shortage of vehicles — it is the absence of a <strong>data layer</strong> connecting supply to demand.</blockquote>
+        </div>
+        <div class="fig"><img src="assets/painpoint.png" alt="Pain points" /></div>
+      </div>
+      <aside class="notes">Every pain point here is a data problem, not a vehicle problem. That framing is the foundation of the whole project — we treat mobility as a data-engineering challenge.</aside>
+    </section>
+
+    <!-- ============ SLIDE 3 — SOLUTION ============ -->
+    <section class="std">
+      <h3>The Solution &amp; Objectives</h3>
+      <h2>Treat urban mobility as a <span class="grad">data-engineering problem</span></h2>
+      <div class="cols w64">
+        <div>
+          <ul>
+            <li><strong>Dynamic rider–vehicle matching</strong> — nearest taxi in under 5 seconds</li>
+            <li><strong>Demand surge forecasting</strong> — trips per zone predicted 30 min ahead</li>
+            <li><strong>City-wide visibility</strong> — live heatmaps, KPI dashboards, coverage gaps</li>
+            <li><strong>Data-driven planning</strong> — find zones where demand exceeds supply</li>
+          </ul>
+          <blockquote><strong>Cahier des charges:</strong> real-time ingestion · event-time stream processing · serving DB · batch ML · dashboards · secured API.</blockquote>
+        </div>
+        <div class="fig"><img src="assets/projectoverview.png" alt="Project overview" /></div>
+      </div>
+      <aside class="notes">Four concrete capabilities. Each maps to a measurable target later in the deck — sub-5s match, 30-minute forecast horizon, live dashboards, and zone-level supply/demand.</aside>
+    </section>
+
+    <!-- ============ SLIDE 4 — ARCHITECTURE ============ -->
+    <section class="std">
+      <h3>Architecture Overview (v2)</h3>
+      <h2>Kappa architecture — <span class="grad">Kafka is the single source of truth</span></h2>
+      <div class="cols w46">
+        <div>
+          <ul>
+            <li><strong>Producers → Kafka (KRaft) → Flink (3 jobs) → Cassandra → Grafana / FastAPI</strong></li>
+            <li><strong>MinIO</strong> = data lake (raw / curated / mldata / kafka-archive)</li>
+            <li><strong>Spark</strong> = offline only (ETL + ML training), never serves live queries</li>
+            <li>16 Docker containers on one network (<code>taasim-net</code>)</li>
+          </ul>
+        </div>
+        <div class="fig"><img src="assets/architecturev2.png" alt="Architecture v2" /><div class="cap">img/architecturev2.png — authoritative system diagram</div></div>
+      </div>
+      <aside class="notes">This is the master map. Everything afterward is a block on this diagram. The strict rule: Flink does all real-time work; Spark is batch-only. Kafka is replayable and is our system of record — that's what makes this Kappa, not Lambda.</aside>
+    </section>
+
+    <!-- ============ SLIDE 5 — WHY TECH ============ -->
+    <section class="std">
+      <h3>Why These Technologies</h3>
+      <h2>Every choice has a <span class="grad">documented rationale (ADR v1)</span></h2>
+      <table>
+        <thead><tr><th>Choice</th><th>Over</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Kappa</strong></td><td>Lambda</td><td>One processing layer; Kafka is replayable</td></tr>
+          <tr><td><strong>Kafka KRaft</strong></td><td>+ ZooKeeper</td><td>One fewer service, faster failover</td></tr>
+          <tr><td><strong>Flink</strong></td><td>Kafka Streams / Spark Streaming</td><td>True event-time windows, sub-second latency</td></tr>
+          <tr><td><strong>Cassandra</strong></td><td>Postgres / Redis</td><td>Query-driven partitioning, native TTL, write-optimized</td></tr>
+          <tr><td><strong>MinIO</strong></td><td>HDFS</td><td>S3 API for Spark + Flink + Connect; no NameNode</td></tr>
+          <tr><td><strong>JSON on wire</strong></td><td>Avro</td><td>Debuggable in Kafka UI, no schema registry</td></tr>
+          <tr><td><strong>H3 res-9 lookup</strong></td><td>point-in-polygon</td><td>O(1) dict lookup vs O(16) ray-cast</td></tr>
+        </tbody>
+      </table>
+      <aside class="notes">These trade-offs are the questions a jury will ask. Headline: MinIO not HDFS because we need an object store with an S3 API that three engines all speak; Flink not Spark Streaming because micro-batch latency can't hit sub-5-second matching.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: WEEK 1 ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(124,58,237,.22), transparent), var(--cm-navy)">
+      <div class="kick">Delivery Timeline</div>
+      <h1 class="grad">Week 1 — Foundation</h1>
+      <div class="week">Stack · Datasets · Zone Geography · Producers</div>
+    </section>
+
+    <!-- ============ SLIDE 6 — WEEK 1 ============ -->
+    <section class="std">
+      <h3>Week 1: Foundation (Stack + Data + Zones)</h3>
+      <h2>Stand up the platform and <span class="grad">prepare the geography</span></h2>
+      <div class="cols">
+        <div>
+          <ul>
+            <li><strong>Docker Compose stack</strong> — Kafka, MinIO, Cassandra, Flink, Spark, Grafana, Jupyter</li>
+            <li><strong>Datasets → MinIO</strong> — Porto (1.8 GiB) + NYC TLC</li>
+            <li><strong>Porto EDA</strong> — 1.7M trips, GPS polylines</li>
+            <li><strong>Zone remapping</strong> — Porto bbox → Casablanca, <strong>16 arrondissements</strong> (v4)</li>
+            <li><strong>Kafka producers v1</strong> — GPS + trip requests</li>
+          </ul>
+        </div>
+        <div>
+          <blockquote><strong>Problem:</strong> Porto coordinates are in Portugal; needed a faithful transform to Casablanca respecting 16 real arrondissement shapes.<br/><strong>Solution:</strong> linear bbox transform + H3 res-9 lookup (<code>h3_zone_lookup.json</code>) for O(1) zone assignment.</blockquote>
+        </div>
+      </div>
+      <aside class="notes">Week 1 is the skeleton. The hard part wasn't Docker — it was the geography. We mapped Porto trips onto 16 Casablanca arrondissements and pre-computed an H3 lookup so every later GPS event resolves its zone in O(1).</aside>
+    </section>
+
+    <!-- ============ SLIDE 6.1 — ZONE REMAP STEP 1 ============ -->
+    <section class="std">
+      <h3>Zone Remapping · Step 1</h3>
+      <h2>How we draw <span class="grad">Casablanca's 16 zones</span></h2>
+      <div class="cols w46">
+        <div>
+          <table>
+            <thead><tr><th>Approach</th><th>Why rejected</th></tr></thead>
+            <tbody>
+              <tr><td>Uniform 500 m grid</td><td>Splits real neighbourhoods in half</td></tr>
+              <tr><td>H3 res-8 hex (~260)</td><td>Too many, no admin meaning</td></tr>
+              <tr><td><strong>Irregular polygons ✅</strong></td><td>Match real admin boundaries</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <ul>
+            <li><strong>9 zones</strong> = official <strong>OpenStreetMap</strong> admin-boundary polygons</li>
+            <li><strong>7 zones</strong> = <strong>Voronoi cells</strong> on named OSM place-nodes for northern suburbs, clipped to the urban boundary</li>
+            <li>All polygons clipped to remove ocean slivers/overlaps</li>
+            <li>Output: <code>zone_mapping_v4.csv</code> + <code>casablanca_ae_map.html</code></li>
+          </ul>
+        </div>
+      </div>
+      <blockquote><strong>Honesty note:</strong> the 7 Voronoi zones are a demand-aggregation scaffold, not a cartographic claim — every downstream stage treats all 16 as abstract <code>zone_id</code>s.</blockquote>
+      <aside class="notes">We deliberately use real, irregular arrondissement shapes instead of a grid because demand follows neighbourhoods, not squares. Nine come straight from OSM admin boundaries; for the seven northern suburbs OSM hasn't drawn yet, we generate Voronoi cells around named OSM place-nodes and clip them to the city.</aside>
+    </section>
+
+    <!-- ============ SLIDE 6.2 — A–E SCORE ============ -->
+    <section class="std">
+      <h3>Zone Remapping · Step 2 — The A–E Activity Score</h3>
+      <h2>An activity tier from a <span class="grad">weighted multi-source formula</span></h2>
+      <div class="center" style="margin:.1em 0 .3em">
+        <span id="ae-formula" style="font-size:1.0em"></span>
+      </div>
+      <div class="cols w64">
+        <div>
+          <table>
+            <thead><tr><th>Feature</th><th>Source</th><th>Weight</th></tr></thead>
+            <tbody>
+              <tr><td>Population density ρ</td><td>HCP 2024 census</td><td><strong>0.40</strong></td></tr>
+              <tr><td>Commerce weight c</td><td>Glovo</td><td><strong>0.30</strong></td></tr>
+              <tr><td>POI diversity d</td><td>Glovo</td><td><strong>0.20</strong></td></tr>
+              <tr><td>Transit hubs t</td><td>OpenStreetMap</td><td><strong>0.10</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <ul>
+            <li>All four min-max normalised to [0,1]</li>
+            <li>Population dominates (0.40): demand scales with residents/km²</li>
+            <li><strong>Quantile cut [2,4,5,4,1]</strong> → A = dense CBD … E = lowest</li>
+            <li>Reconciles to HCP's <strong>3.28 M</strong></li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">Each zone's activity tier is computed from four real signals: HCP 2024 population density does most of the work, Glovo commerce adds business pull, OSM transit stops add last-mile demand. We min-max normalise, weight, quantile-cut into A–E tiers that drive every demand multiplier downstream, and verify the summed population equals HCP's 3.28 million.</aside>
+    </section>
+
+    <!-- ============ SLIDE 6.3 — PORTO WARPING ============ -->
+    <section class="std">
+      <h3>Porto Simulation Strategy</h3>
+      <h2>Warping real GPS onto <span class="grad">Casablanca roads</span></h2>
+      <div class="cols">
+        <div>
+          <ol class="small">
+            <li><strong>LOAD</strong> — Porto polylines; filter 1.5–18 km, 3–30 min</li>
+            <li><strong>SAMPLE</strong> — stratify by length → 500 trips</li>
+            <li><strong>ASSIGN</strong> — A–E transition matrix → zone by population</li>
+            <li><strong>AFFINE</strong> — linear Porto bbox → Casa bbox <em>(cahier transform)</em></li>
+            <li><strong>ANCHOR</strong> — pull to centroid (α=0.80) + jitter σ≈160 m</li>
+            <li><strong>OSRM</strong> — route on real Casa street network</li>
+            <li><strong>PERSIST</strong> — <code>curated_trajectories_v4.parquet</code></li>
+          </ol>
+        </div>
+        <div>
+          <blockquote><strong>Why OSRM over in-process A*:</strong> zero zigzags, full OSM driving profile, no 400 MB graph in memory, cached for warm re-runs.</blockquote>
+          <div class="ph">
+            <div class="ico">🗺️</div>
+            <div class="ttl">Warped trajectories on real streets</div>
+            <div class="sub">Open & screenshot the rendered map</div>
+            <div class="path">notebooks/casablanca_trajectories_v4.html</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Porto gives authentic taxi motion — hundreds of GPS pings per trip with real curves — but it's in Portugal. We sample which Casa zones a trip connects using population-weighted A–E sampling, do the linear bbox transform the spec requires, anchor endpoints to real zone centroids, then ask OSRM to route along actual Casablanca streets using OSM road data.</aside>
+    </section>
+
+    <!-- ============ SLIDE 6.4 — CHAIN ============ -->
+    <section class="std">
+      <h3>Putting It Together</h3>
+      <h2>Population + OSM drive <span class="grad">realistic demand</span></h2>
+      <pre><code class="language-text">HCP 2024 population ─┐
+Glovo commerce ──────┼─► A–E activity score ─► demand multipliers {A:1.8 … E:0.5}
+OSM transit hubs ────┘                                  │
+OSM admin boundaries ─► 16 zone polygons ─► population-weighted origin sampling
+OSM road network (OSRM) ─► road-snapped Porto trajectories
+NYC temporal fingerprint ─► hourly/DoW curve  ──────────►  casa_trip_requests
+                                                           (500K trips, 90 days)</code></pre>
+      <div class="cols">
+        <div><ul class="small">
+          <li><strong>Origin weight:</strong> <code>origin_p[z] = pop_2024[z] × ae_mult[z]</code></li>
+          <li><strong>Destination:</strong> tier T±1, population-weighted → cross-city flow</li>
+        </ul></div>
+        <div><ul class="small">
+          <li><strong>Validation 8/8:</strong> A/E ratio ≈ 3.6×, twin peaks 08:00/18:00</li>
+          <li>Fri-high / Sun-low, 70/30 petit/grand split</li>
+        </ul></div>
+      </div>
+      <aside class="notes">OSM gives the zone shapes, transit stops, and road network for routing. HCP population density and Glovo commerce give each zone an activity tier → demand multiplier. We weight origins by population times that multiplier so dense central zones legitimately produce more rides. NYC's temporal fingerprint sets when trips happen. Eight validation panels confirm it behaves like real Casablanca.</aside>
+    </section>
+
+    <!-- ============ SLIDE 7 — PRODUCERS ============ -->
+    <section class="std">
+      <h3>Week 1 Deep Dive: Producers</h3>
+      <h2>Two Python producers <span class="grad">replay Casa traffic into Kafka</span></h2>
+      <div class="cols w46">
+        <div>
+          <ul class="small">
+            <li><code>vehicle_gps_producer.py</code> → <strong>raw.gps</strong>, key=<code>taxi_id</code>
+              <ul><li>COUPLED: interpolate along OSRM polyline, ±20 m noise, 5% blackout, road-snap</li>
+              <li>H3 res-9 → zone, ring fallback r=1..5</li></ul>
+            </li>
+            <li><code>trip_request_producer.py</code> → <strong>raw.trips</strong>, key=<code>origin_zone</code>
+              <ul><li>Hourly multiplier (peaks 08/18), petit/grand split, MAD tariffs</li></ul>
+            </li>
+            <li><strong>Wire:</strong> JSON, <code>acks=all</code>, <code>retries=3</code></li>
+          </ul>
+        </div>
+        <div class="fig"><img src="assets/flink_architecture.png" alt="Producer/Flink architecture" /></div>
+      </div>
+      <aside class="notes">Producers are the data source. Coupled mode is the clever bit: each trip request is paired with a real routed polyline so taxis move on actual streets, not in straight lines. Partition keys are chosen so Flink can keyBy without a reshuffle.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: WEEK 2 ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(34,211,238,.20), transparent), var(--cm-navy)">
+      <div class="kick">Delivery Timeline</div>
+      <h1 class="grad">Week 2 — Storage Layer</h1>
+      <div class="week">Kafka Connect · Cassandra Schema · ADR v1</div>
+    </section>
+
+    <!-- ============ SLIDE 8 — STORAGE ============ -->
+    <section class="std">
+      <h3>Week 2: Storage Layer</h3>
+      <h2>Persist the streams and <span class="grad">lock the data model</span></h2>
+      <ul class="small">
+        <li><strong>Kafka Connect S3 Sink</strong> — raw.gps + raw.trips → <code>s3://kafka-archive/YYYY/MM/DD/HH/</code></li>
+        <li><strong>Cassandra schema</strong> — 3 tables, INSERT + SELECT tested · <strong>ADR v1 written</strong></li>
+      </ul>
+      <table>
+        <thead><tr><th>Table</th><th>Partition key</th><th>Clustering</th><th>TTL</th></tr></thead>
+        <tbody>
+          <tr><td><code>vehicle_positions</code></td><td>(city, zone_id)</td><td>event_time DESC</td><td>24 h</td></tr>
+          <tr><td><code>demand_zones</code></td><td>(city, zone_id)</td><td>window_start DESC</td><td>7 d</td></tr>
+          <tr><td><code>trips</code></td><td>(city, date_bucket)</td><td>created_at DESC</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <blockquote><strong>Problem:</strong> an unbounded trips partition grows forever. <strong>Solution:</strong> <code>date_bucket</code> caps each partition (&lt; 100 MB guidance).</blockquote>
+      <aside class="notes">Cassandra tables are designed around the queries — 'all vehicles in a zone', 'trips on a day'. That's why the partition keys look the way they do. The ADR documents every decision for defensibility.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: WEEK 3 ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(45,107,255,.22), transparent), var(--cm-navy)">
+      <div class="kick">Delivery Timeline</div>
+      <h1 class="grad">Week 3 — Real-Time Processing</h1>
+      <div class="week">Flink Jobs 1–3 · Matching · Anonymization</div>
+    </section>
+
+    <!-- ============ SLIDE 9 — FLINK JOBS ============ -->
+    <section class="std">
+      <h3>Week 3: Real-Time Processing (Flink Jobs 1–3)</h3>
+      <h2>Three PyFlink jobs turn <span class="grad">raw events into serving state</span></h2>
+      <div class="cols w64">
+        <div>
+          <ul class="small">
+            <li><strong>Job 1 · GPS Normalizer</strong> — raw.gps → validate, dedup, H3 zone, road-snap/anonymize → <code>vehicle_positions</code> + processed.gps</li>
+            <li><strong>Job 2 · Demand Aggregator</strong> — processed.gps + raw.trips → 30 s tumbling windows → <code>demand_zones</code></li>
+            <li><strong>Job 3 · Trip Matcher</strong> — keyBy zone, MapState, adjacent fan-out + dedup → <code>trips</code></li>
+            <li><strong>Checkpoints:</strong> RocksDB, EXACTLY_ONCE, 60 s → MinIO</li>
+            <li><strong>Watermarks:</strong> 3-min (Job 1); 10 s + idleness (Jobs 2/3)</li>
+          </ul>
+        </div>
+        <div class="fig"><img src="assets/streamproce_architec.png" alt="Stream processing architecture" /></div>
+      </div>
+      <aside class="notes">This is the heart of the system. Watermarks let Flink emit correct 30-second demand windows even when GPS pings arrive late after a blackout. We use the cassandra-driver inside the process function with execute_async, not the official connector, because PyFlink integration is cleaner that way.</aside>
+    </section>
+
+    <!-- ============ SLIDE 10 — MATCHING ============ -->
+    <section class="std">
+      <h3>Week 3 Deep Dive: Trip Matching &amp; Anonymization</h3>
+      <h2>Sub-second matching + <span class="grad">privacy by design</span></h2>
+      <div class="cols">
+        <div>
+          <ul class="small">
+            <li><strong>Cost:</strong> <code>0.7·haversine_km + 0.3·idle_bonus</code></li>
+            <li><strong>Adjacent fan-out:</strong> neighbours compete in parallel; first free taxi wins via shared <code>Set&lt;trip_id&gt;</code> dedup</li>
+            <li><strong>Match P95 ≈ 1.2 s</strong> (target &lt; 5 s)</li>
+            <li><strong>Anonymization:</strong> snap to centroid + hash jitter — raw lat/lon never persisted</li>
+          </ul>
+        </div>
+        <div>
+          <div class="chips">
+            <div class="chip"><div class="big grad">1.2 s</div><div class="lbl">P95 match latency</div></div>
+            <div class="chip"><div class="big grad">21%</div><div class="lbl">matched (fleet 2000 @ 50×)</div></div>
+          </div>
+          <blockquote class="small"><strong>Problem:</strong> match rate only 4.2% (fleet 500, 10×). <strong>Solution:</strong> scaled to fleet 2000 @ 50× → 21%; remaining no_vehicle is density-bound.</blockquote>
+        </div>
+      </div>
+      <aside class="notes">Two highlights: the adjacent-zone fan-out gives us 1.2s P95, and the anonymization mode satisfies the privacy requirement — we can prove the raw coordinate never reaches the database.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: WEEK 5 ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(124,58,237,.22), transparent), var(--cm-navy)">
+      <div class="kick">Delivery Timeline</div>
+      <h1 class="grad">Week 5 — Batch ETL (Spark)</h1>
+      <div class="week">Porto + NYC → Curated Parquet · Offline only</div>
+    </section>
+
+    <!-- ============ SLIDE 11 — SPARK ETL ============ -->
+    <section class="std">
+      <h3>Week 5: Batch ETL with Spark (offline)</h3>
+      <h2>Spark cleans donor datasets into <span class="grad">curated Parquet</span></h2>
+      <div class="cols">
+        <div>
+          <ul class="small">
+            <li><strong>Porto ETL</strong> — 1,710,670 → 1,660,794 valid → <code>s3://curated/trips/</code> (43 MiB)</li>
+            <li><strong>NYC TLC ETL</strong> — 9.38M → 8.81M → <strong>192K demand rows</strong></li>
+            <li><strong>KPI analytics</strong> — 6 datasets (trips/zone, hourly, heatmap, gaps…)</li>
+          </ul>
+          <blockquote class="small"><strong>Kappa rule:</strong> NYC is <strong>batch-only</strong> — it never enters Kafka.</blockquote>
+        </div>
+        <div>
+          <blockquote class="small"><strong>Problem:</strong> Spark image lacked numpy; jobs failed. <strong>Solution:</strong> install numpy at master/worker startup; bump RAM (worker 4g, master 3g).</blockquote>
+          <div class="ph">
+            <div class="ico">⚡</div>
+            <div class="ttl">Spark Master UI — completed apps</div>
+            <div class="path">http://localhost:8080</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Spark is strictly offline. Porto gives realistic motion; NYC gives realistic demand patterns. Both are cleaned here into curated Parquet that the ML stage consumes next.</aside>
+    </section>
+
+    <!-- ============ SLIDE 12 — NYC STORY ============ -->
+    <section class="std">
+      <h3>The NYC Data Story</h3>
+      <h2>NYC = <span class="grad">demand fingerprint</span>, never streamed, never trains the model</h2>
+      <div class="cols w46">
+        <div>
+          <ul class="small">
+            <li><strong>Role 1 · Trip synthesis</strong> — borrow NYC hourly curve, DoW weights, OD frequency → <strong>500K Casa trips / 90 days</strong></li>
+            <li><strong>Role 2 · Batch ETL exercise</strong> — prove Spark handles multi-GB data (cahier §2.2)</li>
+            <li>Re-anchored to Casa with <strong>HCP 2024 + Glovo</strong></li>
+            <li>Validation 8/8 (70.6% petit / 29.4% grand, A/E 3.65×)</li>
+          </ul>
+        </div>
+        <div class="ph">
+          <div class="ico">📊</div>
+          <div class="ttl">NYC→Casa synthesis EDA (8-panel)</div>
+          <div class="sub">Open the notebook EDA figure & screenshot</div>
+          <div class="path">data/casa_synthesis/eda_figures.png</div>
+        </div>
+      </div>
+      <aside class="notes">Common jury question: 'why New York?' Answer: there is no open Casablanca taxi dataset. We borrow patterns — not values — from NYC, then re-anchor them to Casablanca geography with census and commerce data. NYC never streams and never trains the forecaster.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: WEEK 6 ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(34,211,238,.20), transparent), var(--cm-navy)">
+      <div class="kick">Delivery Timeline</div>
+      <h1 class="grad">Week 6 — Machine Learning + API</h1>
+      <div class="week">Features · GBT Model · FastAPI Serving</div>
+    </section>
+
+    <!-- ============ SLIDE 13 — FEATURE ENG ============ -->
+    <section class="std">
+      <h3>Week 6: Feature Engineering</h3>
+      <h2>Build a <span class="grad">leakage-free feature matrix</span> (183,981 rows)</h2>
+      <ul class="small">
+        <li><strong>Input:</strong> <code>s3://curated/trips/</code> → <strong>Output:</strong> <code>s3://mldata/features/</code></li>
+        <li><strong>Target:</strong> <code>demand</code> = trips per zone per 30-min slot (48 slots/day)</li>
+        <li><strong>Features:</strong> hour_of_day, day_of_week, is_weekend, is_peak, slot_of_day, zone_idx, demand_lag_1d, demand_lag_7d, rolling_7d_mean</li>
+      </ul>
+      <blockquote class="small"><strong>The critical fix:</strong> an earlier draft included <code>supply</code> and <code>supply_demand_ratio</code> — both from the same 30-min slot as the target → <strong>label leakage</strong>. Removed both; kept only retrospective lag/rolling features. <strong>Temporal split</strong> (not random) at <code>2014-05-01</code>.</blockquote>
+      <aside class="notes">This slide shows engineering maturity. We caught and removed label leakage — the difference between a model that looks great in notebooks and one that fails in production. Temporal split, not random, because this is a time series.</aside>
+    </section>
+
+    <!-- ============ SLIDE 14 — SELECTION vs IMPORTANCE ============ -->
+    <section class="std">
+      <h3>Week 6: Feature Selection vs Importance</h3>
+      <h2>Two different concepts — <span class="grad">we did both</span></h2>
+      <div class="cols">
+        <div>
+          <ul class="small">
+            <li><strong>Selection (before):</strong> allow a feature only if knowable in advance & non-leaking → removed <code>supply*</code></li>
+            <li><strong>Importance (after):</strong> GBT <code>featureImportances</code> shows what trees split on</li>
+          </ul>
+        </div>
+        <div>
+          <table>
+            <thead><tr><th>#</th><th>Feature</th><th>Imp.</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>demand_lag_1d</td><td>~0.38</td></tr>
+              <tr><td>2</td><td>rolling_7d_mean</td><td>~0.24</td></tr>
+              <tr><td>3</td><td>hour_of_day</td><td>~0.17</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <aside class="notes">We didn't hand-pick three features. We selected nine on causal grounds, trained on all nine, and report the importances as evidence the model learned something sensible. Lag-1-day dominating is exactly what a transport analyst would expect.</aside>
+    </section>
+
+    <!-- ============ SLIDE 15 — GBT RESULTS ============ -->
+    <section class="std">
+      <h3>Week 6: GBT Model Training &amp; Results</h3>
+      <h2>Gradient Boosted Trees beat the baseline by <span class="grad">45.8%</span></h2>
+      <div class="cols w46">
+        <div>
+          <ul class="small">
+            <li><strong>Algorithm:</strong> Spark MLlib <code>GBTRegressor</code> (maxDepth=5, maxIter=50, stepSize=0.1)</li>
+            <li><strong>Pipeline:</strong> StringIndexer → VectorAssembler → GBTRegressor</li>
+            <li><strong>Split:</strong> temporal — Train 151,911 / Test 32,070</li>
+            <li>Every one of 16 zones beats the baseline</li>
+          </ul>
+        </div>
+        <div>
+          <div class="chips">
+            <div class="chip"><div class="big grad">3.71</div><div class="lbl">RMSE (vs 6.84 naive)</div></div>
+            <div class="chip"><div class="big grad">0.75</div><div class="lbl">R²</div></div>
+            <div class="chip"><div class="big grad">2.11</div><div class="lbl">MAE</div></div>
+            <div class="chip"><div class="big grad">−45.8%</div><div class="lbl">vs baseline</div></div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">The cahier requires beating a naive 7-day-lag baseline. We beat it globally by 45.8% and in every single zone. R² of 0.75 on a held-out future window is a strong, honest result.</aside>
+    </section>
+
+    <!-- ============ SLIDE 16 — FASTAPI ============ -->
+    <section class="std">
+      <h3>Week 6: Serving API (FastAPI)</h3>
+      <h2>Seven <span class="grad">JWT-secured REST endpoints</span></h2>
+      <div class="cols w64">
+        <div>
+          <table>
+            <thead><tr><th>Method</th><th>Path</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>POST</td><td>/api/auth/token</td><td>Issue HS256 JWT</td></tr>
+              <tr><td>POST</td><td>/api/demand/forecast</td><td>Predict demand</td></tr>
+              <tr><td>POST</td><td>/api/trips</td><td>Publish to raw.trips</td></tr>
+              <tr><td>GET</td><td>/api/zones · /{id}</td><td>Zone catalog</td></tr>
+              <tr><td>GET</td><td>/api/vehicles/{zone_id}</td><td>Latest vehicles</td></tr>
+              <tr><td>GET</td><td>/api/health</td><td>Liveness + model_loaded</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <ul class="small">
+            <li><strong>Heuristic mode (default)</strong> — deterministic curve, &lt;5 ms, slim image</li>
+            <li><strong>PySpark mode</strong> — <code>PYSPARK_ENABLED=1</code> loads GBT model</li>
+            <li><strong>Lazy init</strong> — Cassandra/Kafka on first call</li>
+          </ul>
+          <div class="ph" style="min-height:120px"><div class="ico">🧪</div><div class="ttl">Swagger UI</div><div class="path">http://localhost:8000/docs</div></div>
+        </div>
+      </div>
+      <aside class="notes">The API has a smart fallback: it serves a heuristic forecast by default so it runs in a tiny Python image, and only spins up Spark when explicitly enabled. The /api/trips route closes the loop — a POST here becomes a Kafka event that Flink matches in real time.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: PLATFORM ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(45,107,255,.22), transparent), var(--cm-navy)">
+      <div class="kick">Cross-Cutting</div>
+      <h1 class="grad">Storage · Observability · Deployment</h1>
+      <div class="week">MinIO · Grafana · Docker Compose · Testing</div>
+    </section>
+
+    <!-- ============ SLIDE 17 — MINIO ============ -->
+    <section class="std">
+      <h3>Storage &amp; Data Lake (MinIO)</h3>
+      <h2>One S3-compatible lake, <span class="grad">four lifecycle zones</span></h2>
+      <div class="cols w64">
+        <div>
+          <table>
+            <thead><tr><th>Bucket</th><th>Writer</th><th>Reader</th></tr></thead>
+            <tbody>
+              <tr><td><code>raw/</code></td><td>manual upload</td><td>Spark ETL</td></tr>
+              <tr><td><code>curated/</code></td><td>Spark ETL, Flink ckpt</td><td>Spark ML, recovery</td></tr>
+              <tr><td><code>mldata/</code></td><td>Spark ML</td><td>FastAPI</td></tr>
+              <tr><td><code>kafka-archive/</code></td><td>Kafka Connect</td><td>Spark replay</td></tr>
+            </tbody>
+          </table>
+          <ul class="small"><li><strong>Why MinIO not HDFS:</strong> single binary, S3 API for all engines, no NameNode</li></ul>
+        </div>
+        <div class="ph"><div class="ico">🪣</div><div class="ttl">MinIO console — 4 buckets</div><div class="path">http://localhost:9001</div></div>
+      </div>
+      <aside class="notes">MinIO is the connective tissue. Spark writes Parquet, Flink writes checkpoints, Kafka Connect writes archives — all through the same S3 API. With HDFS each would need a different connector and a NameNode to babysit.</aside>
+    </section>
+
+    <!-- ============ SLIDE 18 — GRAFANA ============ -->
+    <section class="std">
+      <h3>Observability (Grafana)</h3>
+      <h2>Live dashboards read <span class="grad">Cassandra directly</span></h2>
+      <div class="cols w46">
+        <div>
+          <ul class="small">
+            <li>Plugin: <code>hadesarchitect-cassandra-datasource</code> (CQL :9042)</li>
+            <li>Dashboard "CasaMotion — Live Pipeline", 5 s refresh, <code>$date_bucket</code></li>
+            <li>Panels: road-snapped geomap, demand heatmap, active vehicles, pending requests, trips-by-status</li>
+            <li><code>snap_dist_m</code> surfaced for road-realism checks</li>
+          </ul>
+        </div>
+        <div class="ph"><div class="ico">📍</div><div class="ttl">Grafana — taxis on streets + demand</div><div class="path">http://localhost:3000</div></div>
+      </div>
+      <aside class="notes">Grafana talks straight to Cassandra — no aggregation service in between. The geomap shows taxis on actual roads thanks to the road-snap work; we even expose the snap distance so anyone can verify markers are near real streets.</aside>
+    </section>
+
+    <!-- ============ SLIDE 19 — REALISM FIX ============ -->
+    <section class="std">
+      <h3>Engineering Case Study</h3>
+      <h2>The vehicle-map <span class="grad">realism fix</span></h2>
+      <div class="cols">
+        <div>
+          <ul class="small">
+            <li><strong>Symptom:</strong> taxis fixed/off-road (centroid+jitter overwrote live coords)</li>
+            <li><strong>Fixes:</strong> <code>GPS_DISPLAY_MODE=road</code> default; producer road-snaps after noise, rejects &gt; 80 m; added <code>snap_dist_m</code>; 32 dashboard queries updated</li>
+            <li><strong>Verify:</strong> <code>check-vehicle-movement.ps1</code> — 4 checks PASS</li>
+          </ul>
+        </div>
+        <div>
+          <blockquote class="small">The bug spanned <strong>four layers</strong>: producer, Flink, Cassandra schema, and Grafana. We fixed all four and wrote an automated checker so the fix can't silently regress.</blockquote>
+        </div>
+      </div>
+      <aside class="notes">A great example of debugging a full pipeline: the bug spanned the producer, Flink, the Cassandra schema, and Grafana. We fixed all four layers and wrote an automated checker.</aside>
+    </section>
+
+    <!-- ============ SLIDE 20 — DEPLOYMENT ============ -->
+    <section class="std">
+      <h3>Deployment (Docker Compose)</h3>
+      <h2>One command brings up <span class="grad">16 containers</span></h2>
+      <ul class="small">
+        <li><code>docker compose up -d</code> → Kafka, Connect, Kafka UI, MinIO, Cassandra, Flink JM+TMs, Spark master/worker, Grafana, Jupyter, producers, API</li>
+        <li>Healthchecks gate dependent services; named volumes persist state; network <code>taasim-net</code></li>
+        <li>Ops scripts: <code>register-connectors</code>, <code>ensure-cassandra-schema</code>, <code>submit-flink-jobs</code>, <code>verify-flink-jobs</code></li>
+      </ul>
+      <div class="ph" style="min-height:130px"><div class="ico">🐳</div><div class="ttl">docker compose ps — all healthy + demo-healthcheck.ps1</div><div class="sub">Capture terminal output before the demo</div></div>
+      <aside class="notes">The whole platform is reproducible from a single compose file. The healthcheck script verifies all 16 containers, the 3 Flink jobs, data freshness, and prints service URLs — our pre-demo confidence check.</aside>
+    </section>
+
+    <!-- ============ SLIDE 21 — TESTING ============ -->
+    <section class="std">
+      <h3>Testing &amp; Validation</h3>
+      <h2>Evidence-driven, <span class="grad">not claim-driven</span></h2>
+      <ul class="small">
+        <li><strong>Demo healthcheck:</strong> 16 checks — containers, Flink RUNNING, vehicle_positions 3.5 s, demand_zones 84 s, trips today</li>
+        <li><strong>Movement realism:</strong> 4 automated checks pass (8/8 distinct, 139/139 moving, 200/200 within 100 m, 80/80 in bbox)</li>
+        <li><strong>Late-event/watermark test:</strong> <code>scripts/test_late_events.py</code></li>
+        <li><strong>ML validation:</strong> temporal split, baseline-beat table, per-zone RMSE</li>
+      </ul>
+      <aside class="notes">Everything we claim, we verify with a script. The freshness numbers and the realism checks are reproducible live during the demo.</aside>
+    </section>
+
+    <!-- ============ SLIDE 22 — PERFORMANCE ============ -->
+    <section class="std">
+      <h3>Performance — Targets vs Measured</h3>
+      <h2>We meet or beat <span class="grad">every measured target</span></h2>
+      <table>
+        <thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead>
+        <tbody>
+          <tr><td>Trip match latency (P95)</td><td>&lt; 5 s</td><td><strong>≈ 1.2 s</strong> ✅</td></tr>
+          <tr><td>GPS position freshness</td><td>&lt; 15 s</td><td><strong>≈ 4 s</strong> ✅</td></tr>
+          <tr><td>Demand zone updates</td><td>every 30 s</td><td>30 s tumbling ✅</td></tr>
+          <tr><td>Spark Porto ETL (1.7M)</td><td>&lt; 5 min</td><td>43 MiB Parquet ✅</td></tr>
+          <tr><td>Flink checkpoints</td><td>60 s cadence</td><td>25 consecutive, 0 failures ✅</td></tr>
+          <tr><td>ML forecast API</td><td>&lt; 500 ms @ 20 RPS</td><td>🟡 Locust run pending</td></tr>
+        </tbody>
+      </table>
+      <aside class="notes">We meet or beat every measured target. The one open item is a formal load test of the forecast API — queued in Week 7.</aside>
+    </section>
+
+    <!-- ============ SLIDE 23 — DEMO FLOW ============ -->
+    <section class="std">
+      <h3>Final Demo Flow</h3>
+      <h2>End-to-end in <span class="grad">five live steps</span></h2>
+      <ol>
+        <li><code>docker compose up -d</code> → <code>demo-healthcheck.ps1</code> (all green)</li>
+        <li>Open <strong>Grafana</strong> → taxis moving on roads, demand heatmap updating</li>
+        <li><strong>POST /api/auth/token</strong> then <strong>POST /api/trips</strong> in Swagger</li>
+        <li>Watch the trip get <strong>matched</strong> in Grafana + Cassandra row appear</li>
+        <li><strong>POST /api/demand/forecast</strong> → 30-min-ahead prediction</li>
+      </ol>
+      <aside class="notes">The demo tells the full story in one loop: I request a trip through the API, it flows through Kafka and Flink, gets matched, and shows up live on the dashboard — then I ask the model what demand will look like in 30 minutes.</aside>
+    </section>
+
+    <!-- ============ SLIDE 24 — KEY RESULTS ============ -->
+    <section class="std">
+      <h3>Key Results</h3>
+      <h2>What we <span class="grad">delivered</span></h2>
+      <div class="cols">
+        <div><ul class="small">
+          <li>✅ Full Kappa pipeline end-to-end</li>
+          <li>✅ Sub-second matching (P95 ≈ 1.2 s), GPS freshness ≈ 4 s</li>
+          <li>✅ GBT forecaster: RMSE 3.71 / R² 0.75 / −45.8%</li>
+          <li>✅ Secured FastAPI (JWT, 7 routes), dual mode</li>
+        </ul></div>
+        <div><ul class="small">
+          <li>✅ 500K synthetic Casa trips (NYC + Porto + HCP)</li>
+          <li>✅ Road-snapped live vehicle map + auto verification</li>
+          <li>✅ 16-container reproducible stack, healthcheck-validated</li>
+        </ul></div>
+      </div>
+      <div class="fig dark"><img src="assets/architecturev2.png" alt="Architecture" style="max-height:230px;object-fit:contain;margin:0 auto" /></div>
+      <aside class="notes">Seven concrete deliverables, all verifiable. The platform runs end-to-end today.</aside>
+    </section>
+
+    <!-- ============ SLIDE 25 — CHALLENGES ============ -->
+    <section class="std">
+      <h3>Challenges &amp; Solutions</h3>
+      <h2>Real problems, <span class="grad">real fixes</span></h2>
+      <table>
+        <thead><tr><th>Challenge</th><th>Solution</th></tr></thead>
+        <tbody>
+          <tr><td>Porto coords in Portugal</td><td>Linear bbox transform + H3 res-9 lookup</td></tr>
+          <tr><td>Taxis off-road / frozen</td><td>Road-snap + GPS_DISPLAY_MODE=road + snap_dist_m</td></tr>
+          <tr><td>Low match rate (4.2%)</td><td>Fleet 2000 @ 50× → 21%; adjacent fan-out</td></tr>
+          <tr><td>Label leakage in features</td><td>Removed supply*, temporal split, lag-only</td></tr>
+          <tr><td>No open Casablanca dataset</td><td>Synthesize from NYC + Porto + HCP/Glovo</td></tr>
+          <tr><td>API needs Spark, image slim</td><td>Heuristic fallback + optional PYSPARK_ENABLED</td></tr>
+        </tbody>
+      </table>
+      <aside class="notes">Each row is a real problem we hit and a real fix we shipped. The leakage catch and the road-snap fix are the two to emphasize for technical depth.</aside>
+    </section>
+
+    <!-- ============ SLIDE 26 — FUTURE ============ -->
+    <section class="std">
+      <h3>Future Improvements (Week 7–8 roadmap)</h3>
+      <h2>What's <span class="grad">next</span></h2>
+      <ul class="small">
+        <li><strong>Security hardening:</strong> rotate JWT_SECRET, HTTPS/TLS, Kafka SASL + topic ACLs</li>
+        <li><strong>Integration tests:</strong> pytest + GitHub Actions, assert P95 &lt; 5 s over 200 trips</li>
+        <li><strong>SLA load test:</strong> Locust, 20 RPS, forecast API p99 &lt; 500 ms</li>
+        <li><strong>Checkpoint-recovery demo:</strong> kill a TaskManager, prove resume from MinIO, no duplicates</li>
+        <li><strong>Idle-cruising GPS</strong> behavior to raise match rate further</li>
+        <li><strong>Week 8:</strong> live demo, pitch deck, technical report</li>
+      </ul>
+      <aside class="notes">We're feature-complete through Week 6. Week 7 is about hardening and proving SLAs; Week 8 is the polished final demo. The two open cahier items are Kafka ACLs and the checkpoint-recovery recording.</aside>
+    </section>
+
+    <!-- ============ DIVIDER: TECHNICAL DEEP-DIVE ============ -->
+    <section class="divider" data-background-gradient="radial-gradient(800px 500px at 50% 50%, rgba(124,58,237,.24), transparent), var(--cm-navy)">
+      <div class="kick">Backup / For the Jury</div>
+      <h1 class="grad">Technical Deep-Dive</h1>
+      <div class="week">Serialization · Kafka · Flink · MinIO vs HDFS · GBT · Guarantees</div>
+    </section>
+
+    <!-- ============ T1 — SERIALIZATION ============ -->
+    <section class="std">
+      <h3>T1 · Serialization &amp; Deserialization</h3>
+      <h2>How events become <span class="grad">bytes and back</span></h2>
+      <ul class="small">
+        <li><strong>Serialize</strong> = object → bytes for Kafka. <strong>Deserialize</strong> = bytes → object on consume.</li>
+        <li><strong>Format = JSON:</strong> producers <code>json.dumps(event).encode("utf-8")</code>; Flink <code>json.loads(bytes)</code></li>
+        <li><strong>Why JSON over Avro/Protobuf:</strong> human-readable + debuggable in Kafka UI, no schema-registry service</li>
+        <li><strong>Inside Flink:</strong> state serialized into <strong>RocksDB</strong>, then checkpointed to MinIO</li>
+      </ul>
+      <blockquote class="small"><strong>Trade-off (honest):</strong> Avro/Protobuf would be more compact and schema-enforced — a documented future optimization.</blockquote>
+      <aside class="notes">On the wire everything is JSON. We chose readability and zero-ops over the compactness of Avro because at our event volume the difference is negligible and debuggability during a demo is worth a lot. Internally, Flink serializes its keyed state into RocksDB, which is what gets checkpointed to MinIO.</aside>
+    </section>
+
+    <!-- ============ T2 — KAFKA CONTRACT ============ -->
+    <section class="std">
+      <h3>T2 · Kafka Topic &amp; Partition-Key Contract</h3>
+      <h2>Deliberate keys, <span class="grad">no wasted shuffle</span></h2>
+      <table>
+        <thead><tr><th>Topic</th><th>Key</th><th>Produced by</th><th>Consumed by</th></tr></thead>
+        <tbody>
+          <tr><td>raw.gps</td><td>taxi_id</td><td>GPS producer</td><td>Flink Job 1</td></tr>
+          <tr><td>raw.trips</td><td>origin_zone</td><td>trip producer</td><td>Flink Jobs 2 &amp; 3</td></tr>
+          <tr><td>processed.gps</td><td>taxi_id</td><td>Job 1</td><td>Job 2</td></tr>
+          <tr><td>processed.demand</td><td>zone_id</td><td>Job 2</td><td>dashboards</td></tr>
+          <tr><td>processed.matches</td><td>trip_id</td><td>Job 3</td><td>dashboards</td></tr>
+        </tbody>
+      </table>
+      <ul class="small"><li><strong>4 partitions · 7-day retention · JSON.</strong> Keys align with Flink <code>keyBy</code> → no network reshuffle.</li></ul>
+      <aside class="notes">Partition keys aren't arbitrary. By keying GPS on taxi_id and trips on origin_zone, the Flink keyBy lines up with the Kafka partitioning, so we avoid an extra shuffle across the network.</aside>
+    </section>
+
+    <!-- ============ T3 — FLINK INTERNALS ============ -->
+    <section class="std">
+      <h3>T3 · Flink Internals</h3>
+      <h2>How the <span class="grad">real-time engine is wired</span></h2>
+      <div class="cols w46">
+        <div>
+          <ul class="small">
+            <li><strong>JobManager</strong> = coordinator; <strong>TaskManagers</strong> = workers (12 slots)</li>
+            <li>Each job = Kafka source → <code>keyBy</code> → stateful process fn → sinks</li>
+            <li><strong>State = RocksDB</strong> (on-disk, large keyed state)</li>
+            <li><strong>Checkpoints 60 s → MinIO, EXACTLY_ONCE</strong>; offsets commit with checkpoint</li>
+            <li>Event-time + watermarks; Cassandra via <code>execute_async</code></li>
+          </ul>
+        </div>
+        <div class="fig"><img src="assets/flink_architecture.png" alt="Flink architecture" /></div>
+      </div>
+      <aside class="notes">This is what makes the real-time layer trustworthy: RocksDB holds the state, checkpoints snapshot it to MinIO every minute together with the Kafka offsets, and exactly-once means a crash resumes with no duplicate matches.</aside>
+    </section>
+
+    <!-- ============ T4 — MINIO VS HDFS ============ -->
+    <section class="std">
+      <h3>T4 · MinIO vs HDFS</h3>
+      <h2>Why an <span class="grad">object store</span>, not a block file system</h2>
+      <table>
+        <thead><tr><th></th><th>HDFS</th><th>MinIO (chosen)</th></tr></thead>
+        <tbody>
+          <tr><td>Model</td><td>Distributed file system (blocks)</td><td>Object store (key→object, S3)</td></tr>
+          <tr><td>Metadata</td><td>Central NameNode (SPOF)</td><td>No central namenode</td></tr>
+          <tr><td>Redundancy</td><td>128 MB blocks ×3</td><td>Erasure coding</td></tr>
+          <tr><td>Access</td><td>hdfs:// client</td><td>s3a:// — Spark, Flink, Connect</td></tr>
+          <tr><td>Ops</td><td>NameNode + DataNodes + quorum</td><td>Single stateless container</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="small"><strong>One line:</strong> HDFS = block file system + central metadata server; MinIO = stateless S3 object store — a better fit for a container-based, multi-engine Kappa stack.</blockquote>
+      <aside class="notes">The deciding factor was that three different engines all need the same storage. With MinIO they share one S3 API; with HDFS each would need its own connector plus a NameNode to keep alive. For a demo stack in Docker, MinIO is simpler and cloud-portable.</aside>
+    </section>
+
+    <!-- ============ T5 — GBT VS RF ============ -->
+    <section class="std">
+      <h3>T5 · GBT vs Random Forest vs Baseline</h3>
+      <h2>Why <span class="grad">boosting won</span></h2>
+      <table>
+        <thead><tr><th></th><th>Naive 7d-lag</th><th>Random Forest</th><th>GBT (chosen)</th></tr></thead>
+        <tbody>
+          <tr><td>Logic</td><td>repeat last week</td><td>average of parallel trees (bagging)</td><td>sequential trees fix prior error (boosting)</td></tr>
+          <tr><td>Reduces</td><td>—</td><td>variance</td><td><strong>bias</strong> → best on tabular</td></tr>
+          <tr><td>RMSE</td><td>6.84</td><td>&gt; GBT</td><td><strong>3.71</strong></td></tr>
+        </tbody>
+      </table>
+      <ul class="small"><li>GBT handles non-linear demand, mixed feature types (no scaling), interactions for free. <strong>−45.8% vs baseline, R² 0.75, all 16 zones improve.</strong></li></ul>
+      <aside class="notes">Random Forest averages independent trees to cut variance; GBT builds trees in sequence where each corrects the residual, which lowers bias and wins on structured tabular data. The naive 7-day-lag is the floor the cahier requires us to beat — we beat it by 45.8%.</aside>
+    </section>
+
+    <!-- ============ T6 — GUARANTEES ============ -->
+    <section class="std">
+      <h3>T6 · Two Correctness Guarantees</h3>
+      <h2>Trust the numbers, <span class="grad">protect the rider</span></h2>
+      <ul class="small">
+        <li><strong>Exactly-once:</strong> Flink checkpoints (RocksDB → MinIO every 60 s) commit together with Kafka offsets → crash resumes with <strong>no duplicate</strong> matches or counts</li>
+        <li><strong>Out-of-order safety:</strong> 3-min watermarks in Job 1 absorb the producer's 5% blackout (60–180 s late pings)</li>
+        <li><strong>Privacy by design:</strong> <code>GPS_DISPLAY_MODE=anonymized</code> snaps raw lat/lon to zone centroid + hash jitter <strong>before</strong> the Cassandra write — raw coordinate never persists</li>
+      </ul>
+      <aside class="notes">Two guarantees a jury cares about: correctness and privacy. Exactly-once means our match counts aren't inflated by retries; anonymization means we can prove a real GPS coordinate never reaches the database — it's centroid-snapped inside Flink first.</aside>
+    </section>
+
+    <!-- ============ SLIDE 27 — CLOSING ============ -->
+    <section class="title" data-background-gradient="radial-gradient(900px 600px at 50% 40%, rgba(124,58,237,.22), transparent), var(--cm-navy)">
+      <img class="logo" src="assets/logowithoubackground.png" alt="CasaMotion logo" style="width:54%" />
+      <h2 style="margin-top:.1em">Thank you</h2>
+      <div class="fig" style="max-width:760px;margin:.4em auto 0"><img src="assets/meetourteam.png" alt="Team" /></div>
+      <p class="footer-band">Real-time mobility intelligence for Casablanca · Kappa architecture · 16 containers · ML-backed<br/>
+        Repository: <code>mohamedamineelabidi/CasaMotion</code></p>
+      <aside class="notes">Thank you. To summarize: we built a complete, real-time, ML-powered mobility platform for Casablanca from raw streams to a deployed API and live dashboards — and every claim in this deck is backed by code and a verification script. Happy to take questions or run the live demo.</aside>
+    </section>
+
+    <!-- ============ APPENDIX: SERVICE URLS ============ -->
+    <section class="std">
+      <h3>Appendix · Live Service URLs (demo)</h3>
+      <h2><span class="grad">Where everything runs</span></h2>
+      <table>
+        <thead><tr><th>Service</th><th>URL</th><th>Creds</th></tr></thead>
+        <tbody>
+          <tr><td>Grafana</td><td>http://localhost:3000</td><td>admin / admin</td></tr>
+          <tr><td>Flink UI</td><td>http://localhost:8081</td><td>—</td></tr>
+          <tr><td>Spark Master</td><td>http://localhost:8080</td><td>—</td></tr>
+          <tr><td>MinIO Console</td><td>http://localhost:9001</td><td>minioadmin / minioadmin</td></tr>
+          <tr><td>Kafka UI</td><td>http://localhost:8090</td><td>—</td></tr>
+          <tr><td>FastAPI Swagger</td><td>http://localhost:8000/docs</td><td>JWT</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="small">Defense Q&amp;A flashcards (15 questions) are in <code>presentation/qa.html</code>.</blockquote>
+      <aside class="notes">These are the six URLs I'll open during the live demo. The Q&A flashcards page covers the 15 most likely jury questions.</aside>
+    </section>
+
+  </div>
+</div>
+<img class="cm-watermark" src="assets/logowithoubackground.png" alt="" />
+
+<!-- Reveal.js core + plugins -->
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/notes/notes.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/plugin/zoom/zoom.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<script>
+  // Render the A–E activity-score formula
+  try {
+    katex.render(
+      "\\text{score}_z = 0.30\\,c_z + 0.40\\,\\rho_z + 0.20\\,d_z + 0.10\\,t_z",
+      document.getElementById('ae-formula'),
+      { throwOnError: false }
+    );
+    document.getElementById('ae-formula').style.color = '#e9eefb';
+  } catch (e) {}
+
+  Reveal.initialize({
+    width: 1280,
+    height: 720,
+    margin: 0.045,
+    minScale: 0.2,
+    maxScale: 2.0,
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+    plugins: [ RevealNotes, RevealHighlight, RevealZoom ]
+  });
+</script>
+</body>
+</html>
