@@ -339,6 +339,12 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
     <aside class="notes">H3 res-9 cells give O(1) point-in-zone lookup — removing the spatial-join bottleneck.</aside>
   </section>
 
+  <!-- 8c ZONE BUILD PIPELINE (full-bleed image) -->
+  <section class="slide fullbleed">
+    <img class="full-img" src="assets/image.png" alt="How CasaMotion builds 16 Casablanca zones step by step: 1) draw boundaries — 9 OSM admin zones + 7 Voronoi cells, clipped to 16 irregular polygons; 2) load HCP 2024 population for pop_density per zone; 3) score Glovo commerce + POI types + OSM transit into 3 feature columns normalized to [0,1]; 4) compute weighted ae_score = 0.40·rho + 0.30·c + 0.20·d + 0.10·t (range 0.095–0.673); 5) quantile-split into A–E tiers [2,4,5,4,1]. Output drives demand multipliers, trip-origin weighting, Grafana heatmap and ML training zones."/>
+    <aside class="notes">The complete zone-building pipeline on one slide: boundaries → population → commerce/POI/transit scoring → weighted A–E score → tier assignment. This is the recipe behind every zone the rest of the system relies on; outputs feed demand multipliers, origin sampling, dashboards and the ML model.</aside>
+  </section>
+
   <!-- 6.3 PORTO WARPING -->
   <section class="slide">
     <span class="s-no">09</span>
@@ -375,7 +381,7 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
 
   <!-- 6.4 CHAIN (full-bleed image) -->
   <section class="slide fullbleed">
-    <img class="full-img" src="assets/image.png" alt="Population + OSM drive realistic demand: HCP 2024 population, Glovo commerce and OSM transit feed the A–E activity score and demand multipliers; OSM admin boundaries, road network and NYC temporal fingerprint feed 16 zone polygons, population-weighted origin sampling, road-snapped Porto trajectories and the hourly/DoW curve — all chaining into casa_trip_requests (500K trips, 90 days). Origin weight origin_p[z] = pop_2024[z] × ae_mult[z]; destinations from tier T±1; validation 8/8 (A/E ratio ≈ 3.6×, twin peaks 08:00/18:00, Fri-high/Sun-low, 70/30 petit/grand split)."/>
+    <img class="full-img" src="assets/ss.png" alt="Population + OSM drive realistic demand: HCP 2024 population, Glovo commerce and OSM transit feed the A–E activity score and demand multipliers; OSM admin boundaries, road network and NYC temporal fingerprint feed 16 zone polygons, population-weighted origin sampling, road-snapped Porto trajectories and the hourly/DoW curve — all chaining into casa_trip_requests (500K trips, 90 days). Origin weight origin_p[z] = pop_2024[z] × ae_mult[z]; destinations from tier T±1; validation 8/8 (A/E ratio ≈ 3.6×, twin peaks 08:00/18:00, Fri-high/Sun-low, 70/30 petit/grand split)."/>
     <aside class="notes">OSM gives shapes/transit/roads; HCP+Glovo give activity tiers; NYC sets the timing. Origin weight = population × A–E multiplier; destinations sampled from adjacent tiers for realistic cross-city flow. Eight validation panels confirm the synthetic stream behaves like real Casablanca demand.</aside>
   </section>
 

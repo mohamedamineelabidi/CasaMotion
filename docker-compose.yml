@@ -123,7 +123,7 @@ services:
     ports:
       - "9042:9042"
     environment:
-      CASSANDRA_CLUSTER_NAME: CasaMotionCluster
+      CASSANDRA_CLUSTER_NAME: TaaSimCluster
       CASSANDRA_RACK: rack1
       MAX_HEAP_SIZE: 512M
       HEAP_NEWSIZE: 128M

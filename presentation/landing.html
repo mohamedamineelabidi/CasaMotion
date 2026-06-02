@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CasaMotion — The live data layer for Casablanca mobility</title>
+<meta name="description" content="CasaMotion connects taxi GPS streams, trip requests, demand forecasting, and city-wide dashboards into one real-time urban mobility platform." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+/* ===========================================================
+   CasaMotion — real-time urban mobility platform (landing)
+   =========================================================== */
+:root{
+  --bg:#FFFFFF; --bg-soft:#F2F5FC; --bg-soft2:#E9EFFB;
+  --ink:#0B1F2A; --body:#37474F; --muted:#5C6B72; --faint:#8A99A0;
+  --teal:#2563EB; --teal-2:#3B82F6; --teal-deep:#1D4ED8; --teal-ink:#1E3A8A;
+  --heat:#FF7A33; --gold:#F2A900; --ok:#2563EB;
+  --line:rgba(11,31,42,.10); --line-2:rgba(11,31,42,.06);
+  --card:#FFFFFF;
+  --shadow-sm:0 8px 24px rgba(11,31,42,.07);
+  --shadow:0 24px 60px rgba(11,31,42,.10);
+  --shadow-lg:0 40px 100px rgba(11,31,42,.16);
+  --grad:var(--teal);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--body);background:var(--bg);font-family:"Manrope",system-ui,-apple-system,sans-serif;line-height:1.62;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+
+/* soft light wash background */
+.bg-wash{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(720px 520px at 88% -6%, rgba(37,99,235,.10), transparent 60%),
+    radial-gradient(640px 480px at -4% 8%, rgba(37,99,235,.06), transparent 58%);}
+
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.container{width:min(1180px,92vw);margin:0 auto}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal-deep)}
+.teal-text{color:var(--teal-deep)}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:15px;padding:12px 22px;border-radius:999px;cursor:pointer;border:1.5px solid transparent;transition:transform .15s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 12px 26px rgba(37,99,235,.30)}
+.btn-primary:hover{transform:translateY(-2px);background:var(--teal-deep);box-shadow:0 18px 38px rgba(37,99,235,.42)}
+.btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal-deep);transform:translateY(-2px)}
+.btn-white{background:#fff;color:var(--teal-deep);box-shadow:0 12px 26px rgba(11,31,42,.18)}
+.btn-white:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(11,31,42,.26)}
+.btn-outline-white{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+.btn-outline-white:hover{background:rgba(255,255,255,.12);border-color:#fff;transform:translateY(-2px)}
+
+/* ---- navbar ---- */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .3s ease,box-shadow .3s ease}
+.nav.scrolled{border-bottom-color:var(--line);box-shadow:0 6px 24px rgba(11,31,42,.06)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand img{height:30px;width:auto}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a{color:var(--muted);font-size:15px;font-weight:600;transition:color .15s ease}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{display:flex;align-items:center;gap:12px}
+.nav-toggle{display:none;background:none;border:0;cursor:pointer;padding:8px}
+.nav-toggle span{display:block;width:24px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px}
+
+/* ================= HERO (split, light) ================= */
+.hero{display:grid;grid-template-columns:1.04fr 1.16fr;gap:56px;align-items:center;padding:64px 0 30px}
+.hero-copy{max-width:560px}
+.h-badge{display:inline-flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--teal-deep);background:var(--bg-soft);border:1px solid var(--line);border-radius:999px;padding:7px 14px;margin-bottom:22px}
+.h-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(37,99,235,.5);animation:pulse 2s infinite}
+.h-badge b{color:var(--ink);font-weight:700}
+.hero h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(36px,4.8vw,58px);line-height:1.03;letter-spacing:-.03em;margin:0;color:var(--ink)}
+.hero .lede{font-size:clamp(16px,1.5vw,18.5px);color:var(--muted);margin:22px 0 0;max-width:52ch}
+.hero-actions{display:flex;gap:13px;flex-wrap:wrap;margin-top:28px;align-items:center}
+/* waitlist */
+.waitlist{display:flex;gap:10px;margin-top:18px;max-width:460px}
+.waitlist input[type=email]{flex:1;min-width:0;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:12px 18px;color:var(--ink);font-family:"Manrope",sans-serif;font-size:14.5px;outline:none;transition:border-color .2s ease,box-shadow .2s ease}
+.waitlist input[type=email]::placeholder{color:var(--faint)}
+.waitlist input[type=email]:focus{border-color:var(--teal);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+.waitlist .hp{position:absolute;left:-9999px}
+.wl-note{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--faint);margin:12px 0 0}
+.wl-note b{color:var(--ok)}
+/* hero metrics */
+.h-metrics{display:flex;flex-wrap:wrap;gap:24px 34px;margin-top:34px;padding-top:26px;border-top:1px solid var(--line)}
+.h-metric .n{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:25px;line-height:1;color:var(--teal-deep)}
+.h-metric .l{font-size:12.5px;color:var(--muted);margin-top:6px;font-family:"JetBrains Mono",monospace}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
+
+/* hero framed visual */
+.hero-visual{position:relative}
+.frame{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid var(--line);background:#dde6f4}
+.frame img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/3.05}
+.frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,31,42,0) 55%,rgba(11,31,42,.34));pointer-events:none}
+.frame-tick{position:absolute;width:22px;height:22px;border:2px solid #fff;opacity:.85;z-index:2}
+.frame-tick.tl{top:14px;left:14px;border-right:0;border-bottom:0}
+.frame-tick.tr{top:14px;right:14px;border-left:0;border-bottom:0}
+.frame-tick.bl{bottom:14px;left:14px;border-right:0;border-top:0}
+.frame-tick.br{bottom:14px;right:14px;border-left:0;border-top:0}
+.float-chip{position:absolute;left:-18px;bottom:26px;z-index:3;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 15px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px}
+.float-chip .ic{width:38px;height:38px;border-radius:11px;background:var(--grad);display:grid;place-items:center;flex:none}
+.float-chip .ic svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+.float-chip .t{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--faint);letter-spacing:.04em}
+.float-chip .v{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:17px;color:var(--ink)}
+.float-chip.tr-chip{left:auto;right:-14px;top:24px;bottom:auto}
+
+/* ============ TRUST STRIP ============ */
+.trust{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-soft);margin-top:46px}
+.trust-inner{display:flex;align-items:center;gap:30px;flex-wrap:wrap;padding:22px 0}
+.trust .lbl{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);max-width:160px;line-height:1.5}
+.trust .marks{display:flex;align-items:center;gap:28px;flex-wrap:wrap;flex:1}
+.trust .mk{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:16px;color:#52646c;opacity:.9;letter-spacing:.01em}
+.trust .mk span{color:var(--teal-deep)}
+
+/* ============ sections ============ */
+section{padding:88px 0}
+.section-head{max-width:62ch;margin:0 0 44px}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.section-head h2{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(28px,3.7vw,44px);letter-spacing:-.02em;margin:14px 0 0;line-height:1.08;color:var(--ink)}
+.section-head p{color:var(--muted);font-size:16.5px;margin:15px 0 0}
+
+/* ============ TABBED FEATURES ============ */
+.tabs-wrap{background:#fff}
+.tab-card{display:grid;grid-template-columns:1.1fr 1fr;gap:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow);background:#fff}
+.tab-visual{position:relative;background:var(--bg-soft2);min-height:380px}
+.tab-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tab-visual .badge{position:absolute;top:16px;left:16px;z-index:2;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:#fff;background:rgba(11,31,42,.55);border-radius:6px;padding:4px 9px}
+.tab-copy{padding:46px 44px;display:flex;flex-direction:column;justify-content:center}
+.tab-copy h3{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(22px,2.4vw,30px);color:var(--ink);margin:0 0 12px;letter-spacing:-.01em}
+.tab-copy>p{color:var(--muted);font-size:15.5px;margin:0 0 22px}
+.tab-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.tab-bullets li{display:flex;align-items:flex-start;gap:12px;font-size:15px;color:var(--body)}
+.tab-bullets .bi{flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg-soft);display:grid;place-items:center;margin-top:1px}
+.tab-bullets .bi svg{width:16px;height:16px;stroke:var(--teal-deep);fill:none;stroke-width:2}
+.tab-pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.tab-pill{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:14px;color:var(--muted);background:var(--bg-soft);border:1px solid var(--line);border-radius:999px;padding:10px 20px;cursor:pointer;transition:all .18s ease}
+.tab-pill:hover{color:var(--ink)}
+.tab-pill.act{background:#fff;color:var(--teal-deep);border-color:var(--teal);box-shadow:0 6px 16px rgba(37,99,235,.16)}
+
+/* ============ PRODUCT / DASHBOARD ============ */
+.product{background:var(--bg-soft)}
+.prod-head{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;margin-bottom:34px}
+.prod-head h2{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(26px,3.3vw,40px);letter-spacing:-.02em;color:var(--ink);margin:12px 0 0;line-height:1.1}
+.prod-head p{color:var(--muted);font-size:16px;margin:0}
+.prod-feats{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:34px}
+.prod-feat h4{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:17px;color:var(--ink);margin:0 0 7px;padding-top:18px;border-top:2px solid var(--teal)}
+.prod-feat p{color:var(--muted);font-size:14.5px;margin:0}
+.prod-cta{display:flex;justify-content:center;margin-top:38px}
+
+/* ---- light dashboard mockup ---- */
+.dash-wrap{position:relative}
+.dash-wrap::before{content:"";position:absolute;inset:-8px -12px;border-radius:26px;background:var(--grad);filter:blur(50px);opacity:.16;z-index:0}
+.dash{position:relative;z-index:1;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.dash-top{display:flex;align-items:center;gap:18px;padding:13px 18px;border-bottom:1px solid var(--line);background:#fbfdfd}
+.dash-top .dlogo{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.dash-top .dlogo svg{width:18px;height:18px}
+.dash-tabs{display:flex;gap:16px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--faint)}
+.dash-tabs span.act{color:var(--teal-deep);border-bottom:2px solid var(--teal);padding-bottom:2px}
+.dash-top .clock{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--muted)}
+.dash-body{display:grid;grid-template-columns:1.62fr 1fr;gap:12px;padding:12px}
+.map-panel{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#e9eef7;min-height:330px}
+.map-panel .mlabel{position:absolute;top:12px;left:14px;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;color:var(--teal-deep);z-index:3}
+.map-panel .mlive{position:absolute;top:11px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:7px;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ok);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.map-panel .mlive::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);animation:pulse 1.6s infinite}
+.map-panel .cityname{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:19px;color:rgba(11,31,42,.16);letter-spacing:.04em;z-index:1;pointer-events:none}
+.map-panel svg{position:absolute;inset:0;width:100%;height:100%}
+.taxi-dot{filter:drop-shadow(0 0 4px rgba(37,99,235,.7));animation:flick 3s ease-in-out infinite}
+.taxi-dot.b{animation-delay:-1s}.taxi-dot.c{animation-delay:-2s}.taxi-dot.d{animation-delay:-.5s}
+@keyframes flick{0%,100%{opacity:.6}50%{opacity:1}}
+.mover{animation:travel 7s linear infinite}
+.mover.b{animation-duration:9s;animation-delay:-3s}
+@keyframes travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+.tag-chip{position:absolute;z-index:3;background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ink);line-height:1.4;white-space:nowrap;box-shadow:var(--shadow-sm)}
+.tag-chip b{color:var(--teal-deep)}
+.tag-chip .s{color:var(--muted)}
+.side{display:flex;flex-direction:column;gap:10px}
+.kcard{background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.kcard .kh{display:flex;align-items:center;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.kcard .kh svg{width:15px;height:15px;stroke:var(--teal-deep);fill:none;stroke-width:2}
+.kcard .kv{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:23px;margin-top:6px;color:var(--ink)}
+.kcard .ks{font-size:11px;color:var(--muted);margin-top:1px}
+.kcard.fc{flex:1;display:flex;flex-direction:column}
+.kcard.fc .chart{flex:1;margin-top:8px;min-height:52px}
+.kcard.fc .chart svg{width:100%;height:100%}
+.dash-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:11px 18px;border-top:1px solid var(--line);background:#fbfdfd;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+.stat-pill{display:inline-flex;align-items:center;gap:7px}
+.stat-pill i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 6px var(--ok)}
+.stat-pill.warn i{background:var(--gold);box-shadow:0 0 6px var(--gold)}
+.dash-foot .thru{margin-left:auto;color:var(--faint)}
+.dash-foot .thru b{color:var(--teal-deep)}
+
+/* ============ ARCHITECTURE ============ */
+.arch-panel{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+.arch-panel img{border-radius:11px;width:100%;background:#f2f7f8}
+.arch-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:26px}
+.arch-node{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink);background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:9px 15px}
+.arch-node b{color:var(--teal-deep)}
+.arch-arrow{color:var(--teal);font-weight:700}
+
+/* ============ METRICS BAND ============ */
+.metrics-band{background:var(--bg-soft)}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:30px 24px;text-align:center;box-shadow:var(--shadow-sm)}
+.metric .n{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:40px;color:var(--teal-deep);line-height:1}
+.metric p{color:var(--muted);font-size:14.5px;margin:12px 0 0}
+
+/* ============ GUIDE / TEAM CTA ============ */
+.guide{background:var(--grad);border-radius:24px;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;box-shadow:var(--shadow-lg)}
+.guide-img{position:relative;background:#1e3a8a;min-height:340px}
+.guide-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.guide-copy{padding:50px 46px;color:#fff}
+.guide-copy .avatars{display:flex;margin-bottom:18px}
+.guide-copy .avatars img{width:44px;height:44px;border-radius:50%;border:2px solid #fff;object-fit:cover;margin-left:-12px}
+.guide-copy .avatars img:first-child{margin-left:0}
+.guide-copy h2{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(24px,2.8vw,34px);margin:0 0 14px;letter-spacing:-.02em;line-height:1.12}
+.guide-copy p{color:rgba(255,255,255,.9);font-size:15.5px;margin:0 0 26px;max-width:46ch}
+.guide-actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* ============ FINAL CTA ============ */
+.cta{position:relative;text-align:center;background:var(--ink);border-radius:24px;padding:62px 32px;overflow:hidden}
+.cta::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 50% -20%,rgba(37,99,235,.34),transparent 70%)}
+.cta>*{position:relative;z-index:1}
+.cta h2{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(26px,3.6vw,40px);margin:0;letter-spacing:-.02em;color:#fff}
+.cta p{color:rgba(255,255,255,.78);font-size:16.5px;margin:15px auto 28px;max-width:54ch}
+.cta-actions{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;align-items:center}
+.cta .waitlist{margin:22px auto 0;justify-content:center}
+.cta .waitlist input[type=email]{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}
+.cta .waitlist input[type=email]::placeholder{color:rgba(255,255,255,.5)}
+
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:#cdd8dc;padding:64px 0 34px;margin-top:0}
+.foot-inner{display:flex;justify-content:space-between;gap:48px;flex-wrap:wrap}
+.foot-brand{max-width:300px}
+.foot-word{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:21px;margin-bottom:14px}
+.foot-word .a{color:#fff}.foot-word .b{color:var(--teal-2)}
+.foot-brand p{color:#90a0a6;font-size:14px;margin:0}
+.foot-cols{display:flex;gap:56px;flex-wrap:wrap}
+.foot-col h4{font-family:"Space Grotesk",sans-serif;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:#fff;margin:0 0 13px}
+.foot-col a{display:block;color:#90a0a6;font-size:14px;margin:8px 0;transition:color .15s ease}
+.foot-col a:hover{color:var(--teal-2)}
+.foot-bottom{margin-top:44px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:#7d8d93;font-size:12.5px;font-family:"JetBrains Mono",monospace}
+
+/* ============ responsive ============ */
+@media (max-width:980px){
+  .hero{grid-template-columns:1fr;gap:40px;padding-top:48px}
+  .hero-copy{max-width:none}
+  .dash-body{grid-template-columns:1fr}
+  .map-panel{min-height:280px}
+  .tab-card{grid-template-columns:1fr}
+  .tab-visual{min-height:260px}
+  .prod-head{grid-template-columns:1fr;gap:16px}
+  .prod-feats{grid-template-columns:1fr}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .guide{grid-template-columns:1fr}
+  .guide-img{min-height:240px}
+}
+@media (max-width:880px){
+  .nav-links{position:fixed;inset:72px 0 auto 0;flex-direction:column;gap:0;background:#fff;border-bottom:1px solid var(--line);padding:8px 0;transform:translateY(-130%);transition:transform .25s ease;box-shadow:0 18px 40px rgba(11,31,42,.1)}
+  .nav-links.open{transform:translateY(0)}
+  .nav-links a{padding:14px 24px;width:100%}
+  .nav-toggle{display:block}
+  .nav .btn-ghost{display:none}
+  .dash-tabs{display:none}
+  .float-chip{left:8px}
+  .float-chip.tr-chip{right:8px}
+}
+@media (max-width:560px){
+  .waitlist{flex-direction:column}
+  .metric-grid{grid-template-columns:1fr}
+  .tab-copy{padding:32px 26px}
+}
+</style>
+</head>
+<body id="top">
+<div class="bg-wash" aria-hidden="true"></div>
+
+<!-- ============ NAVBAR ============ -->
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#top" class="brand" aria-label="CasaMotion home"><img src="assets/logo-nav-gradient.png" alt="CasaMotion" /></a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#platform">Platform</a>
+      <a href="#product">Product</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#metrics">Metrics</a>
+      <a href="index.html">Presentation</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="index.html" class="btn btn-ghost">View deck</a>
+      <a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener" class="btn btn-primary">Book a demo</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<main>
+<section class="hero container">
+  <div class="hero-copy">
+    <span class="h-badge reveal"><span class="dot"></span> Real-time streaming · <b>Casablanca</b></span>
+    <h1 class="reveal">The live data layer for <span class="teal-text">Casablanca mobility.</span></h1>
+    <p class="lede reveal">CasaMotion connects taxi GPS streams, trip requests, demand forecasting, and city-wide dashboards into one real-time urban mobility platform.</p>
+
+    <div class="hero-actions reveal">
+      <a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener" class="btn btn-primary">Book a demo →</a>
+      <a href="#product" class="btn btn-ghost">See the platform</a>
+    </div>
+
+    <form id="waitlist" class="waitlist reveal" action="https://formsubmit.co/elabidimohamedamine@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="CasaMotion — new early-access signup" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" />
+      <input type="email" name="email" placeholder="you@city-ops.ma" required aria-label="Email address" />
+      <button type="submit" class="btn btn-ghost">Join early access</button>
+    </form>
+    <p class="wl-note reveal">Early-access list · <b>no spam</b> · or book a live walkthrough with the team.</p>
+
+    <div class="h-metrics reveal">
+      <div class="h-metric"><div class="n">&lt;5s</div><div class="l">matching</div></div>
+      <div class="h-metric"><div class="n">30s</div><div class="l">demand updates</div></div>
+      <div class="h-metric"><div class="n">16</div><div class="l">city zones</div></div>
+      <div class="h-metric"><div class="n">500K</div><div class="l">simulated trips</div></div>
+    </div>
+  </div>
+
+  <div class="hero-visual reveal">
+    <div class="frame">
+      <img src="assets/image.png" alt="CasaMotion live operations dashboard for Casablanca" />
+      <span class="frame-tick tl"></span><span class="frame-tick tr"></span>
+      <span class="frame-tick bl"></span><span class="frame-tick br"></span>
+    </div>
+    <div class="float-chip">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-14 2 8h6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="t">match latency</div><div class="v">18.4 ms</div></div>
+    </div>
+    <div class="float-chip tr-chip">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M5 16l1.5-5h11L19 16M5 16h14M5 19v0M19 19v0" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="t">live fleet</div><div class="v">2,845</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRUST STRIP ============ -->
+<div class="trust">
+  <div class="container trust-inner">
+    <div class="lbl">Built on a real streaming stack</div>
+    <div class="marks">
+      <div class="mk"><span>Apache</span> Kafka</div>
+      <div class="mk"><span>Apache</span> Flink</div>
+      <div class="mk"><span>Apache</span> Cassandra</div>
+      <div class="mk"><span>Apache</span> Spark</div>
+      <div class="mk">Uber <span>H3</span></div>
+      <div class="mk">MinIO</div>
+      <div class="mk">Grafana</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TABBED FEATURES ============ -->
+<section id="platform" class="tabs-wrap">
+  <div class="container">
+    <div class="section-head center reveal">
+      <span class="eyebrow">// What the platform does</span>
+      <h2>One stream, from GPS ping to matched trip</h2>
+      <p>Every signal flows through a streaming backbone built for real-time urban transport — not a batch report you read tomorrow.</p>
+    </div>
+
+    <div class="tab-card reveal">
+      <div class="tab-visual">
+        <span class="badge" id="tabBadge">001 · LIVE MATCHING</span>
+        <img id="tabImg" src="assets/wmremove-transformed (1).png" alt="Live matching" />
+      </div>
+      <div class="tab-copy">
+        <h3 id="tabTitle">Real-time taxi ↔ rider matching</h3>
+        <p id="tabDesc">Flink event-time windows pair each rider request with the nearest available taxi in seconds, streaming straight off the live Kafka bus.</p>
+        <ul class="tab-bullets" id="tabBullets">
+          <li><span class="bi"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Sub-5-second supply–demand matching</li>
+          <li><span class="bi"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Event-time windows with watermarks</li>
+          <li><span class="bi"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Nearest-vehicle assignment per H3 zone</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tab-pills reveal">
+      <button class="tab-pill act" data-tab="0">Live matching</button>
+      <button class="tab-pill" data-tab="1">Demand zones</button>
+      <button class="tab-pill" data-tab="2">City dashboards</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT / DASHBOARD ============ -->
+<section id="product" class="product">
+  <div class="container">
+    <div class="prod-head reveal">
+      <div>
+        <span class="eyebrow">// The operations view</span>
+        <h2>See the whole city in motion, live</h2>
+      </div>
+      <p>A single operations layer turns raw GPS pings and trip requests into matched trips, demand heatmaps, and live KPIs — all updating in real time as the city moves.</p>
+    </div>
+
+    <div class="dash-wrap reveal">
+      <div class="dash">
+        <div class="dash-top">
+          <div class="dlogo">
+            <svg viewBox="0 0 40 40"><defs><linearGradient id="lg" x1="0" y1="0" x2="40" y2="40"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs><rect x="2" y="2" width="36" height="36" rx="10" fill="url(#lg)"/><path d="M27 15a8 8 0 1 0 0 10" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></svg>
+            <span>CasaMotion</span>
+          </div>
+          <div class="dash-tabs"><span>Dashboard</span><span>Fleet</span><span>Demand</span><span class="act">Map · Active</span><span>Analytics</span></div>
+          <span class="clock" id="clock">14:38</span>
+        </div>
+
+        <div class="dash-body">
+          <div class="map-panel">
+            <span class="mlabel">CASABLANCA · LIVE FLEET</span>
+            <span class="mlive">live</span>
+            <span class="cityname">Casablanca</span>
+            <svg viewBox="0 0 560 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <defs>
+                <radialGradient id="heat" cx="50%" cy="50%" r="50%">
+                  <stop offset="0" stop-color="#FF5A1F" stop-opacity=".42"/>
+                  <stop offset="55%" stop-color="#FF7A33" stop-opacity=".18"/>
+                  <stop offset="100%" stop-color="#FF7A33" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="route" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#2563EB"/></linearGradient>
+              </defs>
+              <circle cx="270" cy="170" r="120" fill="url(#heat)"/>
+              <circle cx="230" cy="150" r="78" fill="url(#heat)"/>
+              <circle cx="330" cy="210" r="64" fill="url(#heat)"/>
+              <circle cx="190" cy="230" r="52" fill="url(#heat)"/>
+              <g stroke="rgba(11,31,42,.12)" stroke-width="1.1" fill="none">
+                <path d="M0 90 C140 70 260 130 560 100"/>
+                <path d="M0 180 C160 200 300 150 560 190"/>
+                <path d="M0 270 C150 250 320 300 560 260"/>
+                <path d="M120 0 C100 140 160 240 130 360"/>
+                <path d="M300 0 C330 130 270 250 320 360"/>
+                <path d="M450 0 C430 130 470 250 440 360"/>
+              </g>
+              <path id="rt" d="M120 250 L250 250 L300 190 L420 120" fill="none" stroke="url(#route)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 0 5px rgba(37,99,235,.6))"/>
+              <circle class="mover" r="4.5" fill="#2563EB" style="offset-path:path('M120 250 L250 250 L300 190 L420 120')"/>
+              <circle class="mover b" r="3.5" fill="#F2A900" style="offset-path:path('M120 250 L250 250 L300 190 L420 120')"/>
+              <g>
+                <circle class="taxi-dot"   cx="150" cy="120" r="3.4" fill="#2563EB"/>
+                <circle class="taxi-dot b" cx="380" cy="90"  r="3.4" fill="#2563EB"/>
+                <circle class="taxi-dot c" cx="450" cy="250" r="3.4" fill="#2563EB"/>
+                <circle class="taxi-dot d" cx="200" cy="300" r="3.4" fill="#2563EB"/>
+                <circle class="taxi-dot b" cx="500" cy="160" r="3.4" fill="#2563EB"/>
+                <circle class="taxi-dot"   cx="90"  cy="210" r="3.4" fill="#2563EB"/>
+              </g>
+              <g transform="translate(112,236)"><circle r="6" fill="#1D4ED8"/><circle r="2.4" fill="#fff"/></g>
+              <g transform="translate(420,120)"><circle r="7" fill="#2563EB"/><circle r="3" fill="#fff"/></g>
+            </svg>
+            <div class="tag-chip" style="left:46%;top:55%"><b>TAXI 014</b> · ★4.8<br><span class="s">ETA 4 min · 0.9 km</span></div>
+          </div>
+
+          <div class="side">
+            <div class="kcard">
+              <div class="kh">Match Latency <svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-14 2 8h6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="kv">18.4 ms</div><div class="ks">avg this minute</div>
+            </div>
+            <div class="kcard">
+              <div class="kh">Active Vehicles <svg viewBox="0 0 24 24"><path d="M5 16l1.5-5h11L19 16M5 16h14M5 16v3M19 16v3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="kv">2,845</div><div class="ks">live fleet</div>
+            </div>
+            <div class="kcard">
+              <div class="kh">Demand Forecast <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M21 7v5M21 7h-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="kv">+12.1%</div><div class="ks">next 1h trend</div>
+            </div>
+            <div class="kcard fc">
+              <div class="kh">Zone Demand · 30 min</div>
+              <div class="chart">
+                <svg viewBox="0 0 200 60" preserveAspectRatio="none">
+                  <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2563EB" stop-opacity=".22"/><stop offset="1" stop-color="#2563EB" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M0 46 L24 40 L48 44 L72 30 L96 34 L120 20 L144 26 L168 12 L200 16 L200 60 L0 60 Z" fill="url(#area)"/>
+                  <polyline points="0,46 24,40 48,44 72,30 96,34 120,20 144,26 168,12 200,16" fill="none" stroke="#2563EB" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-foot">
+          <span class="stat-pill"><i></i> Kafka · connected</span>
+          <span class="stat-pill"><i></i> Flink · 3 jobs running</span>
+          <span class="stat-pill warn"><i></i> Cassandra · syncing</span>
+          <span class="thru">throughput <b>4.2k</b> evt/s</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prod-feats reveal">
+      <div class="prod-feat"><h4>Live map &amp; heatmaps</h4><p>Demand hotspots and every active vehicle, rendered on the same H3 geometry the matcher uses.</p></div>
+      <div class="prod-feat"><h4>Operational KPIs</h4><p>Match latency, active fleet, and zone demand trends update continuously from the stream.</p></div>
+      <div class="prod-feat"><h4>Stream health</h4><p>Kafka, Flink, and Cassandra status surfaced inline so operators trust what they see.</p></div>
+    </div>
+
+    <div class="prod-cta reveal">
+      <a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener" class="btn btn-primary">Book a demo →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture" class="container">
+  <div class="section-head center reveal">
+    <span class="eyebrow">// How it flows</span>
+    <h2>A streaming backbone, end to end</h2>
+    <p>Events move from producers through Kafka and Flink into Cassandra and the serving API — with offline analysis kept cleanly separate.</p>
+  </div>
+  <div class="arch-panel reveal"><img src="assets/architecturev2.png" alt="CasaMotion streaming architecture diagram" /></div>
+  <div class="arch-flow reveal">
+    <span class="arch-node"><b>Producers</b> · GPS + trips</span><span class="arch-arrow">→</span>
+    <span class="arch-node"><b>Kafka</b> · event bus</span><span class="arch-arrow">→</span>
+    <span class="arch-node"><b>Flink</b> · processing</span><span class="arch-arrow">→</span>
+    <span class="arch-node"><b>Cassandra</b> · serving</span><span class="arch-arrow">→</span>
+    <span class="arch-node"><b>API + Grafana</b></span>
+  </div>
+</section>
+
+<!-- ============ METRICS BAND ============ -->
+<section id="metrics" class="metrics-band">
+  <div class="container">
+    <div class="section-head center reveal"><span class="eyebrow">// Built for the city</span><h2>Designed around Casablanca</h2></div>
+    <div class="metric-grid">
+      <div class="metric reveal"><div class="n">16</div><p>Arrondissement zones modelled</p></div>
+      <div class="metric reveal"><div class="n">H3</div><p>Hexagonal demand grid</p></div>
+      <div class="metric reveal"><div class="n">30s</div><p>Demand refresh cadence</p></div>
+      <div class="metric reveal"><div class="n">3</div><p>Flink streaming jobs</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUIDE / TEAM CTA ============ -->
+<section class="container">
+  <div class="guide reveal">
+    <div class="guide-img"><img src="assets/meetourteam.png" alt="The CasaMotion team" /></div>
+    <div class="guide-copy">
+      <div class="avatars">
+        <img src="assets/meetourteam.png" alt="" /><img src="assets/meetourteam.png" alt="" /><img src="assets/meetourteam.png" alt="" />
+      </div>
+      <h2>Not sure where to start? Talk to the team.</h2>
+      <p>Book a 30-minute walkthrough and we'll show CasaMotion running live — the streaming stack, the matching engine, and the operations dashboard, end to end.</p>
+      <div class="guide-actions">
+        <a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener" class="btn btn-white">Book a demo</a>
+        <a href="#architecture" class="btn btn-outline-white">View architecture</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="container">
+  <div class="cta reveal">
+    <span class="eyebrow" style="color:var(--teal-2)">// Early access</span>
+    <h2>Be first to run Casablanca live</h2>
+    <p>Spin up the streaming stack, replay donor trips into live Kafka topics, and watch the operations layer light up.</p>
+    <div class="cta-actions">
+      <a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener" class="btn btn-primary">Book a demo →</a>
+      <a href="index.html" class="btn btn-outline-white">View presentation</a>
+    </div>
+    <form class="waitlist" action="https://formsubmit.co/elabidimohamedamine@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="CasaMotion — new early-access signup" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" />
+      <input type="email" name="email" placeholder="you@city-ops.ma" required aria-label="Email address" />
+      <button type="submit" class="btn btn-white">Join early access</button>
+    </form>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container foot-inner">
+    <div class="foot-brand">
+      <div class="foot-word"><span class="a">Casa</span><span class="b">Motion</span></div>
+      <p>Real-time urban mobility intelligence for Casablanca.</p>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col"><h4>Platform</h4><a href="#platform">Features</a><a href="#product">Product</a><a href="#architecture">Architecture</a><a href="#metrics">Metrics</a></div>
+      <div class="foot-col"><h4>Resources</h4><a href="index.html">Presentation</a><a href="qa.html">Q&amp;A flashcards</a><a href="../README.MD">Documentation</a></div>
+      <div class="foot-col"><h4>Get started</h4><a href="https://calendar.app.google/nKN5aufuYHMb6JWg7" target="_blank" rel="noopener">Book a demo</a><a href="#waitlist">Early access</a><a href="#architecture">Tech stack</a></div>
+    </div>
+  </div>
+  <div class="container foot-bottom">
+    <span>© 2026 CasaMotion — Smart mobility simulation platform. Dashboard figures are simulated demo data.</span>
+    <span>Casablanca · Morocco</span>
+  </div>
+</footer>
+
+<script>
+  // mobile nav
+  (function(){var t=document.getElementById('navToggle'),l=document.getElementById('navLinks');
+    t.addEventListener('click',function(){l.classList.toggle('open');});
+    l.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){l.classList.remove('open');});});})();
+  // nav scrolled
+  (function(){var n=document.getElementById('nav');var f=function(){n.classList.toggle('scrolled',window.scrollY>24);};f();window.addEventListener('scroll',f,{passive:true});})();
+  // reveal
+  (function(){var e=document.querySelectorAll('.reveal');if(!('IntersectionObserver'in window)){e.forEach(function(x){x.classList.add('in');});return;}
+    var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.12});
+    e.forEach(function(x){io.observe(x);});})();
+  // live-ish clock in mockup
+  (function(){var c=document.getElementById('clock');if(!c)return;function tick(){var d=new Date();c.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}tick();setInterval(tick,30000);})();
+  // tabbed features
+  (function(){
+    var data=[
+      {badge:'001 · LIVE MATCHING',img:'assets/wmremove-transformed (1).png',title:'Real-time taxi \u2194 rider matching',
+       desc:'Flink event-time windows pair each rider request with the nearest available taxi in seconds, streaming straight off the live Kafka bus.',
+       bullets:['Sub-5-second supply\u2013demand matching','Event-time windows with watermarks','Nearest-vehicle assignment per H3 zone']},
+      {badge:'002 · DEMAND ZONES',img:'assets/wmremove-transformed.png',title:'H3 demand zoning &amp; heatmaps',
+       desc:'Uber\u2019s H3 hex grid splits Casablanca into consistent zones, so demand heatmaps and available supply are measured on the same geometry.',
+       bullets:['16 arrondissement-aligned zones','Live demand heatmaps per hex','30-second refresh cadence']},
+      {badge:'003 · CITY DASHBOARDS',img:'assets/wmremove-transformed (1).png',title:'City-wide operations dashboards',
+       desc:'Grafana surfaces live KPIs \u2014 active vehicles, match latency, hot zones \u2014 so operators see the entire city in motion at a glance.',
+       bullets:['Active fleet &amp; match-latency KPIs','Hot-zone and trend monitoring','Stream health: Kafka \u00b7 Flink \u00b7 Cassandra']}
+    ];
+    var pills=document.querySelectorAll('.tab-pill');
+    var img=document.getElementById('tabImg'),badge=document.getElementById('tabBadge'),
+        title=document.getElementById('tabTitle'),desc=document.getElementById('tabDesc'),ul=document.getElementById('tabBullets');
+    var check='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function set(i){var d=data[i];img.src=d.img;img.alt=d.title;badge.textContent=d.badge;title.innerHTML=d.title;desc.innerHTML=d.desc;
+      ul.innerHTML=d.bullets.map(function(b){return '<li><span class="bi">'+check+'</span> '+b+'</li>';}).join('');}
+    pills.forEach(function(p){p.addEventListener('click',function(){
+      pills.forEach(function(x){x.classList.remove('act');});p.classList.add('act');set(+p.dataset.tab);});});
+  })();
+</script>
+</body>
+</html>
