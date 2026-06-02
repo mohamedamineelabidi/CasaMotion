@@ -1545,6 +1545,90 @@
           ]
         }
       }
+    },
+    {
+      "id": 11,
+      "title": "Predicted Demand by Zone — ML forecast (demand_v1, next 30 min)",
+      "description": "Demand forecast per Casablanca zone for the upcoming 30-minute slot, produced by the demand_v1 model (Spark GBT pipeline; API serves it via /api/demand/forecast). Written to Cassandra taasim.demand_forecast by scripts/update-demand-forecast.ps1.",
+      "type": "barchart",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "datasource": {
+        "type": "hadesarchitect-cassandra-datasource",
+        "uid": "cassandra-ds"
+      },
+      "targets": [
+        { "refId": "A", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=1 LIMIT 1" },
+        { "refId": "B", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=2 LIMIT 1" },
+        { "refId": "C", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=3 LIMIT 1" },
+        { "refId": "D", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=4 LIMIT 1" },
+        { "refId": "E", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=5 LIMIT 1" },
+        { "refId": "F", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=6 LIMIT 1" },
+        { "refId": "G", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=7 LIMIT 1" },
+        { "refId": "H", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=8 LIMIT 1" },
+        { "refId": "I", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=9 LIMIT 1" },
+        { "refId": "J", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=10 LIMIT 1" },
+        { "refId": "K", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=11 LIMIT 1" },
+        { "refId": "L", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=12 LIMIT 1" },
+        { "refId": "M", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=13 LIMIT 1" },
+        { "refId": "N", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=14 LIMIT 1" },
+        { "refId": "O", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=15 LIMIT 1" },
+        { "refId": "P", "datasource": { "type": "hadesarchitect-cassandra-datasource", "uid": "cassandra-ds" }, "queryType": "query", "rawQuery": true, "target": "SELECT zone_id, predicted_demand FROM taasim.demand_forecast WHERE city='casablanca' AND zone_id=16 LIMIT 1" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-BlPu" },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "predicted_demand" },
+            "properties": [
+              { "id": "displayName", "value": "Predicted demand (requests)" }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "groupWidth": 0.7,
+        "barWidth": 0.8,
+        "showValue": "auto",
+        "stacking": "none",
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "transformations": [
+        { "id": "merge", "options": {} },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "zone_id": { "operation": "groupby", "aggregations": [] },
+              "predicted_demand": { "operation": "aggregate", "aggregations": ["lastNotNull"] }
+            }
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [ { "targetField": "zone_id", "destinationType": "string" } ],
+            "fields": {}
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "renameByName": {
+              "predicted_demand (lastNotNull)": "predicted_demand",
+              "zone_id": "Zone"
+            }
+          }
+        }
+      ]
     }
   ]
 }
