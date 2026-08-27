@@ -205,7 +205,7 @@ CasaMotion follows a **Kappa Architecture** — Kafka is the system of record, F
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/mohamedamineelabidi/Taasimm.git CasaMotion
+git clone https://github.com/mohamedamineelabidi/CasaMotion.git
 cd CasaMotion
 ```
 
