@@ -28,6 +28,20 @@ data/opportunity-find/
 # Script temp outputs
 scripts/_polyfetch.log
 
+# LaTeX build artifacts (regenerated on compile)
+documents/*.aux
+documents/*.log
+documents/*.out
+documents/*.toc
+documents/*.fls
+documents/*.fdb_latexmk
+documents/*_build.pdf
+
+# Scaffolding / tooling logs
+*-scaffold.log
+mobile/*.log
+mobile/tsc-out.txt
+
 # JARs (downloaded via scripts, not tracked)
 jars/
 

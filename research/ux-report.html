@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="CasaMotion — UX & Frontend Design Research Report. Benchmarking the world's best mobility apps and proposing an ideal mobile-first PWA for Casablanca." />
+<title>CasaMotion — Mobility UX Research & Frontend Design Report</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><path d='M34 13A15 15 0 1 0 34 31' fill='none' stroke='%230a1330' stroke-width='5.5' stroke-linecap='round'/><circle cx='34' cy='22' r='5.4' fill='%232d6bff'/></svg>" />
+<style>
+/* ============================================================
+   CasaMotion UX Research Report — self-contained design system
+   Brand tokens mirror the existing project (README + presentation)
+   Fonts import gracefully; falls back to system stack when offline.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root{
+  /* Brand palette (exact hex from CasaMotion) */
+  --cyan:#22d3ee;
+  --blue:#2d6bff;
+  --violet:#7c3aed;
+  --navy:#0a1430;
+  --ink:#0a1330;
+  --panel:#f4f7fd;
+  /* Flat branding: solid primary blue replaces the old cyan-blue-violet gradient */
+  --grad:#2d6bff;
+  --grad-soft:#eef3ff;
+
+  /* Neutral scale */
+  --bg:#f7f9fc;
+  --surface:#ffffff;
+  --line:#e5e9f2;
+  --line-2:#eef1f7;
+  --text:#0f1730;
+  --text-2:#4a5578;
+  --text-3:#7a85a3;
+
+  /* Semantic */
+  --ok:#12b76a;
+  --warn:#f79009;
+  --err:#f04438;
+  --info:#2d6bff;
+
+  /* Type */
+  --font-display:'Space Grotesk','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-body:'Manrope','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'Cascadia Code',Consolas,monospace;
+
+  /* Space / radius / shadow */
+  --r-sm:8px; --r:14px; --r-lg:22px; --r-xl:30px;
+  --sh-1:0 1px 2px rgba(10,19,48,.06),0 1px 3px rgba(10,19,48,.05);
+  --sh-2:0 6px 18px rgba(10,19,48,.08);
+  --sh-3:0 18px 48px rgba(10,19,48,.14);
+  --maxw:1180px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display);line-height:1.15;color:var(--ink);letter-spacing:-.01em}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);margin:0 0 .4em}
+h3{font-size:1.25rem;margin:2rem 0 .6rem}
+h4{font-size:1.02rem;margin:1.3rem 0 .4rem}
+p{margin:.5em 0 1em}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd{font-family:var(--font-mono);font-size:.86em;background:#eef2fb;color:#2b3a67;padding:.12em .4em;border-radius:6px}
+small{color:var(--text-3)}
+
+/* ---------- Layout ---------- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+.layout{display:grid;grid-template-columns:264px minmax(0,1fr);gap:34px;max-width:1360px;margin:0 auto;padding:0 22px}
+main{min-width:0;padding:28px 0 120px}
+section{scroll-margin-top:80px;padding:26px 0;border-top:1px solid var(--line-2)}
+section:first-of-type{border-top:none}
+
+/* ---------- Sidebar TOC ---------- */
+.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:26px 6px 40px;font-size:.9rem}
+.toc .brandmini{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--ink)}
+.cmk{flex:none;display:block}
+.toc .brandmini .cmk{width:30px;height:30px}
+.toc .brandmini b{font-family:var(--font-display);font-size:1rem;letter-spacing:-.01em}
+.toc a{display:block;color:var(--text-2);padding:7px 12px;border-radius:9px;border-left:2px solid transparent;transition:.15s}
+.toc a:hover{background:var(--panel);text-decoration:none;color:var(--ink)}
+.toc a.grp{margin-top:14px;font-family:var(--font-display);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);pointer-events:none;padding-bottom:2px}
+.toc-toggle{display:none}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;border-radius:var(--r-xl);padding:56px 44px;color:#fff;background:var(--navy);box-shadow:var(--sh-3);margin-top:20px;border-top:4px solid var(--blue)}
+.hero>*{position:relative;z-index:1}
+.hero .kicker{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:#9fe6f5}
+.hero h1{color:#fff;font-size:clamp(2rem,5vw,3.4rem);margin:.25em 0 .3em}
+.hero h1 .g{color:var(--cyan)}
+.hero p{color:#c9d4ee;max-width:60ch;font-size:1.08rem}
+.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;font-size:.8rem;font-weight:600;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#eaf1ff}
+.hero .logo{position:absolute;top:34px;right:40px;display:flex;align-items:center;gap:12px;z-index:1;color:#fff}
+.hero .logo .cmk{width:42px;height:42px}
+.hero .logo b{font-family:var(--font-display);font-size:1.18rem;letter-spacing:-.01em}
+
+/* ---------- Cards & grid ---------- */
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--sh-1)}
+.card.tint{background:var(--grad-soft);border-color:transparent}
+.card h3,.card h4{margin-top:0}
+.lead{font-size:1.12rem;color:var(--text-2);max-width:75ch}
+
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi .n{font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--blue)}
+.kpi .l{font-size:.82rem;color:var(--text-3);font-weight:600;letter-spacing:.02em}
+
+/* ---------- Badges / tags ---------- */
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.02em}
+.t-real{background:#e7f8f0;color:#08794a}
+.t-plan{background:#fff3e0;color:#a55a00}
+.t-cyan{background:#e2f8fc;color:#0b7a92}
+.t-blue{background:#e6eeff;color:#1f4fd8}
+.t-violet{background:#f0e9fe;color:#6027c9}
+.t-neutral{background:#eef1f7;color:#48557a}
+
+/* ---------- Tables ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-1);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:640px}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:top}
+thead th{background:var(--panel);font-family:var(--font-display);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-2);position:sticky;top:0;z-index:2}
+tbody tr:hover{background:#fafcff}
+td.app{font-weight:700;color:var(--ink);white-space:nowrap}
+.score{font-family:var(--font-display);font-weight:700}
+.bar{height:8px;border-radius:6px;background:#eaeefb;overflow:hidden;min-width:70px}
+.bar>i{display:block;height:100%;border-radius:6px;background:var(--grad)}
+.cell-mini{display:flex;align-items:center;gap:8px}
+
+/* ---------- Callouts ---------- */
+.note{border-left:4px solid var(--blue);background:#f2f6ff;border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:18px 0}
+.note.warn{border-color:var(--warn);background:#fff8ef}
+.note.ok{border-color:var(--ok);background:#eefaf3}
+.note b{color:var(--ink)}
+
+/* ---------- Lists ---------- */
+ul.clean{list-style:none;padding:0;margin:.4em 0}
+ul.clean li{padding:6px 0 6px 26px;position:relative}
+ul.clean li:before{content:"";position:absolute;left:0;top:13px;width:9px;height:9px;border-radius:3px;background:var(--grad)}
+ul.tick li:before,ul.cross li:before{border-radius:50%}
+ul.tick li:before{background:var(--ok)}
+ul.cross li:before{background:var(--err)}
+
+/* ---------- App logo wall (screenshot-style grid) ---------- */
+#profiles{counter-reset:appn}
+.wallgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg)}
+.profile{counter-increment:appn;position:relative;background:var(--surface);border:none;border-radius:0;box-shadow:none;overflow:visible;min-height:152px;display:flex;flex-direction:column;justify-content:center;transition:background .18s}
+.profile:hover{background:#fbfcff;z-index:8}
+.profile:before{content:"#" counter(appn);position:absolute;top:12px;left:16px;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:1.5rem;color:#c4cad6;letter-spacing:.01em}
+.profile .head{display:flex;align-items:center;justify-content:center;gap:11px;padding:28px 18px;border-bottom:none;background:transparent}
+.profile .glyph{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;font-family:var(--font-display);font-weight:700;font-size:1rem;flex:none;box-shadow:var(--sh-1)}
+.profile .head .meta{flex:none;min-width:0;text-align:center}
+.profile .head h3{margin:0;font-size:1.32rem;letter-spacing:-.02em}
+.profile .head .cat{display:none}
+.profile .head .grade{position:absolute;top:14px;right:16px;font-family:var(--font-display);font-weight:700;font-size:.92rem;color:var(--blue)}
+.profile .body{position:absolute;left:50%;top:calc(100% - 8px);transform:translate(-50%,8px);width:340px;max-width:86vw;display:grid;gap:12px;grid-template-columns:1fr;padding:16px 18px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh-3);opacity:0;visibility:hidden;transition:.18s;z-index:40;text-align:left}
+.profile:hover .body{opacity:1;visibility:visible;transform:translate(-50%,0)}
+.profile .body .full{grid-column:1/-1}
+.profile .qh{font-family:var(--font-display);font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin:0 0 3px;display:flex;align-items:center;gap:6px}
+.profile .qh:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.profile p.a{margin:0;font-size:.9rem;color:var(--text-2)}
+@media(max-width:900px){.wallgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.wallgrid{grid-template-columns:1fr}.profile .body{width:280px}}
+
+/* ---------- Phone mockups ---------- */
+.mocks{display:grid;gap:22px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));align-items:start}
+.phone{margin:0 auto}
+.phone figcaption{font-size:.82rem;color:var(--text-2);text-align:center;margin-top:10px;font-weight:600}
+.anno{font-size:.82rem;color:var(--text-2);background:var(--panel);border-radius:var(--r);padding:12px 14px}
+.anno b{color:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 2px;font-size:.8rem;color:var(--text-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+
+/* ---------- Diagrams ---------- */
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--sh-1);overflow-x:auto}
+.diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}
+
+/* ---------- Tokens swatches ---------- */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-1)}
+.sw .chip{height:64px}
+.sw .info{padding:9px 12px;font-size:.8rem}
+.sw .info b{display:block;font-family:var(--font-display)}
+.sw .info code{background:none;padding:0;color:var(--text-3)}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--line);margin-top:40px;padding:30px 0;color:var(--text-3);font-size:.86rem}
+.tocjump{display:none}
+
+/* ---------- Responsive ---------- */
+@media(max-width:1024px){
+  .layout{grid-template-columns:1fr;gap:0}
+  .toc{position:fixed;z-index:40;left:0;top:0;width:280px;height:100vh;background:var(--surface);border-right:1px solid var(--line);transform:translateX(-100%);transition:.25s;box-shadow:var(--sh-3)}
+  .toc.open{transform:none}
+  .toc-toggle{display:inline-flex;position:fixed;z-index:41;top:14px;left:14px;align-items:center;gap:8px;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:10px 14px;font-family:var(--font-display);font-weight:600;box-shadow:var(--sh-2);cursor:pointer}
+  main{padding-top:60px}
+}
+@media(max-width:760px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .profile .body{grid-template-columns:1fr}
+  .hero{padding:38px 24px}
+  .hero .logo{display:none}
+}
+@media print{
+  .toc,.toc-toggle{display:none}
+  .layout{display:block}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<button class="toc-toggle" onclick="document.querySelector('.toc').classList.toggle('open')">☰ Contents</button>
+
+<div class="layout">
+  <!-- ================= SIDEBAR TOC ================= -->
+  <nav class="toc" aria-label="Table of contents">
+    <div class="brandmini"><svg class="cmk" viewBox="0 0 44 44" aria-hidden="true"><path d="M34 13A15 15 0 1 0 34 31" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><circle cx="34" cy="22" r="5.4" fill="#2d6bff"/></svg><b>CasaMotion UX</b></div>
+    <a class="grp">Research</a>
+    <a href="#summary">Executive Summary</a>
+    <a href="#method">Methodology &amp; Scoring</a>
+    <a href="#profiles">App Profiles (15)</a>
+    <a href="#matrix">20-Dimension Matrix</a>
+    <a href="#scores">UX Scorecards</a>
+    <a href="#patterns">Pattern Synthesis</a>
+    <a href="#mocks">Pattern Mockups</a>
+    <a class="grp">CasaMotion Design</a>
+    <a href="#cm-overview">Design Overview</a>
+    <a href="#cm-ia">Information Architecture</a>
+    <a href="#cm-nav">Navigation Map</a>
+    <a href="#cm-flows">User Flows</a>
+    <a href="#cm-screens">Screen Inventory</a>
+    <a href="#cm-wire">Wireframes</a>
+    <a href="#cm-ds">Design System</a>
+    <a href="#cm-components">Component Hierarchy</a>
+    <a href="#cm-responsive">Responsive Strategy</a>
+    <a class="grp">Delivery</a>
+    <a href="#reco">Recommendations</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="#sources">Sources</a>
+  </nav>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="logo"><svg class="cmk" viewBox="0 0 44 44" aria-hidden="true"><path d="M34 13A15 15 0 1 0 34 31" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/><circle cx="34" cy="22" r="5.4" fill="#22d3ee"/></svg><b>CasaMotion</b></div>
+      <div class="kicker">Frontend UX Research &amp; Design Report</div>
+      <h1>Designing the ideal <span class="g">mobility app</span> for Casablanca</h1>
+      <p>A competitive teardown of the world's leading Mobility-as-a-Service, ride-hailing and transit apps — distilled into a clean, accessible, mobile-first design system for CasaMotion.</p>
+      <div class="meta">
+        <span class="pill">15 apps analysed</span>
+        <span class="pill">20 UX dimensions</span>
+        <span class="pill">30+ screens designed</span>
+        <span class="pill">Mobile-first PWA</span>
+        <span class="pill">Grounded in the live FastAPI</span>
+      </div>
+    </div>
+
+    <!-- EXECUTIVE SUMMARY -->
+    <section id="summary">
+      <h2>Executive summary</h2>
+      <p class="lead">CasaMotion already has a production streaming backend (Kafka → Flink → Cassandra) and a 7-route FastAPI, but <b>no rider-facing frontend</b>. This report benchmarks the best mobility apps in the world and proposes a design that turns those live capabilities — taxi matching, demand forecasting, live vehicle positions across 16 Casablanca zones — into a delightful, low-friction experience, with a clear path to full multimodal transit.</p>
+
+      <div class="grid g4" style="margin:18px 0 6px">
+        <div class="card"><div class="kpi"><span class="n">15</span><span class="l">Apps benchmarked</span></div></div>
+        <div class="card"><div class="kpi"><span class="n">20</span><span class="l">UX dimensions scored</span></div></div>
+        <div class="card"><div class="kpi"><span class="n">31</span><span class="l">Screens in CasaMotion inventory</span></div></div>
+        <div class="card"><div class="kpi"><span class="n">7</span><span class="l">Live API routes mapped to UI</span></div></div>
+      </div>
+
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card tint">
+          <h4>What the best apps share</h4>
+          <ul class="clean">
+            <li><b>Map-first home</b> with a bottom sheet that owns all actions</li>
+            <li><b>One dominant "Where to?"</b> search entry point</li>
+            <li><b>3–5 tab</b> bottom navigation, labelled, always visible</li>
+            <li><b>Progressive disclosure</b> — commit to price/route only when ready</li>
+            <li><b>Live status</b> as first-class UI (ETA, driver, arrivals)</li>
+          </ul>
+        </div>
+        <div class="card tint">
+          <h4>Where most apps still fail</h4>
+          <ul class="clean">
+            <li>Cluttered home screens with competing promos</li>
+            <li>Weak <b>empty / loading / error</b> states</li>
+            <li>Accessibility as an afterthought (contrast, targets, RTL)</li>
+            <li>Payment steps that surprise users with hidden fees</li>
+            <li>Multimodal options buried below ride-hailing upsells</li>
+          </ul>
+        </div>
+        <div class="card tint">
+          <h4>CasaMotion's opportunity</h4>
+          <ul class="clean">
+            <li>A <b>truly unified</b> taxi + tram + bus + train + bike planner</li>
+            <li><b>Trust-first</b> pricing (MAD tariffs, no surge surprises)</li>
+            <li><b>Arabic / French / English</b> + full RTL from day one</li>
+            <li><b>Carbon &amp; equity</b> insights native to the journey</li>
+            <li>Works as an installable <b>PWA</b> on low-end Android</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note ok"><b>Top recommendation:</b> ship a map-first PWA whose first release wires only the four real endpoints — <code>/zones</code>, <code>/vehicles/{zone_id}</code>, <code>/demand/forecast</code>, <code>/trips</code> — behind a design system that is already multimodal-ready, so tram/bus/train/bike/payments slot in without redesign.</div>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section id="method">
+      <h2>Methodology &amp; scoring</h2>
+      <p>Each app was assessed against 20 UX dimensions. Scores are expert heuristic ratings (1–5) informed by first-hand app knowledge and verified against official design guidance (Apple HIG, Google Material 3) and vendor product pages. They are directional, not laboratory usability metrics.</p>
+
+      <div class="grid g2">
+        <div class="card">
+          <h4>The 20 dimensions</h4>
+          <div class="grid g2" style="gap:2px">
+            <ul class="clean"><li>1 · Onboarding</li><li>2 · Login &amp; auth</li><li>3 · Home hierarchy</li><li>4 · Bottom navigation</li><li>5 · Search UX</li><li>6 · Route planning</li><li>7 · Booking flow</li><li>8 · Live tracking</li><li>9 · Payment</li><li>10 · Trip history</li></ul>
+            <ul class="clean"><li>11 · Saved places</li><li>12 · Notifications</li><li>13 · Accessibility</li><li>14 · Empty states</li><li>15 · Loading states</li><li>16 · Error handling</li><li>17 · Map interactions</li><li>18 · Color system</li><li>19 · Typography</li><li>20 · Components</li></ul>
+          </div>
+        </div>
+        <div class="card">
+          <h4>Score legend</h4>
+          <div class="legend" style="flex-direction:column;gap:8px">
+            <span><i style="background:var(--err)"></i><b>1–2</b> — Poor / needs rethink</span>
+            <span><i style="background:var(--warn)"></i><b>3</b> — Adequate, common baseline</span>
+            <span><i style="background:var(--cyan)"></i><b>4</b> — Strong, above the pack</span>
+            <span><i style="background:var(--ok)"></i><b>5</b> — Best-in-class, worth copying</span>
+          </div>
+          <p style="margin-top:14px"><small>For every app we capture four lenses: <b>what users see first</b>, <b>why the UX works</b>, <b>what could be improved</b>, and its <b>signature idea</b>. Cross-app patterns are then synthesised into consistent conventions, unique ideas, and friction reducers.</small></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- APP PROFILES -->
+    <section id="profiles">
+      <h2>App profiles — 15 leading mobility apps</h2>
+      <p class="lead">Fifteen leading apps, shown as a logo wall — <b>hover any logo</b> to read its full profile (what users see first, why the UX works, what to improve, and the signature idea worth stealing). The letter grade is the holistic UX rating; the italic number is display order, not a ranking.</p>
+
+      <h3 style="margin-top:1.4rem">Ride-hailing</h3>
+      <div class="wallgrid">
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#000">U</span>
+            <div class="meta"><h3>Uber</h3><div class="cat">Ride-hailing · super-app</div></div>
+            <span class="grade">A</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">Full-screen map with a single "Where to?" bar docked on a bottom sheet, plus saved shortcuts (Home/Work) and product tiles.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">The bottom sheet is the entire app; one search field funnels intent, then progressively reveals options, price and ETA only when relevant.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Home is increasingly cluttered with Eats/Rent promos; surge pricing feels opaque and can erode trust at commit time.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Upfront fixed fare shown <em>before</em> booking, plus a slick live "car approaching" map with driver + plate + ETA.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#34d186">B</span>
+            <div class="meta"><h3>Bolt</h3><div class="cat">Ride-hailing · scooters</div></div>
+            <span class="grade">A-</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">Clean map + "Where to?" with category chips (ride tiers, scooters) surfaced fast; lighter than Uber.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Fewer distractions, snappy performance on low-end phones, transparent price breakdown — strong fit for emerging markets.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Live tracking map polish and driver-comms lag behind Uber; occasional inconsistent iconography.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Category chips that switch ride/scooter/e-bike without leaving the home sheet — multimodal in one tap.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#ea0b8c">L</span>
+            <div class="meta"><h3>Lyft</h3><div class="cat">Ride-hailing (US)</div></div>
+            <span class="grade">B+</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">Warm, friendly map with a prominent destination search and a playful, rounded visual language.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Strong brand personality, clear tier comparison, integrated transit + bikeshare in some cities gives a light MaaS feel.</p></div>
+            <div><p class="qh">Improve</p><p class="a">US-only; the friendly styling sometimes sacrifices information density and quick scanning.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Transit + bike + scooter tabs alongside rides — an early attempt at ride-hailing-as-MaaS.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#3cb54a">C</span>
+            <div class="meta"><h3>Careem</h3><div class="cat">Ride-hailing · super-app (MENA)</div></div>
+            <span class="grade">B+</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">Super-app tile grid (rides, food, delivery, payments) above a map entry — MENA-localised, Arabic + RTL native.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Deep regional relevance: cash option, Arabic-first, local payment rails, captain (driver) trust cues. Most relevant peer for Morocco.</p></div>
+            <div><p class="qh">Improve</p><p class="a">The tile-grid home dilutes the core "get a ride" task; can feel heavy and slow on older devices.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">First-class Arabic/RTL + cash-friendly flows and "Careem Pay" wallet baked into the journey.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#c0f11d;color:#123">iD</span>
+            <div class="meta"><h3>inDrive</h3><div class="cat">Ride-hailing · price-negotiation</div></div>
+            <span class="grade">B</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A form to <em>set your own fare</em> for a trip, then wait for drivers to accept or counter-offer.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Fare transparency and rider agency resonate strongly in price-sensitive markets; no opaque surge.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Negotiation adds friction and cognitive load; matching can be slow; map/live-tracking polish is basic.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Rider-proposed pricing — a powerful trust mechanic for cash-first, informal markets like Casablanca's taxis.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#00b14f">G</span>
+            <div class="meta"><h3>Grab</h3><div class="cat">Super-app (SE Asia)</div></div>
+            <span class="grade">A-</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A super-app dashboard: transport, food, mart, wallet — a colourful service grid with a persistent GrabPay balance.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">One account, one wallet, everything; excellent localisation, cash + wallet parity, strong safety features.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Feature overload; the ride task competes with many services; heavy app footprint.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Wallet-centric everything + "GrabRewards" loyalty woven through every trip.</p></div>
+          </div>
+        </article>
+
+      </div>
+
+      <h3 style="margin-top:1.8rem">Transit &amp; multimodal planners</h3>
+      <div class="wallgrid">
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#0f8a4c">Cm</span>
+            <div class="meta"><h3>Citymapper</h3><div class="cat">Multimodal transit planner</div></div>
+            <span class="grade">A</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">"Get me somewhere" with big saved destinations and a clean, colour-coded list of every way to get there.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Effortless multimodal comparison (walk/bus/metro/bike/rain-safe/cheapest), delightful microcopy, and step-by-step GO mode with live disruptions.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Best features gated behind CLUB subscription; city coverage is limited vs Google.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">"Rain-safe" and "easy" route options, plus lock-screen live navigation — routing framed around human comfort, not just speed.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#ff6d00">Mv</span>
+            <div class="meta"><h3>Moovit</h3><div class="cat">Transit · 3,500 cities</div></div>
+            <span class="grade">A-</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A search-led home with nearby lines and stops; the world's widest transit coverage (1.7B users, 112 countries).</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Crowd-sourced real-time data reaches cities others ignore; strong accessibility mode and step-by-step arrivals.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Interface feels ad-heavy and dated; visual hierarchy is busier than Citymapper/Transit.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Community-reported live conditions + a low-carbon commute program — a proven model for data-scarce cities like Casablanca.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#2ec27e">Ts</span>
+            <div class="meta"><h3>Transit</h3><div class="cat">Transit planner (design-led)</div></div>
+            <span class="grade">A</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A gorgeous "departures near you" board — nearby lines colour-coded with live countdowns, before you even search.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Best-in-class visual hierarchy and typography; answers "when's my bus?" in zero taps; superb GO trip companion.</p></div>
+            <div><p class="qh">Improve</p><p class="a">North-America-centric; fewer super-app features (no in-app ride-hail in most cities).</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Nearby-departures-first home screen — the single strongest "glanceable transit" pattern to emulate.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#4285f4">GM</span>
+            <div class="meta"><h3>Google Maps</h3><div class="cat">Maps · universal planner</div></div>
+            <span class="grade">A</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A rich, explorable map with a search bar and mode tabs (drive/transit/walk/bike/rideshare) once a destination is set.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Universal coverage, unmatched POI data, reliable transit + live traffic, and aggregated ride-hail prices in one view.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Information-dense to the point of overwhelming; discovery/Explore competes with core navigation.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Mode-comparison tabs with time + price + carbon side-by-side, and "leave now / arrive by" scheduling.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#111">AM</span>
+            <div class="meta"><h3>Apple Maps</h3><div class="cat">Maps · transit &amp; drive</div></div>
+            <span class="grade">A-</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A calm, low-clutter map with a floating search sheet; refined typography and generous whitespace.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Exemplary restraint, privacy-forward, buttery map interactions, and clear transit line rendering; a masterclass in the bottom-sheet pattern.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Transit coverage narrower than Google; fewer power features; no ride-hail aggregation.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">The definitive multi-detent bottom sheet + "Liquid Glass" material and privacy-first data handling.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#33ccff">Wz</span>
+            <div class="meta"><h3>Waze</h3><div class="cat">Navigation · driving</div></div>
+            <span class="grade">B+</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A driving-optimised map covered in community reports (police, hazards, jams) with a big search + "Go".</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Community-sourced live traffic is unbeatable for drivers; gamified reporting builds a loyal contributor base.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Visually noisy; driving-only (no transit/walk); not suited to multimodal planning.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Frictionless one-tap community hazard reporting — a template for crowd-sourced live traffic in Casablanca.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#7d3ac1">SN</span>
+            <div class="meta"><h3>SNCF Connect</h3><div class="cat">Rail ticketing + planner (FR)</div></div>
+            <span class="grade">B</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A door-to-door planner with a bold search and integrated ticket purchase for trains + regional transit.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Combines planning, booking, ticketing and live disruption in one French-market flow; strong dark theme.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Heavy and occasionally sluggish; the 2022 redesign drew criticism for hidden functions and overload.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">End-to-end "plan → buy ticket → board → live status" for rail — the model for integrating ONCF trains.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#e2007a">RB</span>
+            <div class="meta"><h3>RATP Bonjour</h3><div class="cat">Urban transit + ticketing (Paris)</div></div>
+            <span class="grade">B</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A metro/bus/RER planner with line status, nearby stops, and in-app ticket purchase for the Paris network.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Authoritative operator data, clear line-status board, and mobile ticketing (NFC) integrated into the journey.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Cluttered and inconsistent; multiple overlapping RATP apps confuse users; onboarding is weak.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Operator-grade real-time line-status board + NFC ticketing — the reference for Casa Tramway integration.</p></div>
+          </div>
+        </article>
+
+        <article class="profile">
+          <div class="head">
+            <span class="glyph" style="background:#00aa13">Gj</span>
+            <div class="meta"><h3>Gojek</h3><div class="cat">Super-app (Indonesia)</div></div>
+            <span class="grade">A-</span>
+          </div>
+          <div class="body">
+            <div><p class="qh">Sees first</p><p class="a">A vibrant service grid (ride, car, food, pay, more) with GoPay balance front-and-centre.</p></div>
+            <div><p class="qh">Why it works</p><p class="a">Motorbike-taxi (ojek) first — perfectly matched to dense, congested cities; wallet + cash parity; huge service breadth.</p></div>
+            <div><p class="qh">Improve</p><p class="a">Dashboard overload; the ride task is one of many; can overwhelm new users.</p></div>
+            <div><p class="qh">Signature idea</p><p class="a">Two-wheeler ride tier + deeply integrated wallet — a blueprint for informal, congestion-heavy transport.</p></div>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="note"><b>Reading the grades:</b> A = best-in-class experience worth directly emulating; B = solid but with notable friction. Careem, inDrive, Grab and Gojek are weighted heavily in CasaMotion's synthesis because their markets (cash-first, RTL, informal transport, congestion) most resemble Casablanca.</div>
+    </section>
+
+    <!-- 20-DIMENSION MATRIX -->
+    <section id="matrix">
+      <h2>The 20-dimension matrix</h2>
+      <p class="lead">Every app scored 1–5 on all twenty UX dimensions. Scroll horizontally to compare. Cells are colour-graded; the far-right column is the unweighted average.</p>
+      <style>
+        #matrix td.s{text-align:center;font-family:var(--font-display);font-weight:700;color:#1c2440;width:38px}
+        #matrix td.s1{background:#fde3e1}#matrix td.s2{background:#fdeede}
+        #matrix td.s3{background:#fef6e0}#matrix td.s4{background:#e3f6ee}
+        #matrix td.s5{background:#d6f2e4}
+        #matrix td.avg{text-align:center}
+        #matrix th.rot{writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;padding:10px 4px;font-size:.7rem}
+        #matrix table{min-width:1050px}
+      </style>
+      <div class="legend" style="margin-bottom:10px">
+        <span><i style="background:#fde3e1"></i>1</span>
+        <span><i style="background:#fdeede"></i>2</span>
+        <span><i style="background:#fef6e0"></i>3</span>
+        <span><i style="background:#e3f6ee"></i>4</span>
+        <span><i style="background:#d6f2e4"></i>5</span>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>App</th>
+              <th class="rot" title="Onboarding">Onboard</th>
+              <th class="rot" title="Login &amp; auth">Auth</th>
+              <th class="rot" title="Home hierarchy">Home</th>
+              <th class="rot" title="Bottom navigation">Nav</th>
+              <th class="rot" title="Search UX">Search</th>
+              <th class="rot" title="Route planning">Route</th>
+              <th class="rot" title="Booking flow">Booking</th>
+              <th class="rot" title="Live tracking">Live</th>
+              <th class="rot" title="Payment">Pay</th>
+              <th class="rot" title="Trip history">History</th>
+              <th class="rot" title="Saved places">Saved</th>
+              <th class="rot" title="Notifications">Notif</th>
+              <th class="rot" title="Accessibility">A11y</th>
+              <th class="rot" title="Empty states">Empty</th>
+              <th class="rot" title="Loading states">Load</th>
+              <th class="rot" title="Error handling">Error</th>
+              <th class="rot" title="Map interactions">Map</th>
+              <th class="rot" title="Color system">Color</th>
+              <th class="rot" title="Typography">Type</th>
+              <th class="rot" title="Component library">Comp</th>
+              <th>Avg</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="app">Uber</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="avg score">4.5</td></tr>
+            <tr><td class="app">Bolt</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="avg score">3.7</td></tr>
+            <tr><td class="app">Lyft</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="avg score">3.8</td></tr>
+            <tr><td class="app">Careem</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="avg score">3.7</td></tr>
+            <tr><td class="app">inDrive</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s2">2</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s2">2</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="avg score">2.9</td></tr>
+            <tr><td class="app">Grab</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="avg score">3.9</td></tr>
+            <tr><td class="app">Gojek</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="avg score">3.8</td></tr>
+            <tr><td class="app">Citymapper</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="avg score">4.5</td></tr>
+            <tr><td class="app">Moovit</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="avg score">3.8</td></tr>
+            <tr><td class="app">Transit</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="avg score">4.6</td></tr>
+            <tr><td class="app">Google Maps</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="avg score">4.6</td></tr>
+            <tr><td class="app">Apple Maps</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="s s5">5</td><td class="avg score">4.5</td></tr>
+            <tr><td class="app">Waze</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s2">2</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="avg score">3.4</td></tr>
+            <tr><td class="app">SNCF Connect</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s5">5</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="avg score">3.9</td></tr>
+            <tr><td class="app">RATP Bonjour</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s4">4</td><td class="s s3">3</td><td class="s s3">3</td><td class="s s3">3</td><td class="avg score">3.3</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><small>Highest-scoring apps overall: <b>Transit</b> and <b>Google Maps</b> (4.6), followed by <b>Uber</b>, <b>Citymapper</b> and <b>Apple Maps</b> (4.5). CasaMotion's design borrows the map/planner excellence of the transit leaders and the booking/live-tracking rigour of the ride-hailing leaders.</small></p>
+    </section>
+
+    <!-- UX SCORECARDS -->
+    <section id="scores">
+      <h2>UX scorecards</h2>
+      <p class="lead">Overall experience ranking (average of all 20 dimensions), plus the category leaders CasaMotion should learn from for each part of the journey.</p>
+
+      <div class="grid g2">
+        <div class="card">
+          <h4>Overall ranking</h4>
+          <div class="tablewrap" style="box-shadow:none;border:none">
+            <table style="min-width:0">
+              <tbody>
+                <tr><td class="app">Transit</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:92%"></i></div><span class="score">4.6</span></div></td></tr>
+                <tr><td class="app">Google Maps</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:92%"></i></div><span class="score">4.6</span></div></td></tr>
+                <tr><td class="app">Uber</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:90%"></i></div><span class="score">4.5</span></div></td></tr>
+                <tr><td class="app">Citymapper</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:90%"></i></div><span class="score">4.5</span></div></td></tr>
+                <tr><td class="app">Apple Maps</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:90%"></i></div><span class="score">4.5</span></div></td></tr>
+                <tr><td class="app">Grab</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:78%"></i></div><span class="score">3.9</span></div></td></tr>
+                <tr><td class="app">SNCF Connect</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:78%"></i></div><span class="score">3.9</span></div></td></tr>
+                <tr><td class="app">Lyft</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:76%"></i></div><span class="score">3.8</span></div></td></tr>
+                <tr><td class="app">Moovit</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:76%"></i></div><span class="score">3.8</span></div></td></tr>
+                <tr><td class="app">Gojek</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:76%"></i></div><span class="score">3.8</span></div></td></tr>
+                <tr><td class="app">Bolt</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:74%"></i></div><span class="score">3.7</span></div></td></tr>
+                <tr><td class="app">Careem</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:74%"></i></div><span class="score">3.7</span></div></td></tr>
+                <tr><td class="app">Waze</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:68%"></i></div><span class="score">3.4</span></div></td></tr>
+                <tr><td class="app">RATP Bonjour</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:66%"></i></div><span class="score">3.3</span></div></td></tr>
+                <tr><td class="app">inDrive</td><td><div class="cell-mini"><div class="bar" style="flex:1"><i style="width:58%"></i></div><span class="score">2.9</span></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Category leaders — who to copy for what</h4>
+          <div class="tablewrap" style="box-shadow:none;border:none">
+            <table style="min-width:0">
+              <thead><tr><th>Journey part</th><th>Best-in-class</th></tr></thead>
+              <tbody>
+                <tr><td>Glanceable home</td><td><b>Transit</b> — departures-near-you</td></tr>
+                <tr><td>Bottom-sheet / map</td><td><b>Apple Maps</b> · Uber</td></tr>
+                <tr><td>Multimodal routing</td><td><b>Citymapper</b> · Google Maps</td></tr>
+                <tr><td>Live arrivals</td><td><b>Transit</b> · Moovit</td></tr>
+                <tr><td>Booking &amp; upfront fare</td><td><b>Uber</b> · Bolt</td></tr>
+                <tr><td>Live ride tracking</td><td><b>Uber</b></td></tr>
+                <tr><td>Fare trust / agency</td><td><b>inDrive</b> (negotiation)</td></tr>
+                <tr><td>Wallet &amp; payments</td><td><b>Grab</b> · Gojek</td></tr>
+                <tr><td>Rail ticketing</td><td><b>SNCF Connect</b> · RATP</td></tr>
+                <tr><td>Accessibility</td><td><b>Apple Maps</b> · Google · Transit</td></tr>
+                <tr><td>Community live traffic</td><td><b>Waze</b></td></tr>
+                <tr><td>RTL / MENA localisation</td><td><b>Careem</b></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PATTERN SYNTHESIS -->
+    <section id="patterns">
+      <h2>Cross-app pattern synthesis</h2>
+      <p class="lead">Three lenses distilled from all fifteen apps: the conventions everyone converges on, the unique ideas worth borrowing, and the specific choices that measurably reduce friction.</p>
+
+      <div class="grid g3">
+        <div class="card">
+          <h3 style="margin-top:0">Consistent patterns</h3>
+          <p><small>Present in nearly every top app — deviate only with strong reason.</small></p>
+          <ul class="clean">
+            <li><b>Map-first canvas</b> with a draggable bottom sheet as the control surface</li>
+            <li><b>One "Where to?"</b> search as the primary call-to-action</li>
+            <li><b>3–5 labelled tabs</b> in a persistent bottom bar (Apple HIG / Material)</li>
+            <li><b>Home &amp; Work shortcuts</b> above recent destinations</li>
+            <li><b>Progressive disclosure</b>: map → options → review → confirm</li>
+            <li><b>Live status is a screen</b>, not a toast (ETA, vehicle, arrivals)</li>
+            <li><b>48dp touch targets</b>, 8dp spacing, high-contrast text</li>
+            <li><b>Colour-coded transit lines</b> matching official operator colours</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Unique ideas</h3>
+          <p><small>Signature mechanics from a single app that could differentiate CasaMotion.</small></p>
+          <ul class="clean">
+            <li><b>Rain-safe / easy routes</b> (Citymapper) — comfort-based ranking</li>
+            <li><b>Rider-set fares</b> (inDrive) — agency &amp; price trust</li>
+            <li><b>Departures-first home</b> (Transit) — zero-tap answers</li>
+            <li><b>One-tap hazard reports</b> (Waze) — crowd-sourced traffic</li>
+            <li><b>Two-wheeler tier</b> (Gojek) — congestion-beating option</li>
+            <li><b>Lock-screen live nav</b> (Citymapper) — glance without unlocking</li>
+            <li><b>Low-carbon commute program</b> (Moovit) — sustainability as a feature</li>
+            <li><b>Wallet-centric everything</b> (Grab) — balance always visible</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Friction reducers</h3>
+          <p><small>Concrete choices that shorten the path to "I'm on my way".</small></p>
+          <ul class="clean">
+            <li><b>Guest / deferred login</b> — browse &amp; plan before signing in</li>
+            <li><b>Upfront price</b> shown before commit — no surprises</li>
+            <li><b>Autocomplete + recents</b> ranked by frequency &amp; proximity</li>
+            <li><b>Sticky primary button</b> that updates as choices are made</li>
+            <li><b>Optimistic UI + skeletons</b> instead of blank spinners</li>
+            <li><b>Actionable errors</b> ("Retry", "Call driver") not dead ends</li>
+            <li><b>Saved places &amp; one-tap rebook</b> from history</li>
+            <li><b>Offline-tolerant</b> caching of last-known map &amp; trips</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note ok"><b>The winning formula:</b> a map-first, sheet-driven home that answers "when &amp; how do I get there?" at a glance, a single search funnel with progressive disclosure, transparent pricing, live status as a first-class screen, and rock-solid empty/loading/error states — all accessible and localised.</div>
+    </section>
+
+    <!-- PATTERN MOCKUPS -->
+    <section id="mocks">
+      <h2>Pattern mockups</h2>
+      <p class="lead">Original, hand-built recreations of the strongest patterns (no third-party screenshots). These illustrate the conventions CasaMotion adopts, annotated with why they work.</p>
+
+      <div class="mocks">
+
+        <!-- Mockup 1: Map-first home + bottom sheet -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Map-first home with a draggable bottom sheet">
+            <defs>
+              <linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2d6bff"/><stop offset="1" stop-color="#2d6bff"/></linearGradient>
+              <clipPath id="scr"><rect x="14" y="14" width="232" height="512" rx="30"/></clipPath>
+            </defs>
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr)">
+              <rect x="14" y="14" width="232" height="512" fill="#e8edf6"/>
+              <!-- map roads -->
+              <g stroke="#cdd6e6" stroke-width="6" fill="none"><path d="M14 120 H246"/><path d="M120 14 V300"/><path d="M40 60 L200 260"/><path d="M14 220 H246"/></g>
+              <g stroke="#fff" stroke-width="2" fill="none"><path d="M14 120 H246"/><path d="M120 14 V300"/></g>
+              <!-- vehicle markers -->
+              <circle cx="90" cy="90" r="7" fill="#2d6bff"/><circle cx="170" cy="150" r="7" fill="#2d6bff"/><circle cx="140" cy="70" r="7" fill="#12b76a"/>
+              <!-- user location -->
+              <circle cx="120" cy="185" r="14" fill="#2d6bff" opacity=".18"/><circle cx="120" cy="185" r="6" fill="#2d6bff" stroke="#fff" stroke-width="2"/>
+              <!-- status bar -->
+              <rect x="14" y="14" width="232" height="26" fill="#e8edf6"/>
+              <text x="28" y="31" font-family="Arial" font-size="11" font-weight="700" fill="#0a1430">9:41</text>
+              <rect x="212" y="22" width="20" height="9" rx="2" fill="#0a1430"/>
+              <!-- search pill floating -->
+              <rect x="30" y="52" width="200" height="34" rx="17" fill="#fff" stroke="#e5e9f2"/>
+              <circle cx="48" cy="69" r="6" fill="none" stroke="#7a85a3" stroke-width="2"/><line x1="52" y1="73" x2="57" y2="78" stroke="#7a85a3" stroke-width="2"/>
+              <text x="66" y="73" font-family="Arial" font-size="11" fill="#7a85a3">Where to?</text>
+              <!-- bottom sheet -->
+              <rect x="14" y="300" width="232" height="226" rx="22" fill="#fff"/>
+              <rect x="112" y="310" width="36" height="4" rx="2" fill="#d8dfec"/>
+              <text x="30" y="336" font-family="Arial" font-size="13" font-weight="700" fill="#0a1330">Good afternoon, Yasmine</text>
+              <!-- shortcuts -->
+              <rect x="30" y="348" width="95" height="40" rx="12" fill="#f4f7fd"/>
+              <circle cx="48" cy="368" r="9" fill="#e6eeff"/><path d="M43 369 l5-4 5 4 v5 h-10z" fill="#2d6bff"/>
+              <text x="62" y="365" font-family="Arial" font-size="9.5" font-weight="700" fill="#0a1330">Home</text><text x="62" y="376" font-family="Arial" font-size="8" fill="#7a85a3">Maârif</text>
+              <rect x="135" y="348" width="95" height="40" rx="12" fill="#f4f7fd"/>
+              <circle cx="153" cy="368" r="9" fill="#f0e9fe"/><rect x="149" y="364" width="8" height="8" rx="1.5" fill="#7c3aed"/>
+              <text x="167" y="365" font-family="Arial" font-size="9.5" font-weight="700" fill="#0a1330">Work</text><text x="167" y="376" font-family="Arial" font-size="8" fill="#7a85a3">CasaNear.</text>
+              <!-- product tiles -->
+              <g font-family="Arial" font-size="8.5" font-weight="700" fill="#0a1330" text-anchor="middle">
+                <rect x="30" y="398" width="46" height="46" rx="12" fill="#e2f8fc"/><text x="53" y="440">Taxi</text><circle cx="53" cy="416" r="8" fill="#22d3ee"/>
+                <rect x="82" y="398" width="46" height="46" rx="12" fill="#e6eeff"/><text x="105" y="440">Tram</text><rect x="98" y="409" width="14" height="10" rx="2" fill="#2d6bff"/>
+                <rect x="134" y="398" width="46" height="46" rx="12" fill="#f0e9fe"/><text x="157" y="440">Bus</text><rect x="149" y="409" width="16" height="9" rx="2" fill="#7c3aed"/>
+                <rect x="186" y="398" width="44" height="46" rx="12" fill="#e7f8f0"/><text x="208" y="440">Bike</text><circle cx="203" cy="415" r="4" fill="none" stroke="#12b76a" stroke-width="2"/><circle cx="212" cy="415" r="4" fill="none" stroke="#12b76a" stroke-width="2"/>
+              </g>
+              <!-- bottom nav -->
+              <rect x="14" y="486" width="232" height="40" fill="#fff"/>
+              <line x1="14" y1="486" x2="246" y2="486" stroke="#eef1f7"/>
+              <g text-anchor="middle" font-family="Arial" font-size="7.5">
+                <rect x="40" y="496" width="14" height="12" rx="2" fill="#2d6bff"/><text x="47" y="519" fill="#2d6bff" font-weight="700">Home</text>
+                <circle cx="97" cy="502" r="6" fill="none" stroke="#9aa4bf" stroke-width="2"/><text x="97" y="519" fill="#9aa4bf">Plan</text>
+                <path d="M143 497 l6 5 -6 5 -6-5z" fill="#9aa4bf"/><text x="143" y="519" fill="#9aa4bf">Trips</text>
+                <circle cx="200" cy="502" r="6" fill="#9aa4bf"/><text x="200" y="519" fill="#9aa4bf">You</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>Map-first home + bottom sheet</figcaption>
+        </figure>
+        <div class="anno"><b>Why it works (Uber · Apple Maps):</b> the map is context, the sheet is control. A single "Where to?", Home/Work shortcuts, and multimodal tiles put every core action one tap away without hiding the city.</div>
+
+        <!-- Mockup 2: Departures-first -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Departures-near-you home screen">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr)">
+              <rect x="14" y="14" width="232" height="512" fill="#fff"/>
+              <rect x="14" y="14" width="232" height="26" fill="#fff"/>
+              <text x="28" y="31" font-family="Arial" font-size="11" font-weight="700" fill="#0a1430">9:41</text>
+              <text x="30" y="62" font-family="Arial" font-size="16" font-weight="700" fill="#0a1330">Nearby</text>
+              <text x="30" y="78" font-family="Arial" font-size="10" fill="#7a85a3">Aïn Diab · updated live</text>
+              <!-- departure rows -->
+              <g font-family="Arial">
+                <!-- row template -->
+                <rect x="26" y="92" width="208" height="52" rx="14" fill="#f4f7fd"/>
+                <rect x="36" y="104" width="30" height="28" rx="8" fill="#2d6bff"/><text x="51" y="122" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">T1</text>
+                <text x="76" y="112" font-size="11" font-weight="700" fill="#0a1330">Tramway → Sidi Moumen</text>
+                <text x="76" y="128" font-size="9" fill="#7a85a3">Platform A · every 8 min</text>
+                <text x="224" y="115" font-size="15" font-weight="700" fill="#12b76a" text-anchor="end">3</text><text x="224" y="126" font-size="7.5" fill="#7a85a3" text-anchor="end">min</text>
+
+                <rect x="26" y="150" width="208" height="52" rx="14" fill="#f4f7fd"/>
+                <rect x="36" y="162" width="30" height="28" rx="8" fill="#7c3aed"/><text x="51" y="180" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">B10</text>
+                <text x="76" y="170" font-size="11" font-weight="700" fill="#0a1330">Bus → Casa-Port</text>
+                <text x="76" y="186" font-size="9" fill="#7a85a3">Stop Corniche · live</text>
+                <text x="224" y="173" font-size="15" font-weight="700" fill="#f79009" text-anchor="end">7</text><text x="224" y="184" font-size="7.5" fill="#7a85a3" text-anchor="end">min</text>
+
+                <rect x="26" y="208" width="208" height="52" rx="14" fill="#f4f7fd"/>
+                <rect x="36" y="220" width="30" height="28" rx="8" fill="#0a7a63"/><text x="51" y="238" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">ONCF</text>
+                <text x="76" y="228" font-size="11" font-weight="700" fill="#0a1330">Train → Rabat-Agdal</text>
+                <text x="76" y="244" font-size="9" fill="#7a85a3">Casa-Voyageurs</text>
+                <text x="224" y="231" font-size="15" font-weight="700" fill="#0a1330" text-anchor="end">18</text><text x="224" y="242" font-size="7.5" fill="#7a85a3" text-anchor="end">min</text>
+
+                <rect x="26" y="266" width="208" height="52" rx="14" fill="#f4f7fd"/>
+                <circle cx="51" cy="292" r="15" fill="#e2f8fc"/><text x="51" y="296" font-size="11" font-weight="700" fill="#0b7a92" text-anchor="middle">🚕</text>
+                <text x="76" y="286" font-size="11" font-weight="700" fill="#0a1330">Petit taxi nearby</text>
+                <text x="76" y="302" font-size="9" fill="#7a85a3">4 available in zone</text>
+                <text x="224" y="289" font-size="15" font-weight="700" fill="#12b76a" text-anchor="end">2</text><text x="224" y="300" font-size="7.5" fill="#7a85a3" text-anchor="end">min</text>
+              </g>
+              <!-- search fab -->
+              <rect x="30" y="336" width="200" height="34" rx="17" fill="#0a1430"/>
+              <text x="130" y="357" font-family="Arial" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Where to?</text>
+              <!-- bottom nav -->
+              <rect x="14" y="486" width="232" height="40" fill="#fff"/><line x1="14" y1="486" x2="246" y2="486" stroke="#eef1f7"/>
+              <g text-anchor="middle" font-family="Arial" font-size="7.5">
+                <rect x="40" y="496" width="14" height="12" rx="2" fill="#2d6bff"/><text x="47" y="519" fill="#2d6bff" font-weight="700">Home</text>
+                <circle cx="97" cy="502" r="6" fill="none" stroke="#9aa4bf" stroke-width="2"/><text x="97" y="519" fill="#9aa4bf">Plan</text>
+                <path d="M143 497 l6 5 -6 5 -6-5z" fill="#9aa4bf"/><text x="143" y="519" fill="#9aa4bf">Trips</text>
+                <circle cx="200" cy="502" r="6" fill="#9aa4bf"/><text x="200" y="519" fill="#9aa4bf">You</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>Departures-first (glanceable)</figcaption>
+        </figure>
+        <div class="anno"><b>Why it works (Transit · Moovit):</b> answers "how do I leave right now?" in zero taps. CasaMotion powers this directly from <code>/vehicles/{zone_id}</code> and <code>/demand/forecast</code>, with live countdowns and operator-coloured line badges.</div>
+
+        <!-- Mockup 3: Route options -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Multimodal route options list">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr)">
+              <rect x="14" y="14" width="232" height="512" fill="#f4f7fd"/>
+              <rect x="14" y="14" width="232" height="86" fill="#0a1430"/>
+              <text x="30" y="34" font-family="Arial" font-size="11" font-weight="700" fill="#fff">9:41</text>
+              <!-- from/to -->
+              <circle cx="40" cy="58" r="4" fill="#22d3ee"/><line x1="40" y1="62" x2="40" y2="80" stroke="#4a5578" stroke-width="2" stroke-dasharray="2 2"/><rect x="37" y="80" width="6" height="6" fill="#f04438"/>
+              <rect x="54" y="50" width="176" height="16" rx="8" fill="#16224a"/><text x="62" y="61" font-family="Arial" font-size="9" fill="#c9d4ee">Aïn Diab</text>
+              <rect x="54" y="76" width="176" height="16" rx="8" fill="#16224a"/><text x="62" y="87" font-family="Arial" font-size="9" fill="#c9d4ee">Morocco Mall</text>
+              <!-- route cards -->
+              <g font-family="Arial">
+                <!-- fastest -->
+                <rect x="26" y="112" width="208" height="66" rx="16" fill="#fff" stroke="#2d6bff" stroke-width="1.5"/>
+                <rect x="36" y="122" width="52" height="16" rx="8" fill="#e6eeff"/><text x="62" y="133" font-size="8" font-weight="700" fill="#1f4fd8" text-anchor="middle">FASTEST</text>
+                <text x="224" y="134" font-size="16" font-weight="700" fill="#0a1330" text-anchor="end">24 min</text>
+                <g transform="translate(36,146)"><rect width="16" height="14" rx="3" fill="#2d6bff"/><text x="8" y="10" font-size="7" fill="#fff" text-anchor="middle">T1</text></g>
+                <path d="M58 153 h10" stroke="#c3ccdd" stroke-width="2"/><circle cx="76" cy="153" r="8" fill="#e2f8fc"/><text x="76" y="156" font-size="8" text-anchor="middle">🚶</text>
+                <path d="M88 153 h10" stroke="#c3ccdd" stroke-width="2"/><rect x="100" y="146" width="16" height="14" rx="3" fill="#7c3aed"/><text x="108" y="156" font-size="6" fill="#fff" text-anchor="middle">B10</text>
+                <text x="224" y="156" font-size="9" fill="#12b76a" text-anchor="end" font-weight="700">14 MAD</text>
+                <!-- greenest -->
+                <rect x="26" y="186" width="208" height="60" rx="16" fill="#fff" stroke="#e5e9f2"/>
+                <rect x="36" y="196" width="58" height="16" rx="8" fill="#e7f8f0"/><text x="65" y="207" font-size="8" font-weight="700" fill="#08794a" text-anchor="middle">GREENEST</text>
+                <text x="224" y="208" font-size="16" font-weight="700" fill="#0a1330" text-anchor="end">31 min</text>
+                <circle cx="44" cy="228" r="8" fill="#e7f8f0"/><text x="44" y="231" font-size="8" text-anchor="middle">🚴</text>
+                <path d="M56 228 h10" stroke="#c3ccdd" stroke-width="2"/><rect x="68" y="221" width="16" height="14" rx="3" fill="#2d6bff"/><text x="76" y="231" font-size="7" fill="#fff" text-anchor="middle">T1</text>
+                <text x="224" y="230" font-size="9" fill="#12b76a" text-anchor="end" font-weight="700">0.3 kg CO₂</text>
+                <!-- cheapest -->
+                <rect x="26" y="254" width="208" height="60" rx="16" fill="#fff" stroke="#e5e9f2"/>
+                <rect x="36" y="264" width="56" height="16" rx="8" fill="#fff3e0"/><text x="64" y="275" font-size="8" font-weight="700" fill="#a55a00" text-anchor="middle">CHEAPEST</text>
+                <text x="224" y="276" font-size="16" font-weight="700" fill="#0a1330" text-anchor="end">38 min</text>
+                <rect x="36" y="290" width="18" height="14" rx="3" fill="#7c3aed"/><text x="45" y="300" font-size="6" fill="#fff" text-anchor="middle">B10</text>
+                <text x="224" y="298" font-size="9" fill="#12b76a" text-anchor="end" font-weight="700">6 MAD</text>
+              </g>
+              <text x="30" y="336" font-family="Arial" font-size="9" fill="#7a85a3">Ranked by your preference · comfort, price, carbon</text>
+              <rect x="14" y="486" width="232" height="40" fill="#fff"/><line x1="14" y1="486" x2="246" y2="486" stroke="#eef1f7"/>
+              <g text-anchor="middle" font-family="Arial" font-size="7.5">
+                <rect x="40" y="496" width="14" height="12" rx="2" fill="#9aa4bf"/><text x="47" y="519" fill="#9aa4bf">Home</text>
+                <circle cx="97" cy="502" r="6" fill="#2d6bff"/><text x="97" y="519" fill="#2d6bff" font-weight="700">Plan</text>
+                <path d="M143 497 l6 5 -6 5 -6-5z" fill="#9aa4bf"/><text x="143" y="519" fill="#9aa4bf">Trips</text>
+                <circle cx="200" cy="502" r="6" fill="#9aa4bf"/><text x="200" y="519" fill="#9aa4bf">You</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>Multimodal route options</figcaption>
+        </figure>
+        <div class="anno"><b>Why it works (Citymapper · Google Maps):</b> side-by-side comparison of time, price and carbon with human-friendly tags (Fastest / Greenest / Cheapest). Users choose on <em>their</em> priority, not just speed.</div>
+
+        <!-- Mockup 4: Live tracking -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Live ride tracking screen">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr)">
+              <rect x="14" y="14" width="232" height="512" fill="#e8edf6"/>
+              <g stroke="#cdd6e6" stroke-width="6" fill="none"><path d="M14 90 H246"/><path d="M100 14 V330"/><path d="M14 200 H246"/></g>
+              <!-- route -->
+              <path d="M60 300 C 90 250, 120 200, 150 150 S 200 70, 210 60" fill="none" stroke="url(#mg1)" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="60" cy="300" r="6" fill="#12b76a" stroke="#fff" stroke-width="2"/>
+              <rect x="205" y="55" width="10" height="10" fill="#f04438"/>
+              <!-- car marker -->
+              <g transform="translate(150,150)"><circle r="13" fill="#2d6bff" opacity=".2"/><rect x="-9" y="-6" width="18" height="12" rx="4" fill="#0a1430"/><circle cx="-4" cy="6" r="2.5" fill="#0a1430"/><circle cx="4" cy="6" r="2.5" fill="#0a1430"/></g>
+              <rect x="14" y="14" width="232" height="26" fill="#e8edf6"/><text x="28" y="31" font-family="Arial" font-size="11" font-weight="700" fill="#0a1430">9:41</text>
+              <!-- eta banner -->
+              <rect x="30" y="50" width="200" height="30" rx="15" fill="#0a1430"/>
+              <circle cx="50" cy="65" r="6" fill="#22d3ee"/><text x="66" y="69" font-family="Arial" font-size="11" font-weight="700" fill="#fff">Arriving in 4 min</text>
+              <!-- driver sheet -->
+              <rect x="14" y="336" width="232" height="190" rx="22" fill="#fff"/>
+              <rect x="112" y="346" width="36" height="4" rx="2" fill="#d8dfec"/>
+              <circle cx="46" cy="380" r="18" fill="#e6eeff"/><text x="46" y="385" font-size="14" text-anchor="middle">👤</text>
+              <text x="74" y="374" font-family="Arial" font-size="12" font-weight="700" fill="#0a1330">Karim · Petit taxi</text>
+              <text x="74" y="390" font-family="Arial" font-size="10" fill="#7a85a3">★ 4.9 · Dacia Logan</text>
+              <rect x="170" y="366" width="60" height="26" rx="8" fill="#f4f7fd"/><text x="200" y="383" font-family="Arial" font-size="11" font-weight="700" fill="#0a1330" text-anchor="middle">12·A·456</text>
+              <!-- actions -->
+              <rect x="30" y="404" width="95" height="36" rx="12" fill="#e6eeff"/><text x="77" y="426" font-family="Arial" font-size="10" font-weight="700" fill="#1f4fd8" text-anchor="middle">Call</text>
+              <rect x="135" y="404" width="95" height="36" rx="12" fill="#f4f7fd"/><text x="182" y="426" font-family="Arial" font-size="10" font-weight="700" fill="#0a1330" text-anchor="middle">Message</text>
+              <!-- fare + cancel -->
+              <text x="30" y="464" font-family="Arial" font-size="10" fill="#7a85a3">Fare estimate</text>
+              <text x="230" y="464" font-family="Arial" font-size="13" font-weight="700" fill="#0a1330" text-anchor="end">18–22 MAD</text>
+              <rect x="30" y="474" width="200" height="34" rx="17" fill="#fff" stroke="#f04438"/><text x="130" y="496" font-family="Arial" font-size="11" font-weight="700" fill="#f04438" text-anchor="middle">Cancel trip</text>
+            </g>
+          </svg>
+          <figcaption>Live tracking</figcaption>
+        </figure>
+        <div class="anno"><b>Why it works (Uber):</b> a persistent ETA banner, a live vehicle on the route, and a driver card with plate + one-tap call/message build trust. CasaMotion draws vehicle position from Cassandra via <code>/vehicles/{zone_id}</code>.</div>
+
+      </div>
+
+      <h3 style="margin-top:2rem">States that most apps neglect</h3>
+      <p>Empty, loading and error states are where good apps become great. CasaMotion treats each as a designed screen with a clear message and a next action.</p>
+      <div class="mocks">
+
+        <!-- Empty -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 400" role="img" aria-label="Empty state example">
+            <rect x="6" y="6" width="248" height="388" rx="30" fill="#0a1430"/>
+            <rect x="14" y="14" width="232" height="372" rx="24" fill="#fff"/>
+            <circle cx="130" cy="150" r="46" fill="#f4f7fd"/>
+            <path d="M112 150 h36 M130 132 v36" stroke="#c3ccdd" stroke-width="4" stroke-linecap="round"/>
+            <text x="130" y="230" font-family="Arial" font-size="14" font-weight="700" fill="#0a1330" text-anchor="middle">No trips yet</text>
+            <text x="130" y="252" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">Your journeys will appear here.</text>
+            <text x="130" y="266" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">Plan your first ride to get started.</text>
+            <rect x="60" y="292" width="140" height="36" rx="18" fill="url(#mg1)"/><text x="130" y="315" font-family="Arial" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Plan a trip</text>
+          </svg>
+          <figcaption>Empty state — with a way out</figcaption>
+        </figure>
+
+        <!-- Loading -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 400" role="img" aria-label="Loading skeleton example">
+            <rect x="6" y="6" width="248" height="388" rx="30" fill="#0a1430"/>
+            <rect x="14" y="14" width="232" height="372" rx="24" fill="#fff"/>
+            <rect x="34" y="44" width="120" height="14" rx="7" fill="#eef1f7"/>
+            <g>
+              <rect x="34" y="76" width="192" height="52" rx="14" fill="#f4f7fd"/><rect x="46" y="90" width="28" height="24" rx="7" fill="#e5e9f2"/><rect x="84" y="90" width="110" height="9" rx="4" fill="#e5e9f2"/><rect x="84" y="106" width="70" height="8" rx="4" fill="#eef1f7"/>
+              <rect x="34" y="138" width="192" height="52" rx="14" fill="#f4f7fd"/><rect x="46" y="152" width="28" height="24" rx="7" fill="#e5e9f2"/><rect x="84" y="152" width="120" height="9" rx="4" fill="#e5e9f2"/><rect x="84" y="168" width="60" height="8" rx="4" fill="#eef1f7"/>
+              <rect x="34" y="200" width="192" height="52" rx="14" fill="#f4f7fd"/><rect x="46" y="214" width="28" height="24" rx="7" fill="#e5e9f2"/><rect x="84" y="214" width="100" height="9" rx="4" fill="#e5e9f2"/><rect x="84" y="230" width="80" height="8" rx="4" fill="#eef1f7"/>
+            </g>
+            <text x="130" y="300" font-family="Arial" font-size="10" fill="#9aa4bf" text-anchor="middle">Finding rides near you…</text>
+          </svg>
+          <figcaption>Loading — skeletons, not spinners</figcaption>
+        </figure>
+
+        <!-- Error -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 400" role="img" aria-label="Error state example">
+            <rect x="6" y="6" width="248" height="388" rx="30" fill="#0a1430"/>
+            <rect x="14" y="14" width="232" height="372" rx="24" fill="#fff"/>
+            <circle cx="130" cy="140" r="42" fill="#fdecec"/>
+            <path d="M130 120 v24" stroke="#f04438" stroke-width="5" stroke-linecap="round"/><circle cx="130" cy="158" r="3.5" fill="#f04438"/>
+            <text x="130" y="214" font-family="Arial" font-size="14" font-weight="700" fill="#0a1330" text-anchor="middle">Connection lost</text>
+            <text x="130" y="236" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">We couldn't reach live data.</text>
+            <text x="130" y="250" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">Showing your last known map.</text>
+            <rect x="60" y="278" width="140" height="36" rx="18" fill="#0a1430"/><text x="130" y="301" font-family="Arial" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Retry</text>
+            <text x="130" y="336" font-family="Arial" font-size="10" fill="#2d6bff" text-anchor="middle" font-weight="700">Continue offline</text>
+          </svg>
+          <figcaption>Error — actionable &amp; graceful</figcaption>
+        </figure>
+
+      </div>
+      <div class="note"><b>State design rules:</b> every empty state offers a next step; loading uses content-shaped skeletons + optimistic UI; errors name the problem in plain language and always give a recovery action (Retry / Continue offline / Call). This directly addresses the weakest column in the matrix for most apps.</div>
+    </section>
+
+    <!-- ================= CASAMOTION DESIGN ================= -->
+    <section id="cm-overview">
+      <h2>CasaMotion — proposed frontend design</h2>
+      <p class="lead">Everything above converges here. CasaMotion is a <b>map-first, sheet-driven, mobile-first PWA</b> that unifies taxi, tramway, bus, train, bike and walking into one trustworthy journey — clean like Apple Maps, glanceable like Transit, multimodal like Citymapper, and localised like Careem.</p>
+
+      <div class="grid g3">
+        <div class="card tint">
+          <h4>Design principles</h4>
+          <ul class="clean">
+            <li><b>Map is context, sheet is control</b></li>
+            <li><b>One question at a time</b> — progressive disclosure</li>
+            <li><b>Trust by default</b> — upfront MAD pricing, no surge tricks</li>
+            <li><b>Glanceable</b> — answers before taps</li>
+            <li><b>Inclusive</b> — AR/FR/EN, RTL, WCAG AA</li>
+            <li><b>Resilient</b> — offline-tolerant, low-end friendly</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Grounded in the live backend</h4>
+          <p><small>Phase-1 UI wires only endpoints that exist today.</small></p>
+          <ul class="clean">
+            <li><code>GET /zones</code> → zone picker &amp; map regions <span class="tag t-real">live</span></li>
+            <li><code>GET /vehicles/{zone_id}</code> → live taxis &amp; tracking <span class="tag t-real">live</span></li>
+            <li><code>POST /demand/forecast</code> → "busy now / wait time" <span class="tag t-real">live</span></li>
+            <li><code>POST /trips</code> → request a ride <span class="tag t-real">live</span></li>
+            <li><code>POST /auth/token</code> → sign-in <span class="tag t-real">live</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Designed-ahead (no backend yet)</h4>
+          <p><small>UI is ready; these light up as services land.</small></p>
+          <ul class="clean">
+            <li>Tram / bus / train schedules &amp; ticketing <span class="tag t-plan">planned</span></li>
+            <li>Bike-share docks &amp; unlock <span class="tag t-plan">planned</span></li>
+            <li>Digital payments &amp; wallet <span class="tag t-plan">planned</span></li>
+            <li>Push notifications &amp; live disruptions <span class="tag t-plan">planned</span></li>
+            <li>Carbon insights &amp; saved places sync <span class="tag t-plan">planned</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="note warn"><b>Honesty guardrail:</b> multimodal transit, payments, bike-share, notifications and carbon tracking are <b>design-forward proposals</b>, not currently implemented in the CasaMotion backend. Only taxi matching, demand forecasting, live vehicle positions and zones are live today.</div>
+    </section>
+
+    <!-- INFORMATION ARCHITECTURE -->
+    <section id="cm-ia">
+      <h2>Information architecture</h2>
+      <p class="lead">Five top-level areas map to five bottom-nav tabs. Depth is kept shallow (≤3 levels) so any task is reachable in a few taps.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 980 520" role="img" aria-label="CasaMotion information architecture tree">
+          <defs>
+            <linearGradient id="iaGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2d6bff"/><stop offset="1" stop-color="#2d6bff"/></linearGradient>
+            <style>
+              .l1{fill:#0a1430}.l1 text{fill:#fff}
+              .l2 rect{fill:#fff;stroke:#2d6bff;stroke-width:1.5}.l2 text{fill:#0a1330;font-weight:700}
+              .l3 rect{fill:#f4f7fd;stroke:#e5e9f2}.l3 text{fill:#4a5578}
+              text{font-family:Arial}
+              .edge{stroke:#c3ccdd;stroke-width:1.5;fill:none}
+            </style>
+          </defs>
+          <!-- root -->
+          <g class="l1"><rect x="410" y="12" width="160" height="40" rx="12" fill="url(#iaGrad)"/><text x="490" y="37" font-size="15" font-weight="700" text-anchor="middle">CasaMotion App</text></g>
+          <!-- edges to L2 -->
+          <g class="edge">
+            <path d="M490 52 V72 H108 V96"/><path d="M490 52 V72 H300 V96"/><path d="M490 72 V96"/><path d="M490 52 V72 H680 V96"/><path d="M490 52 V72 H872 V96"/>
+          </g>
+          <!-- L2 tabs -->
+          <g class="l2" font-size="13" text-anchor="middle">
+            <g><rect x="40" y="96" width="136" height="36" rx="10"/><text x="108" y="119">🏠 Home</text></g>
+            <g><rect x="232" y="96" width="136" height="36" rx="10"/><text x="300" y="119">🧭 Plan</text></g>
+            <g><rect x="424" y="96" width="136" height="36" rx="10"/><text x="492" y="119">🎫 Trips</text></g>
+            <g><rect x="612" y="96" width="136" height="36" rx="10"/><text x="680" y="119">🗺 Explore</text></g>
+            <g><rect x="804" y="96" width="136" height="36" rx="10"/><text x="872" y="119">👤 You</text></g>
+          </g>
+          <!-- L3 children -->
+          <g class="l3" font-size="11">
+            <!-- Home -->
+            <g class="edge"><path d="M108 132 V150"/><path d="M108 150 H108 V400"/></g>
+            <g transform="translate(40,158)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Nearby departures</text></g>
+            <g transform="translate(40,190)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Live taxis in zone</text></g>
+            <g transform="translate(40,222)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Home / Work</text></g>
+            <g transform="translate(40,254)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Busy-now (forecast)</text></g>
+            <g class="edge"><path d="M60 184 H60 M108 158 V184 M108 190 V190"/><path d="M108 132 V400" /></g>
+            <!-- Plan -->
+            <g transform="translate(232,158)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Search where to</text></g>
+            <g transform="translate(232,190)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Route options</text></g>
+            <g transform="translate(232,222)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Mode filters</text></g>
+            <g transform="translate(232,254)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Book / start GO</text></g>
+            <g class="edge"><path d="M300 132 V400"/></g>
+            <!-- Trips -->
+            <g transform="translate(424,158)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Active trip / tracking</text></g>
+            <g transform="translate(424,190)"><rect width="136" height="26" rx="8"/><text x="10" y="17">History &amp; rebook</text></g>
+            <g transform="translate(424,222)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Tickets &amp; passes</text></g>
+            <g transform="translate(424,254)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Receipts</text></g>
+            <g class="edge"><path d="M492 132 V400"/></g>
+            <!-- Explore -->
+            <g transform="translate(612,158)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Full city map</text></g>
+            <g transform="translate(612,190)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Lines &amp; stations</text></g>
+            <g transform="translate(612,222)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Bike docks</text></g>
+            <g transform="translate(612,254)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Service alerts</text></g>
+            <g class="edge"><path d="M680 132 V400"/></g>
+            <!-- You -->
+            <g transform="translate(804,158)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Profile &amp; language</text></g>
+            <g transform="translate(804,190)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Saved places</text></g>
+            <g transform="translate(804,222)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Payment &amp; wallet</text></g>
+            <g transform="translate(804,254)"><rect width="136" height="26" rx="8"/><text x="10" y="17">Accessibility · Carbon</text></g>
+            <g class="edge"><path d="M872 132 V400"/></g>
+          </g>
+          <!-- cross-cutting note -->
+          <g><rect x="40" y="330" width="900" height="170" rx="14" fill="#f7f9fc" stroke="#e5e9f2"/>
+            <text x="60" y="356" font-size="13" font-weight="700" fill="#0a1330">Cross-cutting (available from any tab)</text>
+            <g font-size="11" fill="#4a5578">
+              <text x="60" y="384">• Global search overlay</text>
+              <text x="260" y="384">• Notifications centre</text>
+              <text x="470" y="384">• Language / RTL switch</text>
+              <text x="700" y="384">• Accessibility settings</text>
+              <text x="60" y="410">• Auth (guest → sign in)</text>
+              <text x="260" y="410">• Offline banner</text>
+              <text x="470" y="410">• Emergency / SOS</text>
+              <text x="700" y="410">• Help &amp; support</text>
+            </g>
+            <text x="60" y="446" font-size="10.5" fill="#7a85a3">Depth rule: no task deeper than 3 levels. Booking a taxi = Home → tap taxi tile → confirm (2 taps from launch).</text>
+            <text x="60" y="470" font-size="10.5" fill="#7a85a3">Tabs follow Apple HIG / Material: 5 max, always visible, labelled, with badges for live/critical info only.</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- NAVIGATION MAP -->
+    <section id="cm-nav">
+      <h2>Navigation map</h2>
+      <p class="lead">How screens connect. Solid arrows are primary paths; the bottom bar is reachable from every top-level destination.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 980 470" role="img" aria-label="CasaMotion navigation map">
+          <defs>
+            <marker id="arw" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#2d6bff"/></marker>
+            <marker id="arw2" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#c3ccdd"/></marker>
+            <style>
+              .nnode rect{fill:#fff;stroke:#e5e9f2;stroke-width:1.5}
+              .nnode.hub rect{fill:#0a1430}.nnode.hub text{fill:#fff}
+              .nnode.acc rect{fill:url(#iaGrad)}.nnode.acc text{fill:#fff}
+              .nnode text{font-family:Arial;font-size:12px;font-weight:700;fill:#0a1330}
+              .flow{stroke:#2d6bff;stroke-width:2;fill:none}
+              .flow2{stroke:#c3ccdd;stroke-width:1.5;fill:none;stroke-dasharray:4 3}
+            </style>
+          </defs>
+          <!-- Splash/onboarding -->
+          <g class="nnode"><rect x="20" y="200" width="120" height="42" rx="12"/><text x="80" y="226" text-anchor="middle">Onboarding</text></g>
+          <!-- Home hub -->
+          <g class="nnode hub"><rect x="200" y="195" width="130" height="52" rx="14"/><text x="265" y="226" text-anchor="middle">Home (map)</text></g>
+          <!-- Search -->
+          <g class="nnode"><rect x="400" y="60" width="130" height="42" rx="12"/><text x="465" y="86" text-anchor="middle">Search "Where to?"</text></g>
+          <!-- Route options -->
+          <g class="nnode"><rect x="600" y="60" width="130" height="42" rx="12"/><text x="665" y="86" text-anchor="middle">Route options</text></g>
+          <!-- Booking -->
+          <g class="nnode"><rect x="600" y="140" width="130" height="42" rx="12"/><text x="665" y="166" text-anchor="middle">Confirm &amp; book</text></g>
+          <!-- Live tracking -->
+          <g class="nnode acc"><rect x="800" y="140" width="140" height="42" rx="12"/><text x="870" y="166" text-anchor="middle">Live tracking</text></g>
+          <!-- Zone / taxi -->
+          <g class="nnode"><rect x="400" y="200" width="130" height="42" rx="12"/><text x="465" y="226" text-anchor="middle">Taxi in zone</text></g>
+          <!-- Trips -->
+          <g class="nnode"><rect x="400" y="290" width="130" height="42" rx="12"/><text x="465" y="316" text-anchor="middle">Trips / history</text></g>
+          <!-- Explore -->
+          <g class="nnode"><rect x="600" y="290" width="130" height="42" rx="12"/><text x="665" y="316" text-anchor="middle">Explore map</text></g>
+          <!-- Payment -->
+          <g class="nnode"><rect x="800" y="290" width="140" height="42" rx="12"/><text x="870" y="316" text-anchor="middle">Payment / wallet</text></g>
+          <!-- You -->
+          <g class="nnode"><rect x="200" y="290" width="130" height="42" rx="12"/><text x="265" y="316" text-anchor="middle">You / profile</text></g>
+          <!-- Bottom bar note -->
+          <g class="nnode"><rect x="200" y="380" width="740" height="40" rx="12" fill="#f4f7fd" stroke="#e5e9f2"/><text x="570" y="405" text-anchor="middle" font-weight="700" fill="#4a5578">Persistent bottom bar: Home · Plan · Trips · Explore · You (reachable from any hub)</text></g>
+
+          <!-- edges -->
+          <path class="flow" d="M140 221 H196" marker-end="url(#arw)"/>
+          <path class="flow" d="M330 210 H396" marker-end="url(#arw)" transform="translate(0,10)"/>
+          <path class="flow" d="M300 195 C 340 140, 380 100, 396 86" marker-end="url(#arw)"/>
+          <path class="flow" d="M530 81 H596" marker-end="url(#arw)"/>
+          <path class="flow" d="M665 102 V136" marker-end="url(#arw)"/>
+          <path class="flow" d="M730 161 H796" marker-end="url(#arw)"/>
+          <path class="flow" d="M465 242 C 500 200, 560 180, 596 168" marker-end="url(#arw)"/>
+          <path class="flow2" d="M330 230 C 360 260, 380 280, 396 300" marker-end="url(#arw2)"/>
+          <path class="flow2" d="M330 240 H196" marker-end="url(#arw2)" transform="translate(0,60)"/>
+          <path class="flow2" d="M530 311 H596" marker-end="url(#arw2)"/>
+          <path class="flow2" d="M730 311 H796" marker-end="url(#arw2)"/>
+          <path class="flow2" d="M870 182 V286" marker-end="url(#arw2)"/>
+        </svg>
+      </div>
+      <div class="legend"><span><i style="background:#2d6bff"></i>Primary path</span><span><i style="background:#c3ccdd"></i>Secondary / tab jump</span><span><i style="background:#0a1430"></i>Central hub</span><span><i style="background:#2d6bff"></i>Live/real-time screen</span></div>
+    </section>
+
+    <!-- USER FLOWS -->
+    <section id="cm-flows">
+      <h2>User flow diagrams</h2>
+      <p class="lead">The three journeys that matter most. Green = start, blue = action, violet = live/real-time, grey = decision.</p>
+
+      <style>
+        .fl text{font-family:Arial;font-size:11px;font-weight:700}
+        .fl .start rect{fill:#12b76a}.fl .start text{fill:#fff}
+        .fl .act rect{fill:#fff;stroke:#2d6bff;stroke-width:1.5}.fl .act text{fill:#0a1330}
+        .fl .live rect{fill:url(#iaGrad)}.fl .live text{fill:#fff}
+        .fl .dec path{fill:#fff8ef;stroke:#f79009;stroke-width:1.5}.fl .dec text{fill:#a55a00}
+        .fl .end rect{fill:#0a1430}.fl .end text{fill:#fff}
+        .fl .fe{stroke:#2d6bff;stroke-width:2;fill:none}
+        .fl .lbl{font-size:9px;fill:#7a85a3;font-weight:600}
+      </style>
+
+      <h4>Flow 1 · Book a taxi (uses live <code>/vehicles</code> + <code>/trips</code>)</h4>
+      <div class="diagram">
+        <svg viewBox="0 0 980 140" class="fl" role="img" aria-label="Book a taxi flow">
+          <defs><marker id="fa" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="#2d6bff"/></marker></defs>
+          <g class="start"><rect x="10" y="50" width="110" height="40" rx="12"/><text x="65" y="75" text-anchor="middle">Open app</text></g>
+          <g class="act"><rect x="150" y="50" width="120" height="40" rx="12"/><text x="210" y="70" text-anchor="middle">Tap Taxi tile</text><text x="210" y="83" text-anchor="middle" class="lbl">on map home</text></g>
+          <g class="act"><rect x="300" y="50" width="130" height="40" rx="12"/><text x="365" y="70" text-anchor="middle">Set destination</text><text x="365" y="83" text-anchor="middle" class="lbl">search / saved</text></g>
+          <g class="live"><rect x="460" y="50" width="140" height="40" rx="12"/><text x="530" y="70" text-anchor="middle">See nearby taxis</text><text x="530" y="83" text-anchor="middle" class="lbl">GET /vehicles/{zone}</text></g>
+          <g class="act"><rect x="630" y="50" width="140" height="40" rx="12"/><text x="700" y="70" text-anchor="middle">Review fare (MAD)</text><text x="700" y="83" text-anchor="middle" class="lbl">upfront estimate</text></g>
+          <g class="live"><rect x="800" y="50" width="130" height="40" rx="12"/><text x="865" y="70" text-anchor="middle">Confirm → track</text><text x="865" y="83" text-anchor="middle" class="lbl">POST /trips</text></g>
+          <g class="fe" fill="none">
+            <path d="M120 70 H146" marker-end="url(#fa)"/><path d="M270 70 H296" marker-end="url(#fa)"/><path d="M430 70 H456" marker-end="url(#fa)"/><path d="M600 70 H626" marker-end="url(#fa)"/><path d="M770 70 H796" marker-end="url(#fa)"/>
+          </g>
+        </svg>
+      </div>
+
+      <h4 style="margin-top:1.6rem">Flow 2 · Plan a multimodal trip (planned services)</h4>
+      <div class="diagram">
+        <svg viewBox="0 0 980 200" class="fl" role="img" aria-label="Plan multimodal trip flow">
+          <defs><marker id="fb" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="#2d6bff"/></marker></defs>
+          <g class="start"><rect x="10" y="20" width="110" height="40" rx="12"/><text x="65" y="45" text-anchor="middle">Where to?</text></g>
+          <g class="act"><rect x="150" y="20" width="130" height="40" rx="12"/><text x="215" y="40" text-anchor="middle">Enter destination</text><text x="215" y="53" text-anchor="middle" class="lbl">autocomplete</text></g>
+          <g class="act"><rect x="310" y="20" width="140" height="40" rx="12"/><text x="380" y="40" text-anchor="middle">Compare options</text><text x="380" y="53" text-anchor="middle" class="lbl">taxi/tram/bus/bike</text></g>
+          <!-- decision -->
+          <g class="dec"><path d="M540 40 L590 15 L640 40 L590 65 Z"/><text x="590" y="44" text-anchor="middle">Priority?</text></g>
+          <g class="act"><rect x="720" y="6" width="120" height="34" rx="12"/><text x="780" y="27" text-anchor="middle">Fastest</text></g>
+          <g class="act"><rect x="720" y="52" width="120" height="34" rx="12"/><text x="780" y="73" text-anchor="middle">Greenest / cheapest</text></g>
+          <g class="live"><rect x="720" y="120" width="150" height="40" rx="12"/><text x="795" y="140" text-anchor="middle">Start GO mode</text><text x="795" y="153" text-anchor="middle" class="lbl">step-by-step + live</text></g>
+          <g class="end"><rect x="410" y="130" width="140" height="40" rx="12"/><text x="480" y="155" text-anchor="middle">Arrive · rate</text></g>
+          <g class="fe">
+            <path d="M120 40 H146" marker-end="url(#fb)"/><path d="M280 40 H306" marker-end="url(#fb)"/><path d="M450 40 H536" marker-end="url(#fb)"/>
+            <path d="M640 34 C 680 24, 700 23, 716 23" marker-end="url(#fb)"/>
+            <path d="M640 46 C 680 60, 700 68, 716 68" marker-end="url(#fb)"/>
+            <path d="M780 86 V116" marker-end="url(#fb)"/>
+            <path d="M720 140 H556" marker-end="url(#fb)"/>
+          </g>
+        </svg>
+      </div>
+
+      <h4 style="margin-top:1.6rem">Flow 3 · First run &amp; auth (guest-first)</h4>
+      <div class="diagram">
+        <svg viewBox="0 0 980 120" class="fl" role="img" aria-label="Onboarding and auth flow">
+          <defs><marker id="fc" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" fill="#2d6bff"/></marker></defs>
+          <g class="start"><rect x="10" y="40" width="120" height="40" rx="12"/><text x="70" y="65" text-anchor="middle">Launch</text></g>
+          <g class="act"><rect x="160" y="40" width="150" height="40" rx="12"/><text x="235" y="60" text-anchor="middle">3-card intro + lang</text><text x="235" y="73" text-anchor="middle" class="lbl">AR / FR / EN, RTL</text></g>
+          <g class="act"><rect x="340" y="40" width="150" height="40" rx="12"/><text x="415" y="60" text-anchor="middle">Allow location</text><text x="415" y="73" text-anchor="middle" class="lbl">explained, skippable</text></g>
+          <g class="live"><rect x="520" y="40" width="150" height="40" rx="12"/><text x="595" y="65" text-anchor="middle">Browse as guest</text></g>
+          <g class="dec"><path d="M720 60 L760 38 L800 60 L760 82 Z"/><text x="760" y="64" text-anchor="middle">Book?</text></g>
+          <g class="end"><rect x="850" y="40" width="120" height="40" rx="12"/><text x="910" y="60" text-anchor="middle">Sign in (OTP)</text><text x="910" y="73" text-anchor="middle" class="lbl" fill="#c9d4ee">POST /auth/token</text></g>
+          <g class="fe">
+            <path d="M130 60 H156" marker-end="url(#fc)"/><path d="M310 60 H336" marker-end="url(#fc)"/><path d="M490 60 H516" marker-end="url(#fc)"/><path d="M670 60 H716" marker-end="url(#fc)"/><path d="M800 60 H846" marker-end="url(#fc)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="note"><b>Friction principle applied:</b> users can browse zones, see live taxis and plan routes <em>before</em> authenticating. Sign-in (OTP-style) is deferred until the moment of booking — the single biggest drop-off point in ride-hailing onboarding.</div>
+    </section>
+
+    <!-- SCREEN INVENTORY -->
+    <section id="cm-screens">
+      <h2>Screen inventory</h2>
+      <p class="lead">31 screens across five areas. Each is tagged by whether it can ship on the current backend (<span class="tag t-real">live</span>) or is designed ahead of a planned service (<span class="tag t-plan">planned</span>).</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Screen</th><th>Area</th><th>Purpose</th><th>Data source</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="app">Splash</td><td>Onboarding</td><td>Brand load + version check</td><td>—</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>2</td><td class="app">Intro carousel</td><td>Onboarding</td><td>3 value cards + language/RTL</td><td>local</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>3</td><td class="app">Location permission</td><td>Onboarding</td><td>Explain &amp; request geolocation</td><td>device</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>4</td><td class="app">Sign in / OTP</td><td>Auth</td><td>Phone/OTP, deferred to booking</td><td><code>POST /auth/token</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>5</td><td class="app">Home (map + sheet)</td><td>Home</td><td>Map, "Where to?", shortcuts, tiles</td><td><code>/zones</code>,<code>/vehicles</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>6</td><td class="app">Nearby departures</td><td>Home</td><td>Glanceable live board</td><td><code>/vehicles</code>,<code>/demand</code></td><td><span class="tag t-plan">partial</span></td></tr>
+            <tr><td>7</td><td class="app">Busy-now / forecast</td><td>Home</td><td>Demand heat &amp; wait estimate</td><td><code>POST /demand/forecast</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>8</td><td class="app">Global search</td><td>Plan</td><td>Autocomplete, recents, saved</td><td>local + <code>/zones</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>9</td><td class="app">Route options</td><td>Plan</td><td>Multimodal comparison list</td><td>planner svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>10</td><td class="app">Route detail</td><td>Plan</td><td>Step-by-step legs</td><td>planner svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>11</td><td class="app">Taxi in zone</td><td>Plan</td><td>Live petit/grand taxis</td><td><code>/vehicles/{zone_id}</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>12</td><td class="app">Confirm &amp; book</td><td>Plan</td><td>Upfront fare, pickup, confirm</td><td><code>POST /trips</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>13</td><td class="app">Live tracking</td><td>Trips</td><td>ETA, driver, plate, actions</td><td><code>/vehicles</code>,<code>/trips</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>14</td><td class="app">GO mode (turn-by-turn)</td><td>Plan</td><td>Step navigation, transit legs</td><td>planner svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>15</td><td class="app">Trip summary / rate</td><td>Trips</td><td>Recap, cost, rating, receipt</td><td><code>/trips</code></td><td><span class="tag t-plan">partial</span></td></tr>
+            <tr><td>16</td><td class="app">Trip history</td><td>Trips</td><td>Past journeys, rebook</td><td><code>/trips</code></td><td><span class="tag t-plan">partial</span></td></tr>
+            <tr><td>17</td><td class="app">Tickets &amp; passes</td><td>Trips</td><td>Tram/bus/train tickets, QR</td><td>ticketing svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>18</td><td class="app">Explore map</td><td>Explore</td><td>Full city, layers, lines</td><td><code>/zones</code>,<code>/vehicles</code></td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>19</td><td class="app">Lines &amp; stations</td><td>Explore</td><td>Operator lines, schedules</td><td>transit svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>20</td><td class="app">Stop / station detail</td><td>Explore</td><td>Live arrivals at a stop</td><td>transit svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>21</td><td class="app">Bike docks</td><td>Explore</td><td>Availability &amp; unlock</td><td>bike svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>22</td><td class="app">Service alerts</td><td>Explore</td><td>Disruptions &amp; detours</td><td>alerts svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>23</td><td class="app">Profile</td><td>You</td><td>Account, language, RTL</td><td>local/auth</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>24</td><td class="app">Saved places</td><td>You</td><td>Home, work, favourites</td><td>local + sync</td><td><span class="tag t-plan">partial</span></td></tr>
+            <tr><td>25</td><td class="app">Payment &amp; wallet</td><td>You</td><td>Cards, cash, balance</td><td>payments svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>26</td><td class="app">Notifications centre</td><td>You</td><td>Trip &amp; service updates</td><td>push svc</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>27</td><td class="app">Accessibility settings</td><td>You</td><td>Text size, contrast, motion</td><td>local</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>28</td><td class="app">Carbon insights</td><td>You</td><td>CO₂ saved vs driving</td><td>derived</td><td><span class="tag t-plan">planned</span></td></tr>
+            <tr><td>29</td><td class="app">Empty states</td><td>System</td><td>No trips / no results</td><td>—</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>30</td><td class="app">Loading skeletons</td><td>System</td><td>Content-shaped placeholders</td><td>—</td><td><span class="tag t-real">live</span></td></tr>
+            <tr><td>31</td><td class="app">Error / offline</td><td>System</td><td>Retry, continue offline</td><td>—</td><td><span class="tag t-real">live</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><small><span class="tag t-real">live</span> = shippable on today's FastAPI · <span class="tag t-plan">partial</span> = works with current data but improves with a dedicated service · <span class="tag t-plan">planned</span> = needs a new backend service (transit, ticketing, payments, bike, push).</small></p>
+    </section>
+
+    <!-- WIREFRAMES -->
+    <section id="cm-wire">
+      <h2>Wireframes — key CasaMotion screens</h2>
+      <p class="lead">Branded, mobile-first layouts applying the researched patterns to real Casablanca content and the live API. (The map-home, departures, route options, live-tracking and state screens above are also part of this set.)</p>
+      <div class="mocks">
+
+        <!-- Onboarding intro -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Onboarding intro screen">
+            <defs><clipPath id="scr2"><rect x="14" y="14" width="232" height="512" rx="30"/></clipPath></defs>
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr2)">
+              <rect x="14" y="14" width="232" height="512" fill="#0a1430"/>
+              <circle cx="130" cy="140" r="150" fill="url(#mg1)" opacity=".18"/>
+              <!-- illustration: unified modes -->
+              <g transform="translate(130,150)">
+                <circle r="52" fill="none" stroke="#22d3ee" stroke-width="2" opacity=".5"/>
+                <rect x="-14" y="-14" width="28" height="28" rx="8" fill="url(#mg1)"/>
+                <circle cx="0" cy="-52" r="10" fill="#22d3ee"/><text x="0" y="-48" font-size="10" text-anchor="middle">🚕</text>
+                <circle cx="52" cy="0" r="10" fill="#2d6bff"/><text x="52" y="4" font-size="10" text-anchor="middle">🚌</text>
+                <circle cx="0" cy="52" r="10" fill="#7c3aed"/><text x="0" y="56" font-size="10" text-anchor="middle">🚊</text>
+                <circle cx="-52" cy="0" r="10" fill="#12b76a"/><text x="-52" y="4" font-size="10" text-anchor="middle">🚴</text>
+              </g>
+              <text x="130" y="300" font-family="Arial" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">One app. Every way</text>
+              <text x="130" y="322" font-family="Arial" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">to move in Casa.</text>
+              <text x="130" y="350" font-family="Arial" font-size="11" fill="#c9d4ee" text-anchor="middle">Taxi, tram, bus, train &amp; bike —</text>
+              <text x="130" y="365" font-family="Arial" font-size="11" fill="#c9d4ee" text-anchor="middle">planned together, in real time.</text>
+              <!-- dots -->
+              <circle cx="112" cy="400" r="4" fill="#22d3ee"/><circle cx="130" cy="400" r="3" fill="#3b4667"/><circle cx="148" cy="400" r="3" fill="#3b4667"/>
+              <!-- lang chips -->
+              <rect x="40" y="430" width="54" height="26" rx="13" fill="#16224a"/><text x="67" y="447" font-family="Arial" font-size="10" fill="#fff" text-anchor="middle">العربية</text>
+              <rect x="103" y="430" width="54" height="26" rx="13" fill="url(#mg1)"/><text x="130" y="447" font-family="Arial" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Français</text>
+              <rect x="166" y="430" width="54" height="26" rx="13" fill="#16224a"/><text x="193" y="447" font-family="Arial" font-size="10" fill="#fff" text-anchor="middle">English</text>
+              <!-- cta -->
+              <rect x="40" y="474" width="180" height="40" rx="20" fill="url(#mg1)"/><text x="130" y="499" font-family="Arial" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Get started</text>
+            </g>
+          </svg>
+          <figcaption>Onboarding · language + RTL first</figcaption>
+        </figure>
+        <div class="anno"><b>Pattern:</b> value in one line, language/RTL choice up-front (Careem-style), skippable, and a single clear CTA. No forced sign-up.</div>
+
+        <!-- Confirm & book -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Confirm and book screen">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr2)">
+              <rect x="14" y="14" width="232" height="512" fill="#e8edf6"/>
+              <g stroke="#cdd6e6" stroke-width="6" fill="none"><path d="M14 80 H246"/><path d="M120 14 V220"/></g>
+              <path d="M70 190 C 100 150, 130 120, 170 90" fill="none" stroke="url(#mg1)" stroke-width="5" stroke-linecap="round"/>
+              <circle cx="70" cy="190" r="6" fill="#12b76a" stroke="#fff" stroke-width="2"/><rect x="165" y="85" width="10" height="10" fill="#f04438"/>
+              <rect x="14" y="14" width="232" height="26" fill="#e8edf6"/><text x="28" y="31" font-family="Arial" font-size="11" font-weight="700" fill="#0a1430">9:41</text>
+              <!-- sheet -->
+              <rect x="14" y="234" width="232" height="292" rx="22" fill="#fff"/>
+              <rect x="112" y="244" width="36" height="4" rx="2" fill="#d8dfec"/>
+              <text x="30" y="272" font-family="Arial" font-size="14" font-weight="700" fill="#0a1330">Confirm your taxi</text>
+              <!-- taxi tier -->
+              <rect x="26" y="284" width="102" height="58" rx="14" fill="#fff" stroke="#2d6bff" stroke-width="1.5"/>
+              <text x="40" y="306" font-size="18">🚕</text><text x="40" y="326" font-family="Arial" font-size="11" font-weight="700" fill="#0a1330">Petit taxi</text><text x="40" y="338" font-family="Arial" font-size="8.5" fill="#7a85a3">3 min away</text>
+              <rect x="132" y="284" width="102" height="58" rx="14" fill="#f4f7fd"/>
+              <text x="146" y="306" font-size="18">🚖</text><text x="146" y="326" font-family="Arial" font-size="11" font-weight="700" fill="#0a1330">Grand taxi</text><text x="146" y="338" font-family="Arial" font-size="8.5" fill="#7a85a3">6 min away</text>
+              <!-- fare row -->
+              <rect x="26" y="352" width="208" height="40" rx="12" fill="#e7f8f0"/>
+              <text x="40" y="370" font-family="Arial" font-size="10" fill="#08794a">Upfront fare · metered</text>
+              <text x="40" y="384" font-family="Arial" font-size="8.5" fill="#08794a">No surge · pay cash or card</text>
+              <text x="222" y="378" font-family="Arial" font-size="16" font-weight="700" fill="#08794a" text-anchor="end">18 MAD</text>
+              <!-- payment + pickup -->
+              <line x1="26" y1="404" x2="234" y2="404" stroke="#eef1f7"/>
+              <text x="30" y="422" font-family="Arial" font-size="10" fill="#7a85a3">Pickup</text><text x="234" y="422" font-family="Arial" font-size="10" font-weight="700" fill="#0a1330" text-anchor="end">Aïn Diab corniche</text>
+              <text x="30" y="442" font-family="Arial" font-size="10" fill="#7a85a3">Pay with</text><text x="234" y="442" font-family="Arial" font-size="10" font-weight="700" fill="#0a1330" text-anchor="end">Cash 💵</text>
+              <!-- sticky CTA -->
+              <rect x="26" y="466" width="208" height="44" rx="22" fill="url(#mg1)"/><text x="130" y="493" font-family="Arial" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Request taxi · 18 MAD</text>
+            </g>
+          </svg>
+          <figcaption>Confirm &amp; book · upfront fare</figcaption>
+        </figure>
+        <div class="anno"><b>Pattern:</b> tier choice, an explicit "no surge" trust badge, cash-first payment, and a sticky primary button that restates the price. Maps to <code>POST /trips</code>.</div>
+
+        <!-- Trip history -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Trip history screen">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr2)">
+              <rect x="14" y="14" width="232" height="512" fill="#fff"/>
+              <rect x="14" y="14" width="232" height="26" fill="#fff"/><text x="28" y="31" font-family="Arial" font-size="11" font-weight="700" fill="#0a1430">9:41</text>
+              <text x="30" y="64" font-family="Arial" font-size="16" font-weight="700" fill="#0a1330">Your trips</text>
+              <!-- tabs -->
+              <rect x="30" y="76" width="70" height="26" rx="13" fill="#0a1430"/><text x="65" y="93" font-family="Arial" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Recent</text>
+              <text x="130" y="93" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">Tickets</text>
+              <text x="200" y="93" font-family="Arial" font-size="10" fill="#7a85a3" text-anchor="middle">Receipts</text>
+              <!-- items -->
+              <g font-family="Arial">
+                <rect x="26" y="114" width="208" height="60" rx="14" fill="#f4f7fd"/>
+                <circle cx="52" cy="144" r="15" fill="#e2f8fc"/><text x="52" y="149" font-size="12" text-anchor="middle">🚕</text>
+                <text x="78" y="134" font-size="11" font-weight="700" fill="#0a1330">Aïn Diab → Maârif</text>
+                <text x="78" y="150" font-size="9" fill="#7a85a3">Today 08:14 · petit taxi</text>
+                <text x="224" y="138" font-size="12" font-weight="700" fill="#0a1330" text-anchor="end">18 MAD</text>
+                <rect x="170" y="150" width="56" height="18" rx="9" fill="#e6eeff"/><text x="198" y="163" font-size="8.5" font-weight="700" fill="#1f4fd8" text-anchor="middle">Rebook</text>
+
+                <rect x="26" y="182" width="208" height="60" rx="14" fill="#f4f7fd"/>
+                <circle cx="52" cy="212" r="15" fill="#e6eeff"/><text x="52" y="217" font-size="12" text-anchor="middle">🚊</text>
+                <text x="78" y="202" font-size="11" font-weight="700" fill="#0a1330">Tramway T1 · 5 stops</text>
+                <text x="78" y="218" font-size="9" fill="#7a85a3">Yesterday 18:40</text>
+                <text x="224" y="206" font-size="12" font-weight="700" fill="#0a1330" text-anchor="end">6 MAD</text>
+                <rect x="170" y="218" width="56" height="18" rx="9" fill="#e6eeff"/><text x="198" y="231" font-size="8.5" font-weight="700" fill="#1f4fd8" text-anchor="middle">Rebook</text>
+
+                <rect x="26" y="250" width="208" height="60" rx="14" fill="#f4f7fd"/>
+                <circle cx="52" cy="280" r="15" fill="#e7f8f0"/><text x="52" y="285" font-size="12" text-anchor="middle">🚴</text>
+                <text x="78" y="270" font-size="11" font-weight="700" fill="#0a1330">Bike · Corniche loop</text>
+                <text x="78" y="286" font-size="9" fill="#7a85a3">Mon · 2.1 km · 0 kg CO₂</text>
+                <text x="224" y="274" font-size="12" font-weight="700" fill="#12b76a" text-anchor="end">Free</text>
+              </g>
+              <!-- carbon banner -->
+              <rect x="26" y="326" width="208" height="46" rx="14" fill="#e7f8f0"/>
+              <text x="40" y="346" font-family="Arial" font-size="10.5" font-weight="700" fill="#08794a">🌱 4.2 kg CO₂ saved this week</text>
+              <text x="40" y="361" font-family="Arial" font-size="9" fill="#08794a">vs driving alone · keep it up!</text>
+              <!-- bottom nav -->
+              <rect x="14" y="486" width="232" height="40" fill="#fff"/><line x1="14" y1="486" x2="246" y2="486" stroke="#eef1f7"/>
+              <g text-anchor="middle" font-family="Arial" font-size="7.5">
+                <rect x="40" y="496" width="14" height="12" rx="2" fill="#9aa4bf"/><text x="47" y="519" fill="#9aa4bf">Home</text>
+                <circle cx="97" cy="502" r="6" fill="none" stroke="#9aa4bf" stroke-width="2"/><text x="97" y="519" fill="#9aa4bf">Plan</text>
+                <path d="M143 497 l6 5 -6 5 -6-5z" fill="#2d6bff"/><text x="143" y="519" fill="#2d6bff" font-weight="700">Trips</text>
+                <circle cx="200" cy="502" r="6" fill="#9aa4bf"/><text x="200" y="519" fill="#9aa4bf">You</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>Trips · history, rebook &amp; carbon</figcaption>
+        </figure>
+        <div class="anno"><b>Pattern:</b> one-tap rebook (Uber), multimodal history in one list, and native carbon insight — turning trip data into a reason to return.</div>
+
+        <!-- Profile / You -->
+        <figure class="phone">
+          <svg viewBox="0 0 260 540" role="img" aria-label="Profile and settings screen">
+            <rect x="6" y="6" width="248" height="528" rx="38" fill="#0a1430"/>
+            <g clip-path="url(#scr2)">
+              <rect x="14" y="14" width="232" height="512" fill="#f4f7fd"/>
+              <rect x="14" y="14" width="232" height="130" fill="#0a1430"/>
+              <text x="30" y="34" font-family="Arial" font-size="11" font-weight="700" fill="#fff">9:41</text>
+              <circle cx="50" cy="86" r="24" fill="url(#mg1)"/><text x="50" y="92" font-size="18" text-anchor="middle">👤</text>
+              <text x="86" y="80" font-family="Arial" font-size="14" font-weight="700" fill="#fff">Yasmine B.</text>
+              <text x="86" y="98" font-family="Arial" font-size="10" fill="#c9d4ee">+212 6 •• •• •• 42 · Verified</text>
+              <rect x="86" y="106" width="70" height="20" rx="10" fill="#16224a"/><text x="121" y="120" font-family="Arial" font-size="9" fill="#22d3ee" text-anchor="middle">CasaPay ✦</text>
+              <!-- rows -->
+              <g font-family="Arial">
+                <rect x="26" y="158" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="185" font-size="11" font-weight="700" fill="#0a1330">📍 Saved places</text><text x="222" y="185" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+                <rect x="26" y="210" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="237" font-size="11" font-weight="700" fill="#0a1330">💳 Payment &amp; wallet</text><text x="222" y="237" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+                <rect x="26" y="262" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="289" font-size="11" font-weight="700" fill="#0a1330">🌍 Language · العربية / FR / EN</text><text x="222" y="289" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+                <rect x="26" y="314" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="341" font-size="11" font-weight="700" fill="#0a1330">♿ Accessibility</text><text x="222" y="341" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+                <rect x="26" y="366" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="393" font-size="11" font-weight="700" fill="#0a1330">🔔 Notifications</text><text x="222" y="393" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+                <rect x="26" y="418" width="208" height="44" rx="12" fill="#fff"/><text x="42" y="445" font-size="11" font-weight="700" fill="#0a1330">🌱 Carbon insights</text><text x="222" y="445" font-size="14" fill="#c3ccdd" text-anchor="end">›</text>
+              </g>
+              <rect x="14" y="486" width="232" height="40" fill="#fff"/><line x1="14" y1="486" x2="246" y2="486" stroke="#eef1f7"/>
+              <g text-anchor="middle" font-family="Arial" font-size="7.5">
+                <rect x="40" y="496" width="14" height="12" rx="2" fill="#9aa4bf"/><text x="47" y="519" fill="#9aa4bf">Home</text>
+                <circle cx="97" cy="502" r="6" fill="none" stroke="#9aa4bf" stroke-width="2"/><text x="97" y="519" fill="#9aa4bf">Plan</text>
+                <path d="M143 497 l6 5 -6 5 -6-5z" fill="#9aa4bf"/><text x="143" y="519" fill="#9aa4bf">Trips</text>
+                <circle cx="200" cy="502" r="6" fill="#2d6bff"/><text x="200" y="519" fill="#2d6bff" font-weight="700">You</text>
+              </g>
+            </g>
+          </svg>
+          <figcaption>You · profile &amp; settings</figcaption>
+        </figure>
+        <div class="anno"><b>Pattern:</b> a single "You" hub for identity, saved places, payment, language/RTL, accessibility and carbon — grouped, scannable, and RTL-mirrorable.</div>
+
+      </div>
+    </section>
+
+    <!-- DESIGN SYSTEM -->
+    <section id="cm-ds">
+      <h2>Design system</h2>
+      <p class="lead">Built on CasaMotion's existing brand so the app, landing page and presentation feel like one product. Tokens below are ready to drop into CSS variables or a Tailwind config.</p>
+
+      <h3>Color tokens</h3>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#22d3ee"></div><div class="info"><b>Cyan</b><code>#22d3ee</code></div></div>
+        <div class="sw"><div class="chip" style="background:#2d6bff"></div><div class="info"><b>Blue · primary</b><code>#2d6bff</code></div></div>
+        <div class="sw"><div class="chip" style="background:#7c3aed"></div><div class="info"><b>Violet</b><code>#7c3aed</code></div></div>
+        <div class="sw"><div class="chip" style="background:#2d6bff"></div><div class="info"><b>Brand · solid primary</b><code>flat, no gradient</code></div></div>
+        <div class="sw"><div class="chip" style="background:#0a1430"></div><div class="info"><b>Navy · surface dark</b><code>#0a1430</code></div></div>
+        <div class="sw"><div class="chip" style="background:#0f1730"></div><div class="info"><b>Ink · text</b><code>#0f1730</code></div></div>
+        <div class="sw"><div class="chip" style="background:#f4f7fd"></div><div class="info"><b>Panel</b><code>#f4f7fd</code></div></div>
+        <div class="sw"><div class="chip" style="background:#12b76a"></div><div class="info"><b>Success · eco</b><code>#12b76a</code></div></div>
+        <div class="sw"><div class="chip" style="background:#f79009"></div><div class="info"><b>Warning</b><code>#f79009</code></div></div>
+        <div class="sw"><div class="chip" style="background:#f04438"></div><div class="info"><b>Error</b><code>#f04438</code></div></div>
+      </div>
+      <div class="note"><b>Semantic mode colours</b> (for transit legs, mirroring official Casablanca operators): Tramway = <b>Blue</b>, Bus = <b>Violet</b>, Train/ONCF = <b>Teal-green</b>, Taxi = <b>Cyan</b>, Bike/Walk/eco = <b>Green</b>. Keep these consistent everywhere a mode appears.</div>
+
+      <div class="grid g2" style="margin-top:18px">
+        <div class="card">
+          <h3 style="margin-top:0">Typography scale</h3>
+          <div class="tablewrap" style="box-shadow:none;border:none">
+            <table style="min-width:0">
+              <thead><tr><th>Token</th><th>Font</th><th>Size / weight</th></tr></thead>
+              <tbody>
+                <tr><td>Display / H1</td><td>Space Grotesk</td><td>28–34 · 700</td></tr>
+                <tr><td>H2</td><td>Space Grotesk</td><td>22 · 700</td></tr>
+                <tr><td>H3 / card title</td><td>Space Grotesk</td><td>17 · 600</td></tr>
+                <tr><td>Body</td><td>Manrope</td><td>15 · 400/500</td></tr>
+                <tr><td>Caption / meta</td><td>Manrope</td><td>12–13 · 600</td></tr>
+                <tr><td>Numeric / code</td><td>JetBrains Mono</td><td>13 · 600</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><small>Space Grotesk carries brand personality in headings; Manrope keeps long text highly legible (incl. French diacritics). Arabic uses a matched sans (e.g. IBM Plex Sans Arabic / Cairo) at the same scale.</small></p>
+        </div>
+        <div class="card">
+          <h3 style="margin-top:0">Foundations</h3>
+          <h4 style="margin-top:0">Spacing (4-pt grid)</h4>
+          <p><code>4 · 8 · 12 · 16 · 20 · 24 · 32 · 40</code> — components snap to this scale.</p>
+          <h4>Radius</h4>
+          <p><code>sm 8 · md 14 · lg 22 · xl 30 · pill 999</code></p>
+          <h4>Elevation</h4>
+          <p>Three shadow levels: cards (subtle), sheets (medium), modals/FAB (strong).</p>
+          <h4>Touch &amp; contrast (verified)</h4>
+          <ul class="clean">
+            <li>Min touch target <b>48×48dp</b>, 8dp apart (Material 3)</li>
+            <li>Text contrast <b>≥ 4.5:1</b>, large text ≥ 3:1 (WCAG AA)</li>
+            <li>Bottom bar: <b>≤5 labelled tabs</b>, always visible (Apple HIG)</li>
+            <li>Badges reserved for <b>critical/live</b> info only</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Motion &amp; interaction</h3>
+      <div class="grid g3">
+        <div class="card"><h4>Sheet detents</h4><p>Bottom sheet snaps to <b>peek / half / full</b> (Apple Maps model). Map stays interactive behind it.</p></div>
+        <div class="card"><h4>Timing</h4><p>150–250ms ease-out for transitions; respect <code>prefers-reduced-motion</code> and offer a "reduce motion" toggle.</p></div>
+        <div class="card"><h4>Feedback</h4><p>Optimistic UI on booking; haptic + toast on confirm; skeletons for loads; inline validation on forms.</p></div>
+      </div>
+    </section>
+
+    <!-- COMPONENT HIERARCHY -->
+    <section id="cm-components">
+      <h2>Component hierarchy</h2>
+      <p class="lead">An atomic-design structure. Primitives compose into patterns, patterns compose into the 31 screens — keeping the codebase small and consistent.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 980 430" role="img" aria-label="Component hierarchy tree">
+          <defs>
+            <style>
+              .ch text{font-family:Arial}
+              .lvl{font-family:'Space Grotesk',Arial;font-size:12px;font-weight:700;fill:#7a85a3;letter-spacing:1px}
+              .atom rect{fill:#e2f8fc;stroke:#22d3ee}.atom text{fill:#0b7a92}
+              .mol rect{fill:#e6eeff;stroke:#2d6bff}.mol text{fill:#1f4fd8}
+              .org rect{fill:#f0e9fe;stroke:#7c3aed}.org text{fill:#6027c9}
+              .tmpl rect{fill:#0a1430}.tmpl text{fill:#fff}
+              .ch g rect{stroke-width:1.5}
+              .ch g text{font-size:10.5px;font-weight:700;text-anchor:middle}
+            </style>
+          </defs>
+          <!-- Atoms -->
+          <text x="14" y="30" class="lvl">ATOMS</text>
+          <g class="atom" transform="translate(120,14)">
+            <g><rect width="88" height="30" rx="8"/><text x="44" y="19">Button</text></g>
+            <g transform="translate(96,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Icon</text></g>
+            <g transform="translate(192,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Input</text></g>
+            <g transform="translate(288,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Chip / Tag</text></g>
+            <g transform="translate(384,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Badge</text></g>
+            <g transform="translate(480,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Avatar</text></g>
+            <g transform="translate(576,0)"><rect width="100" height="30" rx="8"/><text x="50" y="19">Skeleton</text></g>
+            <g transform="translate(684,0)"><rect width="88" height="30" rx="8"/><text x="44" y="19">Line badge</text></g>
+          </g>
+          <!-- Molecules -->
+          <text x="14" y="110" class="lvl">MOLECULES</text>
+          <g class="mol" transform="translate(120,92)">
+            <g><rect width="110" height="34" rx="9"/><text x="55" y="21">Search bar</text></g>
+            <g transform="translate(120,0)"><rect width="120" height="34" rx="9"/><text x="60" y="21">Place row</text></g>
+            <g transform="translate(252,0)"><rect width="120" height="34" rx="9"/><text x="60" y="21">Route card</text></g>
+            <g transform="translate(384,0)"><rect width="120" height="34" rx="9"/><text x="60" y="21">Departure row</text></g>
+            <g transform="translate(516,0)"><rect width="120" height="34" rx="9"/><text x="60" y="21">Fare summary</text></g>
+            <g transform="translate(648,0)"><rect width="110" height="34" rx="9"/><text x="55" y="21">Driver card</text></g>
+          </g>
+          <!-- Organisms -->
+          <text x="14" y="200" class="lvl">ORGANISMS</text>
+          <g class="org" transform="translate(120,182)">
+            <g><rect width="130" height="36" rx="10"/><text x="65" y="22">Map canvas</text></g>
+            <g transform="translate(142,0)"><rect width="140" height="36" rx="10"/><text x="70" y="22">Bottom sheet</text></g>
+            <g transform="translate(294,0)"><rect width="140" height="36" rx="10"/><text x="70" y="22">Bottom nav bar</text></g>
+            <g transform="translate(446,0)"><rect width="150" height="36" rx="10"/><text x="75" y="22">Route options list</text></g>
+            <g transform="translate(608,0)"><rect width="150" height="36" rx="10"/><text x="75" y="22">Live tracking panel</text></g>
+          </g>
+          <!-- Templates/screens -->
+          <text x="14" y="290" class="lvl">TEMPLATES</text>
+          <g class="tmpl" transform="translate(120,272)">
+            <g><rect width="150" height="38" rx="11"/><text x="75" y="23">Map + sheet screen</text></g>
+            <g transform="translate(166,0)"><rect width="150" height="38" rx="11"/><text x="75" y="23">List screen</text></g>
+            <g transform="translate(332,0)"><rect width="150" height="38" rx="11"/><text x="75" y="23">Detail screen</text></g>
+            <g transform="translate(498,0)"><rect width="150" height="38" rx="11"/><text x="75" y="23">Form / confirm</text></g>
+            <g transform="translate(664,0)"><rect width="94" height="38" rx="11"/><text x="47" y="23">State</text></g>
+          </g>
+          <!-- Pages -->
+          <text x="14" y="378" class="lvl">31 SCREENS</text>
+          <g transform="translate(120,360)"><rect width="638" height="40" rx="12" fill="url(#iaGrad)"/><text x="319" y="385" font-family="Arial" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Home · Plan · Trips · Explore · You · System states</text></g>
+          <!-- connective arrows -->
+          <g stroke="#c3ccdd" stroke-width="1.5" fill="none">
+            <path d="M480 44 V92"/><path d="M480 126 V182"/><path d="M480 218 V272"/><path d="M480 310 V360"/>
+          </g>
+        </svg>
+      </div>
+      <div class="grid g2">
+        <div class="card"><h4>Reuse in numbers</h4><p>~8 atoms + ~6 molecules + ~5 organisms + ~5 templates compose all 31 screens. High reuse = smaller bundle (important for a low-end-Android PWA) and visual consistency for free.</p></div>
+        <div class="card"><h4>Suggested stack</h4><ul class="clean"><li><b>React + Vite</b> (or Vue) PWA, TypeScript</li><li><b>MapLibre GL</b> (open-source, no vendor lock, RTL text plugin)</li><li><b>Tailwind</b> config seeded with the tokens above</li><li><b>Workbox</b> service worker for offline/last-known map</li><li><b>i18next</b> for AR/FR/EN + <code>dir="rtl"</code> switching</li></ul></div>
+      </div>
+    </section>
+
+    <!-- RESPONSIVE -->
+    <section id="cm-responsive">
+      <h2>Mobile-first responsive strategy</h2>
+      <p class="lead">Designed for a 360px Android screen first, then enhanced upward. The same components reflow — no separate desktop app.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Breakpoint</th><th>Layout</th><th>Navigation</th><th>Map &amp; sheet</th></tr></thead>
+          <tbody>
+            <tr><td class="app">Mobile · &lt;600px</td><td>Single column, full-bleed map</td><td>Bottom tab bar (5)</td><td>Sheet overlays map with peek/half/full detents</td></tr>
+            <tr><td class="app">Tablet · 600–1024px</td><td>Map + persistent side panel</td><td>Bottom bar or left rail</td><td>Sheet becomes a docked left/right column</td></tr>
+            <tr><td class="app">Desktop · &gt;1024px</td><td>Two-pane: list left, map right</td><td>Left sidebar rail (labelled)</td><td>Panel fixed left; map fills remainder</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid g3" style="margin-top:16px">
+        <div class="card"><h4>PWA essentials</h4><ul class="clean"><li>Installable (manifest + icons, solid navy splash)</li><li>Offline shell + last-known map &amp; trips cache</li><li>&lt;150KB critical CSS; lazy-load map &amp; routes</li></ul></div>
+        <div class="card"><h4>Performance budget</h4><ul class="clean"><li>First paint &lt; 2s on 3G / low-end Android</li><li>Tap-to-response &lt; 100ms; skeletons over spinners</li><li>Images as SVG/WebP; system fonts fallback</li></ul></div>
+        <div class="card"><h4>Inclusive by default</h4><ul class="clean"><li>Full <b>RTL</b> mirroring for Arabic</li><li>Dynamic text scaling; 48dp targets</li><li>Screen-reader labels; visible focus; reduced-motion</li></ul></div>
+      </div>
+    </section>
+
+    <!-- RECOMMENDATIONS -->
+    <section id="reco">
+      <h2>Actionable recommendations</h2>
+      <p class="lead">Prioritised, each tied to a researched pattern and CasaMotion's real capabilities. P0 = do first, P1 = next, P2 = differentiators.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>#</th><th>Recommendation</th><th>Why (source pattern)</th><th>Backend</th><th>Pri</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Ship a <b>map-first home with a bottom sheet</b> as the entire control surface</td><td>Uber · Apple Maps convergence</td><td><span class="tag t-real">live</span></td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>2</td><td>Make <b>"Where to?"</b> the single dominant CTA, with Home/Work + recents</td><td>Universal across ride-hail &amp; maps</td><td><span class="tag t-real">live</span></td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>3</td><td><b>5-tab bottom bar</b>: Home · Plan · Trips · Explore · You</td><td>Apple HIG (≤5, labelled, always visible)</td><td>—</td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>4</td><td><b>Guest-first</b>: browse &amp; plan before login; OTP only at booking</td><td>Friction reducer (drop-off at signup)</td><td><span class="tag t-real">live</span></td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>5</td><td><b>Upfront MAD fare + "no surge" badge</b> before confirm</td><td>Uber upfront fare · inDrive trust</td><td><span class="tag t-real">live</span></td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>6</td><td><b>Live tracking as a full screen</b> (ETA, driver, plate, call)</td><td>Uber best-in-class live UI</td><td><span class="tag t-real">live</span></td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>7</td><td>Designed <b>empty / loading / error</b> states everywhere</td><td>Weakest column across all apps</td><td>—</td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>8</td><td><b>Departures-first</b> glanceable home board</td><td>Transit signature pattern</td><td><span class="tag t-plan">partial</span></td><td><span class="tag t-violet">P1</span></td></tr>
+            <tr><td>9</td><td><b>Multimodal route comparison</b> with Fastest/Greenest/Cheapest tags</td><td>Citymapper · Google Maps</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-violet">P1</span></td></tr>
+            <tr><td>10</td><td><b>Full AR/FR/EN + RTL</b> from day one</td><td>Careem localisation</td><td>—</td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>11</td><td><b>WCAG AA</b>, 48dp targets, dynamic type, reduced motion</td><td>Apple · Google · Transit leaders</td><td>—</td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>12</td><td>Ship as an <b>installable PWA</b> with offline shell</td><td>Low-end Android reach in Morocco</td><td>—</td><td><span class="tag t-blue">P0</span></td></tr>
+            <tr><td>13</td><td><b>One-tap rebook</b> from trip history</td><td>Uber friction reducer</td><td><span class="tag t-plan">partial</span></td><td><span class="tag t-violet">P1</span></td></tr>
+            <tr><td>14</td><td><b>Native carbon insights</b> per trip &amp; weekly</td><td>Moovit low-carbon program</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-cyan">P2</span></td></tr>
+            <tr><td>15</td><td><b>Rider fare agency</b> option for grand taxis</td><td>inDrive negotiation mechanic</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-cyan">P2</span></td></tr>
+            <tr><td>16</td><td><b>Community traffic/hazard reports</b></td><td>Waze crowd-sourcing</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-cyan">P2</span></td></tr>
+            <tr><td>17</td><td><b>Wallet balance always visible</b> once payments land</td><td>Grab · Gojek</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-cyan">P2</span></td></tr>
+            <tr><td>18</td><td><b>Tram/bus/train tickets + QR</b> in-app</td><td>SNCF Connect · RATP Bonjour</td><td><span class="tag t-plan">planned</span></td><td><span class="tag t-cyan">P2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ROADMAP -->
+    <section id="roadmap">
+      <h2>Phased roadmap</h2>
+      <p class="lead">Sequenced so every phase ships something usable on the backend that exists at that point — no big-bang rewrite.</p>
+      <div class="grid g3">
+        <div class="card">
+          <span class="tag t-real">Phase 1 · Ship now</span>
+          <h4>Taxi PWA on the live API</h4>
+          <ul class="clean">
+            <li>Map home + sheet, "Where to?"</li>
+            <li>Zones &amp; live taxis (<code>/zones</code>, <code>/vehicles</code>)</li>
+            <li>Busy-now (<code>/demand/forecast</code>)</li>
+            <li>Book + live track (<code>/trips</code>)</li>
+            <li>Guest-first, OTP auth (<code>/auth/token</code>)</li>
+            <li>Full states, AR/FR/EN + RTL, PWA install</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag t-plan">Phase 2 · Next</span>
+          <h4>Multimodal &amp; trips</h4>
+          <ul class="clean">
+            <li>Route planner service + comparison UI</li>
+            <li>Departures-first home board</li>
+            <li>Trip history, one-tap rebook, receipts</li>
+            <li>Explore map: lines, stations, stops</li>
+            <li>Notifications centre + push</li>
+            <li>Saved places sync</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="tag t-cyan">Phase 3 · Differentiate</span>
+          <h4>Payments, tickets &amp; green</h4>
+          <ul class="clean">
+            <li>Wallet + digital payments</li>
+            <li>Tram/bus/train ticketing + QR</li>
+            <li>Bike-share docks &amp; unlock</li>
+            <li>Carbon insights &amp; challenges</li>
+            <li>Community traffic reports</li>
+            <li>Rider fare agency for grand taxis</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note ok"><b>North star:</b> a single, trusted, accessible app where any Casablancais can see how to get anywhere — by any mode — in one glance, and act on it in two taps. Start with the taxi experience that the backend already powers, and grow into the fully unified MaaS vision without ever redesigning the shell.</div>
+    </section>
+
+    <!-- SOURCES -->
+    <section id="sources">
+      <h2>Sources &amp; method notes</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h4>Verified references</h4>
+          <ul class="clean">
+            <li><a href="https://developer.apple.com/design/human-interface-guidelines/tab-bars">Apple HIG — Tab bars</a> (≤5 tabs, labels, badges, empty-state guidance)</li>
+            <li><a href="https://m3.material.io/foundations/designing/structure">Material 3 — Structure</a> (48dp targets, 8dp spacing, landmarks, contrast)</li>
+            <li><a href="https://citymapper.com/">Citymapper</a> (AI routing, lock-screen nav, "Get me somewhere")</li>
+            <li><a href="https://moovit.com/">Moovit</a> (1.7B users, 3,500 cities, MaaS fare payments, low-carbon program)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>Method &amp; honesty notes</h4>
+          <ul class="clean">
+            <li>App scores are <b>expert heuristic ratings</b>, not lab metrics — directional guidance.</li>
+            <li>All mockups/diagrams are <b>original hand-built SVG/HTML</b>; no third-party screenshots embedded.</li>
+            <li>CasaMotion "live" tags reflect the current <b>7-route FastAPI</b>; "planned" features need new services.</li>
+            <li>App names/trademarks belong to their owners; used for comparative research only.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="wrap">
+      <p><b>CasaMotion — Mobility UX Research &amp; Frontend Design Report.</b> Original analysis and all diagrams/mockups are hand-built SVG/HTML; no third-party screenshots are embedded. App names and trademarks belong to their respective owners and are referenced for comparative research only.</p>
+      <p>Generated for the CasaMotion project · Casablanca smart-mobility platform · self-contained offline document.</p>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+/* Scrollspy: highlight current section in the TOC */
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+  var map={};links.forEach(function(a){var id=a.getAttribute('href').slice(1);var el=document.getElementById(id);if(el)map[id]=a;});
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){a.style.background='';a.style.color='';a.style.borderLeftColor='transparent';});
+        var a=map[e.target.id];
+        if(a){a.style.background='var(--panel)';a.style.color='var(--ink)';a.style.borderLeftColor='var(--blue)';}
+      }
+    });
+  },{rootMargin:'-10% 0px -80% 0px',threshold:0});
+  Object.keys(map).forEach(function(id){var el=document.getElementById(id);if(el)obs.observe(el);});
+  document.querySelector('.toc').addEventListener('click',function(e){
+    if(e.target.tagName==='A'&&window.innerWidth<=1024){this.classList.remove('open');}
+  });
+})();
+</script>
+</body>
+</html>

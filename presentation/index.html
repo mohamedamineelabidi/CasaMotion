@@ -123,6 +123,9 @@ pre.diagram b{color:var(--blue);}
 .deck-controls{position:fixed;right:26px;bottom:20px;display:flex;align-items:center;gap:14px;z-index:1000;font-family:"JetBrains Mono";font-size:15px;color:var(--ink2);}
 .deck-controls button{width:40px;height:40px;border:none;border-radius:10px;background:#fff;color:var(--ink);font-size:18px;cursor:pointer;box-shadow:0 6px 18px rgba(10,19,48,.16);}
 .deck-controls button:hover{background:var(--blue);color:#fff;}
+.present-btn{width:auto !important;padding:0 18px;font-family:"Space Grotesk";font-weight:700;font-size:15px;letter-spacing:.02em;color:#fff !important;background:var(--grad) !important;}
+.present-btn:hover{filter:brightness(1.08);}
+body:fullscreen .present-btn,body:-webkit-full-screen .present-btn{display:none;}
 .deck-counter{background:#fff;border-radius:10px;padding:9px 14px;box-shadow:0 6px 18px rgba(10,19,48,.16);}
 .deck-progress{position:fixed;left:0;top:0;height:5px;background:var(--grad);z-index:1000;transition:width .25s ease;}
 .notes{display:none;}
@@ -686,24 +689,6 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
     <aside class="notes">MinIO is the connective tissue. One S3 API for Spark, Flink, Connect.</aside>
   </section>
 
-  <!-- 18 GRAFANA -->
-  <section class="slide">
-    <span class="s-no">22</span>
-    <div class="s-head"><img class="s-logo" src="assets/logowithoubackground.png"/><span class="s-kicker"><span class="dot"></span>Observability</span></div>
-    <h2 class="s-title">Live dashboards read <span class="g">Cassandra directly</span></h2>
-    <div class="s-rule"></div>
-    <div class="s-body">
-      <ul class="feat sm">
-        <li>Plugin: <code>hadesarchitect-cassandra-datasource</code> (CQL :9042)</li>
-        <li>Dashboard "CasaMotion — Live Pipeline", 5 s refresh, <code>$date_bucket</code></li>
-        <li>Panels: road-snapped geomap, demand heatmap, active vehicles, pending requests, trips-by-status</li>
-        <li><code>snap_dist_m</code> surfaced for road-realism checks</li>
-      </ul>
-      <div class="live" style="margin-top:22px"><span class="play"></span><span>Grafana · taxis on streets + demand · <b>http://localhost:3000</b></span></div>
-    </div>
-    <aside class="notes">Grafana talks straight to Cassandra. Geomap shows taxis on roads; snap distance exposed for verification.</aside>
-  </section>
-
   <!-- 23 FRONTEND -->
   <section class="slide">
     <span class="s-no">23</span>
@@ -733,62 +718,6 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
     <aside class="notes">This is the public face of CasaMotion — a polished landing page that frames the platform for stakeholders. I'll open it live to show the product narrative end-to-end before the technical demo.</aside>
   </section>
 
-  <!-- 20 DEPLOYMENT -->
-  <section class="slide">
-    <span class="s-no">24</span>
-    <div class="s-head"><img class="s-logo" src="assets/logowithoubackground.png"/><span class="s-kicker"><span class="dot"></span>Deployment</span></div>
-    <h2 class="s-title">One command brings up <span class="g">16 containers</span></h2>
-    <div class="s-rule"></div>
-    <div class="s-body">
-      <ul class="feat sm">
-        <li><code>docker compose up -d</code> → Kafka, Connect, Kafka UI, MinIO, Cassandra, Flink JM+TMs, Spark master/worker, Grafana, Jupyter, producers, API</li>
-        <li>Healthchecks gate dependent services; named volumes persist state; network <code>taasim-net</code></li>
-        <li>Ops scripts: <code>register-connectors</code>, <code>ensure-cassandra-schema</code>, <code>submit-flink-jobs</code>, <code>verify-flink-jobs</code></li>
-      </ul>
-      <div class="live" style="margin-top:22px"><span class="play"></span><span>Verify: <b>demo-healthcheck.ps1</b> — 16 checks, all green</span></div>
-    </div>
-    <aside class="notes">Reproducible from a single compose file. Healthcheck verifies all 16 containers, 3 Flink jobs, freshness.</aside>
-  </section>
-
-  <!-- 21 TESTING -->
-  <section class="slide">
-    <span class="s-no">25</span>
-    <div class="s-head"><img class="s-logo" src="assets/logowithoubackground.png"/><span class="s-kicker"><span class="dot"></span>Testing &amp; Validation</span></div>
-    <h2 class="s-title">Evidence-driven, <span class="g">not claim-driven</span></h2>
-    <div class="s-rule"></div>
-    <div class="s-body">
-      <ul class="feat">
-        <li><b>Demo healthcheck:</b> 16 checks — containers, Flink RUNNING, vehicle_positions 3.5 s, demand_zones 84 s, trips today</li>
-        <li><b>Movement realism:</b> 4 automated checks pass (8/8 distinct, 139/139 moving, 200/200 within 100 m, 80/80 in bbox)</li>
-        <li><b>Late-event/watermark test:</b> <code>scripts/test_late_events.py</code></li>
-        <li><b>ML validation:</b> temporal split, baseline-beat table, per-zone RMSE</li>
-      </ul>
-    </div>
-    <aside class="notes">Everything we claim, we verify with a script.</aside>
-  </section>
-
-  <!-- 22 PERFORMANCE -->
-  <section class="slide">
-    <span class="s-no">26</span>
-    <div class="s-head"><img class="s-logo" src="assets/logowithoubackground.png"/><span class="s-kicker"><span class="dot"></span>Performance</span></div>
-    <h2 class="s-title">We meet or beat <span class="g">every measured target</span></h2>
-    <div class="s-rule"></div>
-    <div class="s-body">
-      <table class="sm">
-        <thead><tr><th>Metric</th><th>Target</th><th>Measured</th></tr></thead>
-        <tbody>
-          <tr><td>Trip match latency (P95)</td><td>&lt; 5 s</td><td><b>&#8776; 1.2 s</b> &#10003;</td></tr>
-          <tr><td>GPS position freshness</td><td>&lt; 15 s</td><td><b>&#8776; 4 s</b> &#10003;</td></tr>
-          <tr><td>Demand zone updates</td><td>every 30 s</td><td>30 s tumbling &#10003;</td></tr>
-          <tr><td>Spark Porto ETL (1.7M)</td><td>&lt; 5 min</td><td>43 MiB Parquet &#10003;</td></tr>
-          <tr><td>Flink checkpoints</td><td>60 s cadence</td><td>25 consecutive, 0 failures &#10003;</td></tr>
-          <tr><td>ML forecast API</td><td>&lt; 500 ms @ 20 RPS</td><td>Locust run pending</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <aside class="notes">Meet or beat every measured target. Open item: formal load test of the forecast API.</aside>
-  </section>
-
   <!-- 26 FUTURE -->
   <section class="slide">
     <span class="s-no">30</span>
@@ -809,6 +738,32 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
   </section>
 
 
+
+  <!-- CONCLUSION -->
+  <section class="slide">
+    <span class="s-no">27</span>
+    <div class="s-head"><img class="s-logo" src="assets/logowithoubackground.png"/><span class="s-kicker"><span class="dot"></span>Conclusion</span></div>
+    <h2 class="s-title">From fragmented taxis to a <span class="g">live data platform</span></h2>
+    <div class="s-rule"></div>
+    <div class="s-body">
+      <div class="cols top" style="gap:54px">
+        <div>
+          <ul class="feat sm">
+            <li><b>Problem solved:</b> Casablanca's supply &amp; demand now share one real-time data layer</li>
+            <li><b>End-to-end pipeline:</b> Producers → Kafka → 3 Flink jobs → Cassandra → Grafana &amp; API</li>
+            <li><b>Real intelligence:</b> H3 demand zoning, sub-5 s rider–vehicle matching, ML forecasting</li>
+            <li><b>Engineered to last:</b> Kappa architecture, replayable streams, reproducible in one command</li>
+          </ul>
+        </div>
+        <div class="stats" style="flex-direction:column;gap:16px">
+          <div class="stat"><div class="n">16</div><div class="l">containers, one <code>docker compose up</code></div></div>
+          <div class="stat"><div class="n">3</div><div class="l">Flink jobs on a single replayable bus</div></div>
+          <div class="stat"><div class="n">&#8776;1.2 s</div><div class="l">trip-match latency (target &lt; 5 s)</div></div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">Wrap-up: we reframed a transport problem as a data problem and shipped a complete, running platform. Every number on screen is measured, not promised. Next steps are hardening and a real fleet pilot.</aside>
+  </section>
 
   <!-- CLOSING -->
   <section class="slide closing">
@@ -852,6 +807,7 @@ body.notes-on .slide.active .notes{display:block;position:fixed;left:0;right:0;b
   <button id="prev" aria-label="Previous">&#8249;</button>
   <span class="deck-counter"><span id="cur">1</span> / <span id="tot">1</span></span>
   <button id="next" aria-label="Next">&#8250;</button>
+  <button id="present" class="present-btn" aria-label="Present fullscreen" title="Present (F)">&#9974; Present</button>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -883,13 +839,18 @@ function next(){ show(i+1); }
 function prev(){ show(i-1); }
 document.getElementById('next').onclick = next;
 document.getElementById('prev').onclick = prev;
+function toggleFullscreen(){
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen(); }
+  else { document.exitFullscreen(); }
+}
+document.getElementById('present').onclick = function(e){ e.stopPropagation(); toggleFullscreen(); };
 window.addEventListener('keydown', function(e){
   if(['ArrowRight','PageDown',' '].indexOf(e.key)>-1){ e.preventDefault(); next(); }
   else if(['ArrowLeft','PageUp'].indexOf(e.key)>-1){ e.preventDefault(); prev(); }
   else if(e.key==='Home'){ show(0); }
   else if(e.key==='End'){ show(tot-1); }
   else if(e.key.toLowerCase()==='n'){ document.body.classList.toggle('notes-on'); }
-  else if(e.key.toLowerCase()==='f'){ if(!document.fullscreenElement){document.documentElement.requestFullscreen();} else {document.exitFullscreen();} }
+  else if(e.key.toLowerCase()==='f'){ toggleFullscreen(); }
 });
 document.querySelector('.deck-viewport').addEventListener('click', function(e){
   if(e.target.closest('.deck-controls')) return;
